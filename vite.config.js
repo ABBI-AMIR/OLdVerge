@@ -5,8 +5,14 @@ import react from '@vitejs/plugin-react';
 // (an explicit allow-list) onto the VITE_* names the app reads. Server-only values such as
 // SUPABASE_SERVICE_ROLE_KEY, SUPABASE_SECRET_KEY or POSTGRES_* are never read here and never reach the bundle.
 const PUBLIC_ALIASES = {
-  VITE_SUPABASE_URL: ['NEXT_PUBLIC_SUPABASE_URL'],
-  VITE_SUPABASE_PUBLISHABLE_KEY: ['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'],
+  VITE_SUPABASE_URL: ['NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_URL'],
+  VITE_SUPABASE_PUBLISHABLE_KEY: [
+    'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
+    'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+    'VITE_SUPABASE_ANON_KEY',
+    'SUPABASE_PUBLISHABLE_KEY',
+    'SUPABASE_ANON_KEY',
+  ],
 };
 
 export default defineConfig(({ mode }) => {
@@ -17,5 +23,9 @@ export default defineConfig(({ mode }) => {
     const source = sources.find((name) => env[name]);
     if (source) define[`import.meta.env.${target}`] = JSON.stringify(env[source]);
   }
-  return { plugins: [react()], define };
+  return {
+    plugins: [react()],
+    envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
+    define,
+  };
 });

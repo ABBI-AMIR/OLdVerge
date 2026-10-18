@@ -11,6 +11,12 @@ describe('backend configuration', () => {
   it('uses the backend only with an https project URL and a public key', () => {
     const ok = resolveBackend({ VITE_SUPABASE_URL: 'https://abcd.supabase.co/', VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_0123456789abcdefghij' });
     expect(ok).toMatchObject({ mode: 'supabase', configured: true, url: 'https://abcd.supabase.co', functionsUrl: 'https://abcd.supabase.co/functions/v1' });
+
+    const vercelOk = resolveBackend({ NEXT_PUBLIC_SUPABASE_URL: 'https://abcd.supabase.co/', NEXT_PUBLIC_SUPABASE_ANON_KEY: 'sb_publishable_0123456789abcdefghij' });
+    expect(vercelOk).toMatchObject({ mode: 'supabase', configured: true, url: 'https://abcd.supabase.co', functionsUrl: 'https://abcd.supabase.co/functions/v1' });
+
+    const rawOk = resolveBackend({ SUPABASE_URL: 'https://abcd.supabase.co/', SUPABASE_ANON_KEY: 'sb_publishable_0123456789abcdefghij' });
+    expect(rawOk).toMatchObject({ mode: 'supabase', configured: true, url: 'https://abcd.supabase.co', functionsUrl: 'https://abcd.supabase.co/functions/v1' });
   });
 
   it('refuses a secret or service-role key placed in a browser variable', () => {
