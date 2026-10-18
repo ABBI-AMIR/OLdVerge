@@ -69,7 +69,7 @@ No secrets, tokens, real emails or phone numbers anywhere in the tree; no `dange
 - Dependencies: production audit 0 findings; development audit 7 (decision O). No `npm audit fix --force` was run.
 
 ## 5. Tooling added
-`.gitignore`, `.gitattributes` (LF), `.env.example`, `.nvmrc` (22), `eslint.config.js`, `engines.node` `^22.13.0 || >=24.0.0` (ESLint 10 and Vitest 5 require it; the production build alone also works on Node 20.19+), `license` `UNLICENSED`, scripts `lint` and `test`, three Vitest suites, CI workflow (lint, test, build; `contents: read`; no secrets; no deploy) stored as `docs/ci/ci.yml`, **not active**: the GitHub CLI login lacked the `workflow` scope when pushing, so GitHub rejected `.github/workflows/ci.yml`, `CONTRIBUTING.md`.
+`.gitignore`, `.gitattributes` (LF), `.env.example`, `.nvmrc` (22), `eslint.config.js`, `engines.node` `^22.13.0 || >=24.0.0` (ESLint 10 and Vitest 5 require it; the production build alone also works on Node 20.19+), `license` `UNLICENSED`, scripts `lint` and `test`, three Vitest suites, `.github/workflows/ci.yml` (lint, test, build; `contents: read`; no secrets; no deploy; added in a second commit after the GitHub login received the `workflow` scope), `CONTRIBUTING.md`.
 
 ESLint enables `rules-of-hooks` (error) and `exhaustive-deps` (warning) from `eslint-plugin-react-hooks` but not its React Compiler rules (`set-state-in-effect`, `refs`, `static-components`, ...), which flagged about ten established patterns as style findings. They can be adopted later with the React Compiler.
 

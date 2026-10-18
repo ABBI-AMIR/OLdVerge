@@ -21,7 +21,7 @@ npm run dev     # dev server, usually http://localhost:5173
 | `npm run build` | Production build to `dist/` |
 | `npm run preview` | Serve `dist/` locally |
 
-The CI workflow (`npm ci`, lint, tests, build on pull requests and pushes to `main`; read-only token, no secrets) is stored as `docs/ci/ci.yml` and is **not active yet**: GitHub only accepts files under `.github/workflows/` from a login that has the `workflow` permission. To activate it, grant that permission (`gh auth refresh -s workflow`), then run `git mv docs/ci/ci.yml .github/workflows/ci.yml`, commit and push. Until then run the same three commands locally.
+CI (`.github/workflows/ci.yml`) runs `npm ci`, lint, tests and the build on pull requests and on pushes to `main`. It uses a read-only token and no secrets.
 
 ## Environment variables
 Names only; copy `.env.example` to `.env.local` if you need one. Only public values belong in `VITE_*` variables, because Vite inlines them into the browser bundle.

@@ -16,7 +16,7 @@ This is a private project. The workflow below applies to everyone, including cod
    ```
    For UI changes also check 390, 768 and 1440 px in a browser: no horizontal overflow, console clean, drawers and menus close with Escape.
 6. Commit with a message that says what and why.
-7. Push the branch and open a pull request. Once the CI workflow is active (it is prepared in `docs/ci/ci.yml`; see README), wait for it and fix failures at the cause; do not weaken a check to get green. Until then run lint, tests and build locally before pushing.
+7. Push the branch and open a pull request. Wait for CI (`.github/workflows/ci.yml`) and fix failures at the cause; do not weaken a check to get green.
 
 ## Rules
 - Never commit secrets or `.env*` files. Only `.env.example` (names, blank values) is tracked. Only public values may use the `VITE_` prefix.

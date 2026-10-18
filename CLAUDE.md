@@ -20,7 +20,7 @@ OLDVERGE is a watch and menswear brand (Pakistan, prices in PKR). This repo is a
 - Icons: `lucide-react`.
 - Styling: **hand-written CSS**: `src/styles.css` (small legacy base), `src/home.css` (current design), `src/store.css` (shop journey). Tailwind 3.4 + PostCSS are installed and only `@tailwind base` is loaded (Preflight, the base reset the layout relies on). **No Tailwind utility classes are used.** Do not write Tailwind utilities, and do not remove the directives, without agreeing it first (see `docs/code-audit.md`).
 - No backend, database, auth, payment or email integration. The only network call is the optional contact form POST. The only env variable read is `VITE_CONTACT_FORM_ENDPOINT` (see `.env.example`).
-- Quality gates: `npm run lint` (ESLint flat config), `npm test` (Vitest, unit tests for money, filters and store), `npm run build`. CI workflow: prepared as `docs/ci/ci.yml`, not active yet (see README, "Scripts"); move it to `.github/workflows/ci.yml` once the GitHub login has the `workflow` permission.
+- Quality gates: `npm run lint` (ESLint flat config), `npm test` (Vitest, unit tests for money, filters and store), `npm run build`. CI: `.github/workflows/ci.yml`.
 
 ## Commands
 - `npm ci` (use the lockfile) · `npm run dev` · `npm run lint` · `npm test` · `npm run build` · `npm run preview`
