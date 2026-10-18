@@ -23,6 +23,11 @@ const STATUS = {
   invalid_transition: 409,
   not_publishable: 409,
   not_ready_to_sell: 409,
+  below_reserved: 409,
+  payment_not_settled: 409,
+  refund_exceeds_total: 409,
+  image_not_approved: 409,
+  image_approval_via_function_only: 403,
 };
 
 export const dbErrorCode = (error) => {

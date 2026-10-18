@@ -28,7 +28,7 @@ export function createGateway({ client, callFunction, onProblem }) {
     client,
     /** Calls a database function. Resolves with its result or throws AdminError. */
     rpc: (name, args) => guard(() => unwrap(client.rpc(name, args))),
-    /** build(client) returns a query (client.from(...).select(...)). Resolves with data or throws AdminError. */
+    /** build(client) returns a query or storage call that resolves { data, error }. Resolves with data or throws AdminError. */
     query: (build) => guard(() => unwrap(build(client))),
     /** Calls an Edge Function. Resolves with the parsed body or throws AdminError. */
     fn: (name, body, options) => guard(async () => {
@@ -36,7 +36,5 @@ export function createGateway({ client, callFunction, onProblem }) {
       if (!result.ok) throw new AdminError({ status: result.status, ...(result.data && typeof result.data === 'object' ? result.data : {}) });
       return result.data;
     }),
-    /** Runs any other client call that resolves to { data, error } (storage, auth-adjacent calls). */
-    call: (build) => guard(() => unwrap(build(client))),
   };
 }

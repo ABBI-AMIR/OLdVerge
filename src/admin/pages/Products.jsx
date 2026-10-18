@@ -134,7 +134,7 @@ function Details({ product, categories, brands, isNew, onSaved }) {
   );
 }
 
-function StatusPanel({ product, rev, onChanged, canDelete }) {
+function StatusPanel({ product, rev, onChanged }) {
   const { gateway } = useAdmin();
   const navigate = useNavigate();
   const notice = useNotice();
@@ -184,7 +184,7 @@ function StatusPanel({ product, rev, onChanged, canDelete }) {
         {product.ready_to_sell ? <Button busy={busy} onClick={() => setStatus({ ready_to_sell: false }, 'No longer ready to sell.')}>Remove “ready to sell”</Button> : null}
         {product.status === 'archived' ? <Button busy={busy} onClick={() => setStatus({ status: 'draft' }, 'Restored to draft.')}>Restore to draft</Button> : null}
         {product.status !== 'archived' ? <Button tone="danger" busy={busy} onClick={archive}>Archive</Button> : null}
-        {product.status === 'draft' && canDelete ? <Button tone="danger" busy={busy} onClick={remove}>Delete draft</Button> : null}
+        {product.status === 'draft' ? <Button tone="danger" busy={busy} onClick={remove}>Delete draft</Button> : null}
       </div>
       {dialog}
     </Card>
@@ -216,10 +216,10 @@ export function ProductEditor() {
       <LoadState loading={lookups.loading || (!isNew && product.loading)} error={lookups.error || product.error} data={lookups.data && (isNew || product.data)} onRetry={() => { lookups.reload(); product.reload(); }} empty={missing} emptyText="That product does not exist.">
         {lookups.data && (isNew || product.data) ? (
           <>
-            <Details key={product.data?.updated_at || 'new'} product={product.data} categories={lookups.data.categories} brands={lookups.data.brands} isNew={isNew} onSaved={() => product.reload()} />
+            <Details key={product.data?.id || 'new'} product={product.data} categories={lookups.data.categories} brands={lookups.data.brands} isNew={isNew} onSaved={() => product.reload()} />
             {!isNew ? (
               <>
-                <StatusPanel product={product.data} rev={rev} onChanged={() => { product.reload(); bump(); }} canDelete />
+                <StatusPanel product={product.data} rev={rev} onChanged={() => { product.reload(); bump(); }} />
                 <ProductVariants product={product.data} onChanged={bump} />
                 <ProductImages product={product.data} onChanged={bump} />
               </>
