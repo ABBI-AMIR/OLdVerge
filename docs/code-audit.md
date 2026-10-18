@@ -82,9 +82,10 @@ ESLint enables `rules-of-hooks` (error) and `exhaustive-deps` (warning) from `es
 | `npm audit --omit=dev` | 0 vulnerabilities |
 | Layout fingerprints, 17 routes x 390/768/1440 px, before vs after all CSS changes (computed layout/colour/type of every element, in document order) | 48 of 51 identical; on the 3 home captures every baseline element is still present and identical, plus 99/132/165 extra elements that are the featured carousel's loop clones (created by its animation loop, which did not run when the baseline was taken in a hidden pane). No element changed style. |
 | Browser (Vite dev server): add to bag x10 caps at 9 with the limit message; Buy now leaves the bag unchanged; search panel and filter drawer open, Escape closes, scroll lock released; `/faq#%E0%A4%A` loads; console clean; no horizontal overflow at the pane width | passed |
-| Clean-clone install and build | see section 7 |
+| Clean-clone install and build | Passed in a disposable copy of the tracked files (`npm ci`, lint, tests, build) |
+| GitHub Actions on the pushed commit `590ff69` (Linux, Node 22) | Passed: `npm ci`, lint, tests, build (run 39134102607). Annotation: checkout/setup-node v4 run on a deprecated Node 20 runtime |
 
-**Not verified:** real touch devices, Safari, Firefox, screen readers, Lighthouse/performance, reduced-motion behaviour of changed code, hover reveals with a real mouse, a contact form with a real endpoint, `npm run preview`, GitHub Actions (nothing is pushed yet). The embedded browser pane runs at about one frame per second and was sometimes hidden, so exit animations (for example the filter drawer) did not finish there; layout was confirmed by computed-style measurement instead of screenshots.
+**Not verified:** real touch devices, Safari, Firefox, screen readers, Lighthouse/performance, reduced-motion behaviour of changed code, hover reveals with a real mouse, a contact form with a real endpoint, `npm run preview`, real-device behaviour that CI cannot see. The embedded browser pane runs at about one frame per second and was sometimes hidden, so exit animations (for example the filter drawer) did not finish there; layout was confirmed by computed-style measurement instead of screenshots.
 
 ## 7. Agent review responsibilities and conclusions
 - Four audit agents were read-only and reported findings; the lead agent alone edited files and handles Git.
