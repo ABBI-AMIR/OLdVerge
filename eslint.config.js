@@ -25,7 +25,7 @@ export default [
     },
   },
   {
-    files: ['*.config.js', 'scripts/**/*.{js,mjs}'],
+    files: ['*.config.js', 'scripts/**/*.{js,mjs}', 'supabase/**/*.{js,mjs,ts}'],
     languageOptions: { globals: { ...globals.node } },
   },
   {
