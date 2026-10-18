@@ -1,0 +1,60 @@
+# dependencies and build output
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.tsbuildinfo
+coverage/
+
+# environment files (keep the safe example)
+.env
+.env.*
+!.env.example
+*.local
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*~
+
+# local tooling state (never commit agent or vault state)
+.claude/
+.obsidian/
+.trash/
+
+# Python virtual environments and bulky archives (image tooling lives outside this repo)
+.venv/
+venv/
+rembg-env/
+__pycache__/
+*.pyc
+*.zip
+*.7z
+*.rar
+*.tar
+*.tar.gz
+*.tgz
+
+# future backend: never commit local databases, dumps, exports, private uploads or function secrets
+supabase/.branches/
+supabase/.temp/
+supabase/functions/.env
+supabase/functions/.env.*
+*.dump
+*.sql.gz
+*.sqlite
+*.sqlite3
+backups/
+exports/
