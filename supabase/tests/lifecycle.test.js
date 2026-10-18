@@ -230,6 +230,7 @@ describe('order lifecycle, stock semantics and payment events', () => {
       await db.main.query("insert into public.product_images (product_id, bucket, path, is_cover, source_name) values ($1, 'product-private', 'drafts/readiness.webp', true, 'Test')", [p]);
       const imageId = (await db.main.query("select id from public.product_images where product_id = $1", [p])).rows[0].id;
       await expectOvError(rpc('admin_approve_image', [imageId, 'products/readiness-test/v1/cover.webp']), 'provenance_required');
+      await db.main.query("insert into storage.objects (bucket_id, name) values ('product-public', 'products/readiness-test/v1/cover.webp')");
       await db.main.query("update public.product_images set licence = 'Test licence' where id = $1", [imageId]);
       await rpc('admin_approve_image', [imageId, 'products/readiness-test/v1/cover.webp']);
       await db.main.query('update public.products set ready_to_sell = true where id = $1', [p]);

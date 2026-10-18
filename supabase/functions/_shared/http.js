@@ -53,9 +53,13 @@ export function bearerToken(request) {
 }
 
 export const clientIp = (request) => {
+  // cf-connecting-ip is set by the platform's edge and cannot be supplied by the client. The first
+  // X-Forwarded-For entry can, so only the last hop (appended by the nearest trusted proxy) is used as a fallback.
+  const cf = request.headers.get('cf-connecting-ip');
+  if (cf) return cf.trim();
   const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) return forwarded.split(',')[0].trim();
-  return request.headers.get('cf-connecting-ip') || request.headers.get('x-real-ip') || 'unknown';
+  if (forwarded) return forwarded.split(',').pop().trim();
+  return request.headers.get('x-real-ip') || 'unknown';
 };
 
 export const requestId = () => crypto.randomUUID();

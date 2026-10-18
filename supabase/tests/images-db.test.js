@@ -31,7 +31,10 @@ describe('image approval integrity', () => {
 
   it('approves only through the function, and only an approved image can be the cover (atomically)', async () => {
     await expectOvError(asStaff((c) => c.query('select public.admin_set_cover_image($1)', [imageId])), 'image_not_approved');
+    await expectOvError(asStaff((c) => c.query("select public.admin_approve_image($1, 'products/casio-test/v2/a.webp')", [imageId])), 'public_copy_missing');
+    await db.main.query("insert into storage.objects (bucket_id, name) values ('product-public', 'products/casio-test/v2/a.webp')");
     await asStaff((c) => c.query("select public.admin_approve_image($1, 'products/casio-test/v2/a.webp')", [imageId]));
+    await expectOvError(asStaff((c) => c.query('select public.admin_reject_image($1)', [imageId])), 'not_found');   // already public: no silent success
     expect((await db.main.query('select bucket, approval_status from public.product_images where id = $1', [imageId])).rows[0]).toEqual({ bucket: 'product-public', approval_status: 'approved' });
     await asStaff((c) => c.query('select public.admin_set_cover_image($1)', [imageId]));
     const covers = (await db.main.query('select id from public.product_images where product_id = $1 and is_cover', [ids.watchProduct])).rows;

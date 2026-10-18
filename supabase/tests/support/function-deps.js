@@ -40,13 +40,19 @@ export function makeDeps(db, { env = {}, mailer = null } = {}) {
       const key = `${bucket}/${path}`;
       if (store.has(key)) return { error: { message: 'The resource already exists' } };
       store.set(key, bytes);
+      // Mirror the object row the real Storage API creates, so database checks can see it.
+      await db.main.query('insert into storage.objects (bucket_id, name) values ($1, $2)', [bucket, path]);
       return { data: { path }, error: null };
     },
     async download(path) {
       const bytes = store.get(`${bucket}/${path}`);
       return bytes ? { data: { arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) }, error: null } : { data: null, error: { message: 'not found' } };
     },
-    async remove(paths) { paths.forEach((p) => store.delete(`${bucket}/${p}`)); return { error: null }; },
+    async remove(paths) {
+      paths.forEach((p) => store.delete(`${bucket}/${p}`));
+      await db.main.query('delete from storage.objects where bucket_id = $1 and name = any($2)', [bucket, paths]);
+      return { error: null };
+    },
   });
   const environment = {
     TOKEN_SECRET: 'unit-test-token-secret-0123456789abcdef',

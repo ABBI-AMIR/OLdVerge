@@ -18,7 +18,11 @@ describe('Edge Function handlers against the real database', () => {
     deps = makeDeps(db);
   });
   afterAll(async () => { await db.close(); });
-  beforeEach(async () => { await db.main.query('update public.inventory set on_hand = 50, reserved = 0'); });
+  beforeEach(async () => {
+    await db.main.query('update public.inventory set on_hand = 50, reserved = 0');
+    // Every test reuses one customer email; reset only the per-contact order limit between tests.
+    await db.main.query("delete from private.rate_limits where bucket_key like 'create-order-contact:%'");
+  });
 
   const call = async (handler, body, options) => {
     const response = await handler(jsonRequest(`${URL_BASE}x`, body, options));
@@ -131,12 +135,29 @@ describe('Edge Function handlers against the real database', () => {
       const handler = createOrder(deps);
       const statuses = [];
       for (let i = 0; i < 12; i += 1) {
+        await db.main.query("delete from private.rate_limits where bucket_key like 'create-order-contact:%'");   // isolate the per-IP limit
         statuses.push((await call(handler, orderBody(ids.zipM, 1, { expected_total_pkr: 1 }), { headers: { 'x-forwarded-for': '203.0.113.50' } })).status);
       }
       expect(statuses.slice(0, 10).every((s) => s === 409)).toBe(true);
       expect(statuses.slice(10)).toEqual([429, 429]);
       const broken = { ...deps, admin: { ...deps.admin, rpc: async () => ({ data: null, error: { message: 'db down' } }) } };
       expect((await call(createOrder(broken), orderBody(ids.zipM, 1), { headers: { 'x-forwarded-for': '198.51.100.9' } })).status).toBe(429);
+    });
+
+    it('cannot be bypassed by a spoofed X-Forwarded-For, and limits orders per contact', async () => {
+      const handler = createOrder(deps);
+      const spoofed = [];
+      for (let i = 0; i < 12; i += 1) {
+        await db.main.query("delete from private.rate_limits where bucket_key like 'create-order-contact:%'");
+        spoofed.push((await call(handler, orderBody(ids.zipM, 1, { expected_total_pkr: 1 }), { headers: { 'cf-connecting-ip': '192.0.2.77', 'x-forwarded-for': `10.0.0.${i}` } })).status);
+      }
+      expect(spoofed.slice(10)).toEqual([429, 429]);
+      const perContact = [];
+      for (let i = 0; i < 9; i += 1) {
+        perContact.push((await call(handler, orderBody(ids.zipM, 1, { expected_total_pkr: 1 }), { headers: { 'cf-connecting-ip': `192.0.2.${100 + i}` } })).status);
+      }
+      expect(perContact.slice(0, 8).every((s) => s === 409)).toBe(true);
+      expect(perContact[8]).toBe(429);
     });
 
     it('binds a signed-in customer to the order and rejects an invalid session instead of treating it as a guest', async () => {

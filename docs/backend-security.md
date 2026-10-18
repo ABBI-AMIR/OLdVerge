@@ -47,3 +47,23 @@ Admin changes to catalogue, settings, shipping/payment, policies, messages and r
 - Hosted Supabase behaviour (platform-added grants, Auth email settings) has not been verified.
 - Admin MFA is available (`require_mfa` setting + TOTP) but off by default: turn it on before launch.
 - No automated dependency/secret scanning service is enabled.
+
+## Independent review (2026-10-18)
+A separate read-only agent reviewed migrations, functions and frontend. Fixed (migration `20261019001000_security_review_fixes.sql`, `_shared/http.js`, `_shared/handlers.js`, `_shared/errors.js`; covered by DB tests):
+- Rate-limit key used the client-controlled first `X-Forwarded-For` entry: now `cf-connecting-ip`, else the last hop.
+- Added a per-contact limit on `create-order` (8 per hour per email/phone hash) against fake COD orders that tie up stock.
+- `admin_approve_image` / `admin_reject_image` reported success on 0 rows (PERFORM resets FOUND): now `ROW_COUNT`; approval also requires the validated public object to exist.
+- Admin clients can no longer write to or list `product-public`; only the service role (after byte validation) writes there. Nobody can list it through the API.
+- Exact stock (`available`) removed from public error details.
+- `site_images` gained an approval guard trigger. `private.get_setting` now reads private settings first, so admins cannot override them through `store_settings`.
+
+Open (accepted for now, must be handled before launch):
+- **Turnstile is not wired into the storefront**: `TURNSTILE_SECRET_KEY` is optional because no widget exists yet. Add the widget plus the secret before opening ordering.
+- COD orders take stock immediately; with the limits above, fake orders still need an admin to cancel them.
+- Newsletter has no double opt-in (needs an email provider), and the unsubscribe token never rotates.
+- Possible lock-order deadlock between checkout and admin cancel/payment events (checkout retries once; admin RPCs do not).
+- `apply_payment_event` is not tied to the order's payment method (webhook currently returns 501).
+- Order-status per-order lookup limit can be spent by anyone who knows the order number.
+- Only JPEG EXIF is detected; XMP metadata in other formats may pass.
+- A misconfigured production build (bad URL/key) silently runs demo mode; consider failing the build.
+- `require_mfa` defaults to false; turn it on in `/admin` Security.

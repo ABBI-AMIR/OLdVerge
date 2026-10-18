@@ -62,6 +62,9 @@ export const createOrder = (deps) => endpoint({
       lines: v.lines(body.lines), shipping_method: v.code(body.shipping_method, 'shipping_method'), payment_method: v.code(body.payment_method, 'payment_method'),
       contact: v.contact(body.contact), address: v.address(body.address),
     };
+    // Per-contact limit (on top of the per-IP limit) so one person cannot tie up stock with many unpaid orders.
+    const contactKey = toHex(await sha256(`${String(payload.contact.email || payload.contact.phone || '').toLowerCase()}:${secret}`));
+    if (!(await hit(deps, `create-order-contact:${contactKey}`, 8, 3600))) throw new HttpError(429, { error: 'rate_limited' });
     const expected = v.integer(body.expected_total_pkr, 'expected_total_pkr', { min: 0, max: 1000000000 });
     const result = await rpc(deps.admin, 'create_order', {
       p_order_id: orderId, p_user_id: userId, p_scope_hash: toBytea(scopeHash), p_idempotency_key: key, p_payload: payload,

@@ -41,7 +41,12 @@ export function mapDbError(error, requestId) {
   if (known && STATUS[known]) {
     const body = { error: known };
     if (error.details) {
-      try { body.details = JSON.parse(error.details); } catch { /* detail was not JSON */ }
+      try {
+        const details = JSON.parse(error.details);
+        // Exact stock counts are never shown publicly: drop them from customer-facing errors.
+        if (details && typeof details === 'object') delete details.available;
+        body.details = details;
+      } catch { /* detail was not JSON */ }
     }
     return { status: STATUS[known], body };
   }
