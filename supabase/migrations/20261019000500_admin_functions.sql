@@ -200,7 +200,8 @@ begin
      where s.key in ('contact.email', 'contact.phone', 'contact.whatsapp') and s.value <> 'null'::jsonb and s.value <> '""'::jsonb) then problems := array_append(problems, 'no_contact_channel'); end if;
   if exists (
     select 1 from public.policy_pages pp
-     where pp.slug in ('shipping', 'refund-policy', 'privacy-policy', 'terms-and-conditions') and pp.published_at is null) then problems := array_append(problems, 'policies_not_published'); end if;
+     -- Seeded placeholder text does not count: an admin must have published each policy (updated_by is set by admin_publish_policy).
+       where pp.slug in ('shipping', 'refund-policy', 'privacy-policy', 'terms-and-conditions') and (pp.published_at is null or pp.updated_by is null)) then problems := array_append(problems, 'policies_not_published'); end if;
   return jsonb_build_object('ready', cardinality(problems) = 0, 'problems', to_jsonb(problems));
 end;
 $$;

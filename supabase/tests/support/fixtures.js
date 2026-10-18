@@ -56,7 +56,7 @@ export async function seedStore(db) {
   await q("insert into public.shipping_rates (method_code, zone_code, price_pkr, free_over_pkr) values ('standard', 'pakistan', 250, 20000)");
   await q("update public.store_settings set value = to_jsonb('hello@example.test'::text) where key = 'contact.email'");
   await q("update public.policy_drafts set sections = '[{\"heading\":\"Test\",\"body\":[\"Test text\"]}]'");
-  await q("update public.policy_pages p set published_sections = d.sections, version = 1, published_at = now() from public.policy_drafts d where d.slug = p.slug");
+  await q("update public.policy_pages p set published_sections = d.sections, version = 1, published_at = now(), updated_by = $1 from public.policy_drafts d where d.slug = p.slug", [ids.owner]);
   return ids;
 }
 
