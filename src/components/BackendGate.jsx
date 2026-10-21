@@ -4,9 +4,12 @@ import { useCatalog } from '../data/catalog.js';
 import { useSite } from '../data/site.js';
 import { useStore } from '../store.js';
 import { useAuth } from '../lib/auth.js';
+import { useCartSync } from '../lib/cartSync.js';
 
 /** Starts loading the store content once and re-checks the bag against the catalogue when it arrives (backend mode). */
 export function useBackendBootstrap() {
+  useCartSync();
+
   useEffect(() => {
     if (!isBackend) return;
     useAuth.getState().init();

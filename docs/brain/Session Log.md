@@ -7,6 +7,22 @@ updated: 2026-10-18
 
 Newest first. Each entry: what changed, files, verified / not verified. Add an entry after every piece of work ([[How to Use This Brain]]). Template: `Templates/Session Entry`.
 
+## 2026-10-20: Customer Cart Persistence & Production Backend Integration
+- **Asked**: Fully integrate existing storefront with production-ready Supabase backend, database migrations, RLS policies, customer cart persistence, multi-device sync, seed data, and testing.
+- **Done**:
+  - Added Migration `20261019001100_customer_cart.sql`: Created `public.customer_cart_items` table with RLS, cascade references, timestamps trigger, and atomic `public.sync_customer_cart(p_lines)` function with 9-quantity capping and active variant validation.
+  - Re-generated `supabase/full-schema-setup.sql` consolidating all 11 migrations (148 KB) for copy-paste execution in the Supabase SQL Editor.
+  - Implemented `src/lib/cartSync.js` and `useCartSync()` hook wired into `src/components/BackendGate.jsx` to synchronize guest cart items on login and persist mutations across devices.
+  - Created unit tests in `src/lib/cartSync.test.js` and database tests in `supabase/tests/cart.test.js` for customer cart operations, RLS isolation, and atomic merge.
+  - Updated `README.md` with full setup instructions, architecture explanation, environment variables guide, and deployment steps.
+- **Verified**:
+  - `npm test`: All 15 test suites and 209 unit tests passed.
+  - `npm run test:db`: All 10 database test suites and 103 tests passed on embedded PostgreSQL 17.
+  - `npm run lint`: ESLint flat config passed with 0 errors/warnings.
+  - `npm run build`: Production Vite build completed successfully in 6.75s.
+  - `scripts/migrate-assets.mjs`: Dry run verified 31/31 assets valid.
+- **Not verified**: Live network calls to hosted Supabase cloud (requires user project credentials).
+
 ## 2026-10-18 (later): Supabase backend continued
 - Fixed mojibake/BOM in `src/App.jsx` from an earlier agent edit. Lint, 206 unit tests, 99 DB tests and build all pass.
 - Committed admin pages, App wiring, seed/asset scripts. Added docs `frontend-backend-map.md`, `admin-owner-guide.md`, `backend-verification.md`; updated `CLAUDE.md` backend section, `.env.example`. New note [[Backend]]; brain export to `oldv/docs/brain/` via `scripts/export-brain.mjs`.
