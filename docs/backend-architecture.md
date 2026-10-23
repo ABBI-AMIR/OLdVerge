@@ -57,3 +57,7 @@ Fulfilment: `unfulfilled -> processing -> shipped -> delivered`; `cancelled` onl
 
 ## Known limitations
 See `docs/backend-verification.md` and `docs/commerce-operations.md`.
+
+## Cart synchronization (2026-10-22)
+
+Apply migration `20261022000100_cart_sync.sql` before deploying this frontend (also included in full-schema-setup.sql). Login waits for the catalog and merges overlapping quantities using the maximum, not addition; retries and repeated logins do not inflate quantities. Signed-in cart changes use the atomic replace_customer_cart RPC, serialized in the browser, including removals and cart-checkout clearing. Buy now leaves the cart unchanged. Changes during login loading are preserved; stale login responses are ignored after signout. Failed sync shows a bag notice and retries on reconnect or the next cart edit. Simultaneous devices use last completed snapshot write; there is no realtime collaborative cart.

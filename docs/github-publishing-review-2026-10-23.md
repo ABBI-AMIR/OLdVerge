@@ -1,0 +1,161 @@
+# GitHub publishing review — 2026-10-23
+
+Scope: accumulated cart synchronization, security/operations, performance/catalog paging, SSR, schema reconciliation, newsletter/Turnstile and restricted staging mail adapter/diagnostics. Preserve the existing code and migrations; no seed replay, remote write tests or domain changes during publishing.
+
+Validation: 300 unit tests (25 files), 126 isolated database tests (16 files), lint, production client/server build, bundle budgets, all12 Deno entrypoint checks, uncached SSR across3 isolated processes and local-only10RPS/20second load test passed. Production dependency audit: zero vulnerabilities. Source/build and reachable-history secret pattern scans passed; pattern scans are not a guarantee against arbitrary unrecognized secrets. Final index scan is required before commit. All15 staging read-only postconditions pass, including orderingclosed and unchanged stock.
+
+Publish a clean snapshot based on origin/main on publish/staging-integration. Preserve fix/cart-synchronization and its unpublished history locally. The unpublished chat_history.md export must not enter the published tree or ancestry; it does not exist on remote main. Keep the previous remote docs/brain/Session Log.md snapshot rather than publishing an unrelated local history update.
+
+Excluded and retained locally: conversation export; ignored .env/CLI/report/build state; ad hoc scripts/check-backend-order-flow.mjs; superseded scripts/check-secrets.mjs; draft .github/workflows/maintenance.yml (automatic scheduling is not approved for activation). Do not run these exclusions as part of validation. The active scanner is scripts/scan-integration-secrets.mjs. Evidence stays in ignored scripts/out; source manifests and migration definitions remain included. Font licenses accompany self-hosted fonts.
+
+Vercel read-only check: existing staging project uses main as its production Git branch, with only vercel.app production aliases. This push is to a separate branch; no merge/main push/domain change or explicit deployment. Git integration may create a protected preview automatically. Production policies, real products/stock, live email, schedules/monitoring and launch approval remain separate; this commit does not mark them ready. Historical email rejection cause remains unknown; status-only diagnostics are deployed and tested.
+
+## Reviewed file inventory
+- `.env.example` — Tooling/configuration
+- `.github/workflows/ci.yml` — Tooling/configuration
+- `.gitignore` — Tooling/configuration
+- `api/render.js` — Application/SSR
+- `CLAUDE.md` — Reference and verification documentation
+- `docs/backend-architecture.md` — Reference and verification documentation
+- `docs/backend-verification.md` — Reference and verification documentation
+- `docs/hosting-and-staging.md` — Reference and verification documentation
+- `docs/integration-audit-2026-10-22.md` — Reference and verification documentation
+- `docs/integration-audit-baseline-2026-10-22.md` — Reference and verification documentation
+- `docs/performance-and-scale.md` — Reference and verification documentation
+- `docs/project-handover.md` — Reference and verification documentation
+- `docs/security-operations-changes.md` — Reference and verification documentation
+- `docs/ssr-and-load-testing.md` — Reference and verification documentation
+- `docs/staging-auth-email-verification-2026-10-22.md` — Reference and verification documentation
+- `docs/staging-commerce-email-adapter-2026-10-23.md` — Reference and verification documentation
+- `docs/staging-deployment-2026-10-22.md` — Reference and verification documentation
+- `docs/staging-email-activation-2026-10-23.md` — Reference and verification documentation
+- `docs/staging-email-rejection-2026-10-23.md` — Reference and verification documentation
+- `docs/staging-functions-deployment-2026-10-22.md` — Reference and verification documentation
+- `docs/staging-schema-reconciliation-2026-10-23.md` — Reference and verification documentation
+- `docs/staging-single-order-test-2026-10-23.md` — Reference and verification documentation
+- `docs/staging-to-launch-checklist.md` — Reference and verification documentation
+- `docs/staging-turnstile-newsletter-2026-10-23.md` — Reference and verification documentation
+- `docs/supabase-setup.md` — Reference and verification documentation
+- `docs/vercel-supabase-deployment.md` — Reference and verification documentation
+- `eslint.config.js` — Tooling/configuration
+- `index.html` — Tooling/configuration
+- `package-lock.json` — Tooling/configuration
+- `package.json` — Tooling/configuration
+- `public/favicon.svg` — Public asset/license
+- `public/fonts/Cormorant-Garamond-OFL.txt` — Public asset/license
+- `public/fonts/google-latin-0.woff2` — Public asset/license
+- `public/fonts/google-latin-1.woff2` — Public asset/license
+- `public/fonts/google-latin-2.woff2` — Public asset/license
+- `public/fonts/Manrope-OFL.txt` — Public asset/license
+- `public/fonts/store-fonts.css` — Public asset/license
+- `public/robots.txt` — Public asset/license
+- `README.md` — Reference and verification documentation
+- `scripts/check-bundle.mjs` — Tooling/configuration
+- `scripts/cold-start-evidence.mjs` — Tooling/configuration
+- `scripts/load-local.mjs` — Tooling/configuration
+- `scripts/load-staging.mjs` — Tooling/configuration
+- `scripts/load-test.mjs` — Tooling/configuration
+- `scripts/prepare-staging-deploy.mjs` — Tooling/configuration
+- `scripts/profile-ssr-local.mjs` — Tooling/configuration
+- `scripts/profile-staging-ssr.mjs` — Tooling/configuration
+- `scripts/report-staging-smoke.mjs` — Tooling/configuration
+- `scripts/scan-integration-secrets.mjs` — Tooling/configuration
+- `scripts/schema-baseline.mjs` — Tooling/configuration
+- `scripts/schema-manifest.mjs` — Tooling/configuration
+- `scripts/schema-reference.mjs` — Tooling/configuration
+- `scripts/secret-patterns.mjs` — Tooling/configuration
+- `server/entry.jsx` — Application/SSR
+- `server/handler.mjs` — Application/SSR
+- `server/local.mjs` — Application/SSR
+- `server/public-data.js` — Application/SSR
+- `server/runtime.mjs` — Application/SSR
+- `src/admin/api.js` — Application/SSR
+- `src/admin/pages/Newsletter.jsx` — Application/SSR
+- `src/App.jsx` — Application/SSR
+- `src/components/BackendBrowse.jsx` — Application/SSR
+- `src/components/BackendBrowse.test.js` — Regression tests
+- `src/components/BackendGate.jsx` — Application/SSR
+- `src/components/BotCheck.jsx` — Application/SSR
+- `src/components/CollectionPage.jsx` — Application/SSR
+- `src/components/ContactForm.jsx` — Application/SSR
+- `src/components/DemoCollectionPage.jsx` — Application/SSR
+- `src/components/FeaturedCarousel.jsx` — Application/SSR
+- `src/components/NewsletterForm.jsx` — Application/SSR
+- `src/components/Reveal.jsx` — Application/SSR
+- `src/components/SearchPanel.jsx` — Application/SSR
+- `src/components/Shell.jsx` — Application/SSR
+- `src/components/TiltedGridHero.jsx` — Application/SSR
+- `src/data/catalog.js` — Application/SSR
+- `src/data/catalog.test.js` — Regression tests
+- `src/data/featured.js` — Application/SSR
+- `src/data/policies.js` — Application/SSR
+- `src/data/site.js` — Application/SSR
+- `src/lib/api.js` — Application/SSR
+- `src/lib/api.test.js` — Regression tests
+- `src/lib/auth.js` — Application/SSR
+- `src/lib/auth.test.js` — Regression tests
+- `src/lib/cartSync.js` — Application/SSR
+- `src/lib/cartSync.test.js` — Regression tests
+- `src/lib/checkout.js` — Application/SSR
+- `src/lib/checkout.test.js` — Regression tests
+- `src/lib/config.js` — Application/SSR
+- `src/lib/config.test.js` — Regression tests
+- `src/lib/money.js` — Application/SSR
+- `src/lib/newsletter.js` — Application/SSR
+- `src/lib/publicEnv.js` — Application/SSR
+- `src/lib/secret-patterns.test.js` — Regression tests
+- `src/lib/security.test.js` — Regression tests
+- `src/lib/storeRefresh.js` — Application/SSR
+- `src/lib/storeRefresh.test.js` — Regression tests
+- `src/lib/useCatalogPage.js` — Application/SSR
+- `src/main.jsx` — Application/SSR
+- `src/pages.jsx` — Application/SSR
+- `src/pages/checkout/LiveCheckoutPage.jsx` — Application/SSR
+- `src/pages/live/data.js` — Application/SSR
+- `src/pages/live/data.test.js` — Regression tests
+- `src/pages/live/SupportPages.jsx` — Application/SSR
+- `src/pages/NewsletterActionPage.jsx` — Application/SSR
+- `src/pages/ProductPage.jsx` — Application/SSR
+- `src/pages/SearchPage.jsx` — Application/SSR
+- `src/pages/ShopPage.jsx` — Application/SSR
+- `src/ssr/ClientBoot.jsx` — Application/SSR
+- `src/ssr/cold-start.test.js` — Regression tests
+- `src/ssr/latency-evidence.test.js` — Regression tests
+- `src/ssr/PublicPage.jsx` — Application/SSR
+- `src/ssr/server.test.jsx` — Regression tests
+- `src/store.css` — Application/SSR
+- `supabase/config.toml` — Backend/schema/security
+- `supabase/email-secrets.example` — Backend/schema/security
+- `supabase/full-schema-setup.sql` — Backend/schema/security
+- `supabase/functions/_shared/crypto.js` — Backend/schema/security
+- `supabase/functions/_shared/deps.ts` — Backend/schema/security
+- `supabase/functions/_shared/endpoint.js` — Backend/schema/security
+- `supabase/functions/_shared/handlers.js` — Backend/schema/security
+- `supabase/functions/_shared/http.js` — Backend/schema/security
+- `supabase/functions/_shared/images.js` — Backend/schema/security
+- `supabase/functions/_shared/mailer.js` — Backend/schema/security
+- `supabase/functions/_shared/mailer.test.js` — Regression tests
+- `supabase/functions/newsletter-confirm/index.ts` — Backend/schema/security
+- `supabase/migrations/20261022000100_cart_sync.sql` — Backend/schema/security
+- `supabase/migrations/20261022000200_security_operations.sql` — Backend/schema/security
+- `supabase/migrations/20261022000300_catalog_paging.sql` — Backend/schema/security
+- `supabase/reconciliation/manifest.sql` — Backend/schema/security
+- `supabase/reconciliation/postconditions.sql` — Backend/schema/security
+- `supabase/reconciliation/staging-baseline-2026-10-23.json` — Backend/schema/security
+- `supabase/seed.sql` — Backend/schema/security
+- `supabase/tests/cart.test.js` — Regression tests
+- `supabase/tests/catalog-paging.test.js` — Regression tests
+- `supabase/tests/customer-journey.test.js` — Regression tests
+- `supabase/tests/email-adapter.test.js` — Regression tests
+- `supabase/tests/functions.test.js` — Regression tests
+- `supabase/tests/lifecycle.test.js` — Regression tests
+- `supabase/tests/rls.test.js` — Regression tests
+- `supabase/tests/schema-baseline.test.js` — Regression tests
+- `supabase/tests/schema-reconciliation.test.js` — Regression tests
+- `supabase/tests/security-operations.test.js` — Regression tests
+- `supabase/tests/support/db.js` — Regression tests
+- `supabase/tests/support/fixtures.js` — Regression tests
+- `supabase/tests/support/function-deps.js` — Regression tests
+- `vercel.json` — Tooling/configuration
+- `vite.config.js` — Tooling/configuration
+- `vitest.config.js` — Tooling/configuration

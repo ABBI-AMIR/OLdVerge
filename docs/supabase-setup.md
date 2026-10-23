@@ -1,6 +1,6 @@
 # Supabase setup runbook
 
-Nothing here has been run against a hosted project yet. Do not copy keys into chat, files in this repo or screenshots.
+Current staging: existing project `qeczhyiwgvglilwqbveh`; do not create a replacement or replay setup/seeds. Its 14 application migrations and history were reconciled on 2026-10-23; see [the reconciliation report](staging-schema-reconciliation-2026-10-23.md). Staging Auth email is verified separately through Mailtrap Sandbox. Ordering remains closed. Older fresh-project instructions below are not instructions to repeat hosted setup. Do not copy keys into chat, files in this repo or screenshots.
 
 ## 0. Prerequisites
 Node `^22.13`, npm, the Supabase CLI (`npx supabase@2.121.0 ...`; it works through npm, **Docker is needed only for the local stack**), a Supabase account. Free plan notes: projects pause after inactivity, storage/egress/function quotas apply, `pg_cron` and some Auth email limits differ by plan. Check https://supabase.com/pricing before launch; do not assume unlimited free operation.
@@ -18,9 +18,12 @@ npm test            # unit tests
 3. `npx supabase login` (browser sign-in), then `npx supabase link --project-ref <ref>`.
 
 ## 3. Apply the schema
+
+For an existing project, compare its definitions and migration history first. The current staging project is up to date; it needs no application migration push or seed. `full-schema-setup.sql` is for fresh empty databases only. Use `--skip-vault` when checking migrations so configuration secrets are not synchronized as a side effect.
+
 ```sh
-npx supabase db push --dry-run     # preview. Inspect an existing project's schema first; never push over production data blindly
-npx supabase db push               # applies supabase/migrations/*.sql in order
+npx supabase db push --dry-run --skip-vault  # inspect only, with an explicitly verified project
+npx supabase db push --skip-vault           # fresh project / reviewed future migrations only
 ```
 Then seed the **draft** catalogue (sample products, unverified, nothing purchasable): paste `supabase/seed.sql` into the SQL editor (it is safe to run twice). Regenerate it with `npm run seed:generate`.
 

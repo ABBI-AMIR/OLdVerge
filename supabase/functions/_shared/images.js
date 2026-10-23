@@ -2,6 +2,7 @@
 // type, so the real content is inspected here: magic bytes, dimensions, embedded metadata and size.
 // SVG/HTML and everything else that is not JPEG, PNG or WebP is refused.
 
+import { readBoundedBody } from './http.js';
 import { endpoint, HttpError, rpc } from './endpoint.js';
 import { sha256, toHex } from './crypto.js';
 import * as v from './validate.js';
@@ -27,6 +28,7 @@ export function inspectImage(bytes) {
     while (i + 12 <= bytes.length) {
       const length = u32be(bytes, i); const kind = ascii(bytes, i + 4, 4);
       if (kind === 'eXIf' || kind === 'tEXt' || kind === 'iTXt' || kind === 'zTXt') hasMetadata = true;
+      if (i + 12 + length > bytes.length) return null;
       if (kind === 'IEND') break;
       i += 12 + length;
     }
@@ -39,12 +41,13 @@ export function inspectImage(bytes) {
       if (bytes[i] !== 0xff) { i += 1; continue; }
       const marker = bytes[i + 1];
       if (marker === 0xd8 || marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) { i += 2; continue; }
+      if (marker === 0xda || marker === 0xd9) break;
       const length = u16be(bytes, i + 2);
-      if (marker === 0xe1 && ascii(bytes, i + 4, 4) === 'Exif') hasMetadata = true;
+      if (length < 2 || i + 2 + length > bytes.length) return null;
+      if (marker === 0xe1) hasMetadata = true;
       if (marker === 0xed || marker === 0xfe) hasMetadata = true;     // Photoshop/IPTC and comment segments
       if ((marker >= 0xc0 && marker <= 0xcf) && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) {
         size = { height: u16be(bytes, i + 5), width: u16be(bytes, i + 7) };
-        break;
       }
       i += 2 + length;
     }
@@ -63,7 +66,8 @@ export function inspectImage(bytes) {
     let hasMetadata = false;
     let i = 12;
     while (i + 8 <= bytes.length) {
-      const kind = ascii(bytes, i, 4); const size = bytes[i + 4] | (bytes[i + 5] << 8) | (bytes[i + 6] << 16) | (bytes[i + 7] << 24);
+      const kind = ascii(bytes, i, 4); const size = (bytes[i + 4] | (bytes[i + 5] << 8) | (bytes[i + 6] << 16) | (bytes[i + 7] << 24)) >>> 0;
+      if (i + 8 + size > bytes.length) return null;
       if (kind === 'EXIF' || kind === 'XMP ') hasMetadata = true;
       i += 8 + size + (size % 2);
     }
@@ -87,11 +91,8 @@ export async function validateUpload(path, declaredType, bytes) {
 }
 
 async function readBinary(request, max) {
-  const declared = Number(request.headers.get('content-length') || 0);
-  if (declared > max) throw new HttpError(413, { error: 'payload_too_large' });
-  const buffer = new Uint8Array(await request.arrayBuffer());
-  if (buffer.length > max) throw new HttpError(413, { error: 'payload_too_large' });
-  return buffer;
+  try { return await readBoundedBody(request, max); }
+  catch (error) { throw new HttpError(error.status || 400, { error: error.status === 413 ? 'payload_too_large' : 'invalid_body' }); }
 }
 
 /** POST ?path=products/<slug>/v1/<name>.webp  with the raw image as the body. Admin only. */
@@ -125,10 +126,15 @@ export const adminApproveImage = (deps) => endpoint({
     const downloaded = await deps.admin.storage.from('product-private').download(image.path);
     if (downloaded.error || !downloaded.data) throw new HttpError(404, { error: 'object_missing' });
     const bytes = new Uint8Array(await downloaded.data.arrayBuffer());
-    const facts = inspectImage(bytes);
-    if (!facts || facts.hasMetadata) throw new HttpError(400, { error: 'unsupported_image' });
+    const inspected = inspectImage(bytes);
+    if (!inspected) throw new HttpError(400, { error: 'unsupported_image' });
+    const facts = await validateUpload(image.path, inspected.type, bytes);
     const up = await deps.admin.storage.from('product-public').upload(image.path, bytes, { contentType: facts.type, cacheControl: '31536000', upsert: false });
     const alreadyThere = up.error && /exists|duplicate/i.test(up.error.message || '');
+    if (alreadyThere) {
+      const existing = await deps.admin.storage.from('product-public').download(image.path);
+      if (existing.error || !existing.data || toHex(await sha256(new Uint8Array(await existing.data.arrayBuffer()))) !== facts.checksum_sha256) throw new HttpError(409, { error: 'public_object_mismatch' });
+    }
     if (up.error && !alreadyThere) throw new HttpError(502, { error: 'copy_failed' });
     try {
       await rpc(user, 'admin_approve_image', { p_image_id: imageId, p_public_path: image.path });

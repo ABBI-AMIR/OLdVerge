@@ -160,7 +160,7 @@ describe('row-level security and grants: access matrix', () => {
            and has_function_privilege('anon', p.oid, 'execute')
            and not exists (select 1 from pg_depend d where d.objid = p.oid and d.deptype = 'e')`);
       expect(rows.map((row) => row.sig).sort()).toEqual([
-        'public.admin_role', 'public.catalog_availability', 'public.is_admin', 'public.search_catalog',
+        'public.admin_role', 'public.catalog_availability', 'public.catalog_page', 'public.is_admin', 'public.search_catalog',
       ]);
     });
 

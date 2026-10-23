@@ -1,5 +1,7 @@
 # OLDVERGE — Storefront & Supabase Backend
 
+For the current SSR runtime and local-only load testing, see [SSR and load testing](docs/ssr-and-load-testing.md). Hosting verification and the isolated staging setup are documented in [hosting and staging](docs/hosting-and-staging.md). The domain's DNS and this repository's intended hosting differ; an active deployment has not yet been verified.
+
 Production-ready storefront and backend integration for **OLDVERGE** watches and menswear (prices in PKR). Built with React 19 + Vite 6 and Supabase (PostgreSQL 17, Auth, Storage, Edge Functions, Row Level Security).
 
 ---
@@ -180,3 +182,15 @@ supabase functions deploy maintenance
 - **Privilege Separation**: Privileged keys (`service_role`, `sb_secret`) are forbidden from frontend code and build configuration. The browser bundle only carries the public publishable key.
 - **Idempotency & Concurrency**: Checkout operations use atomic server-side transactions (`create_order_atomic`) with idempotency keys and row-level locks (`for update`) on inventory to prevent overselling and double charges.
 - **Rate Limiting**: IP and contact-level sliding window rate limits on sensitive endpoints (`submit-contact`, `quote-order`, `create-order`).
+
+## Cart synchronization (2026-10-22)
+
+Apply migration `20261022000100_cart_sync.sql` before deploying this frontend (also included in full-schema-setup.sql). Login waits for the catalog and merges overlapping quantities using the maximum, not addition; retries and repeated logins do not inflate quantities. Signed-in cart changes use the atomic replace_customer_cart RPC, serialized in the browser, including removals and cart-checkout clearing. Buy now leaves the cart unchanged. Changes during login loading are preserved; stale login responses are ignored after signout. Failed sync shows a bag notice and retries on reconnect or the next cart edit. Simultaneous devices use last completed snapshot write; there is no realtime collaborative cart.
+
+## Security and operations update (2026-10-22)
+
+See `docs/security-operations-changes.md` for the new migration, mandatory admin MFA, required production bot verification, explicit build configuration, atomic address saves, newsletter confirmation, CI checks and maintenance setup. These instructions supersede earlier permissive defaults. Hosted rollout and provider configuration remain outstanding.
+
+## Performance and catalogue paging (2026-10-22)
+
+See `docs/performance-and-scale.md`. Apply migration `20261022000300_catalog_paging.sql` before this frontend: backend collections/search are server-paged, product details are cached and refreshed, routes/drawers are deferred, and fonts are self-hosted. `npm run check:bundle` enforces the initial JavaScript budget. Cart and security rollout requirements remain in force.

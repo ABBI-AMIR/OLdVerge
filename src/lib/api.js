@@ -13,27 +13,41 @@ export async function callFunction(name, body, { token, signal, method = 'POST',
   if (!backend.configured) return { ok: false, status: 0, data: { error: 'backend_not_configured' } };
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  if (signal) signal.addEventListener('abort', () => controller.abort(), { once: true });
-  let accessToken = token;
-  if (accessToken === undefined && supabase) {
-    const { data } = await supabase.auth.getSession();
-    accessToken = data.session?.access_token;
-  }
-  const headers = { apikey: backend.key };
-  if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
-  if (rawBody === undefined) headers['Content-Type'] = 'application/json'; else if (contentType) headers['Content-Type'] = contentType;
-  const search = query ? `?${new URLSearchParams(query)}` : '';
+  const abort = () => controller.abort();
+  if (signal?.aborted) abort();
+  else signal?.addEventListener('abort', abort, { once: true });
+  // Session lookup can hang independently of fetch. Bound the complete operation,
+  // including identity lookup and response decoding, with the same deadline.
+  let rejectOnAbort;
+  const cancelled = new Promise((_, reject) => { rejectOnAbort = () => reject(new Error('request_aborted')); });
+  controller.signal.addEventListener('abort', rejectOnAbort, { once: true });
   try {
-    const response = await fetch(`${backend.functionsUrl}/${name}${search}`, {
-      method, headers, signal: controller.signal, body: rawBody !== undefined ? rawBody : JSON.stringify(body ?? {}),
-    });
-    const text = await response.text();
-    let data = null;
-    try { data = text ? JSON.parse(text) : null; } catch { data = { error: 'invalid_response' }; }
-    return { ok: response.ok, status: response.status, data };
+    controller.signal.throwIfAborted();
+    return await Promise.race([cancelled, (async () => {
+      let accessToken = token;
+      if (accessToken === undefined && supabase) {
+        const { data } = await supabase.auth.getSession();
+        accessToken = data.session?.access_token;
+      }
+      controller.signal.throwIfAborted();
+      const headers = { apikey: backend.key };
+      if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+      if (rawBody === undefined) headers['Content-Type'] = 'application/json'; else if (contentType) headers['Content-Type'] = contentType;
+      const search = query ? `?${new URLSearchParams(query)}` : '';
+      const response = await fetch(`${backend.functionsUrl}/${name}${search}`, {
+        method, headers, signal: controller.signal, body: rawBody !== undefined ? rawBody : JSON.stringify(body ?? {}),
+      });
+      const text = await response.text();
+      let data;
+      try { data = text ? JSON.parse(text) : null; } catch { data = { error: 'invalid_response' }; }
+      return { ok: response.ok, status: response.status, data };
+    })()]);
   } catch {
     return { ok: false, status: 0, data: { error: 'network_error' } };
   } finally {
     clearTimeout(timer);
+    signal?.removeEventListener('abort', abort);
+    controller.signal.removeEventListener('abort', rejectOnAbort);
+    if (body?.turnstile_token && typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('ov-bot-token-used', { detail: body.turnstile_token }));
   }
 }

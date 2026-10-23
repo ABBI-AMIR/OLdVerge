@@ -1,34 +1,23 @@
-import { createElement } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { createElement, useEffect, useRef, useState } from 'react';
 
-// motion.create() must not run during render for the same tag twice, so each tag is created once.
-const motionTags = new Map();
-const motionFor = (tag) => {
-  if (typeof tag !== 'string') return tag;
-  if (!motionTags.has(tag)) motionTags.set(tag, motion.create(tag));
-  return motionTags.get(tag);
-};
-
-/**
- * One-time entrance (framer-motion): a gentle fade and short rise when the block first scrolls into view.
- * Lenis only drives scrolling; it reads the same native scroll position, so whileInView works unchanged.
- * Renders a plain element (no animation at all) when the visitor prefers reduced motion.
- */
+/** Progressive enhancement: content is visible without JS/IntersectionObserver or under reduced motion. */
 export default function Reveal({ as = 'div', delay = 0, y = 24, duration = 0.7, className, style, children, ...rest }) {
-  const reduced = useReducedMotion();
-  if (reduced) return createElement(as, { className, style, ...rest }, children);
-  const Component = motionFor(as);
-  return (
-    <Component
-      className={className}
-      style={style}
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.12, margin: '0px 0px -6% 0px' }}
-      transition={{ duration, delay, ease: [0.22, 0.7, 0.2, 1] }}
-      {...rest}
-    >
-      {children}
-    </Component>
-  );
+  const element = useRef(null);
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    if (!element.current || !globalThis.IntersectionObserver) return undefined;
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (preference.matches) return undefined;
+    const show = () => setHidden(false);
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) { show(); observer.disconnect(); }
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+    setHidden(true); observer.observe(element.current);
+    preference.addEventListener('change', show);
+    return () => { observer.disconnect(); preference.removeEventListener('change', show); };
+  }, []);
+  return createElement(as, { ...rest, ref: element, className, style: {
+    transition: `opacity ${duration}s cubic-bezier(.22,.7,.2,1) ${delay}s, transform ${duration}s cubic-bezier(.22,.7,.2,1) ${delay}s`,
+    ...(hidden ? { opacity: 0, transform: `translateY(${y}px)` } : {}), ...style,
+  } }, children);
 }

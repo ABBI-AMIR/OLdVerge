@@ -1,3 +1,4 @@
+import BotCheck, { formBotToken } from './BotCheck.jsx';
 import { useId, useState } from 'react';
 import { EMAIL_PATTERN, Field } from './ui.jsx';
 import { isBackend } from '../lib/config.js';
@@ -36,10 +37,10 @@ export default function ContactForm() {
   const bind = (name) => ({ name, value: values[name], error: errors[name], onChange: (event) => { setValues((current) => ({ ...current, [name]: event.target.value })); setErrors((current) => ({ ...current, [name]: undefined })); } });
   const toggleTopic = (topic) => setValues((current) => ({ ...current, topics: current.topics.includes(topic) ? current.topics.filter((item) => item !== topic) : [...current.topics, topic] }));
 
-  const sendToBackend = async () => {
+  const sendToBackend = async (turnstileToken) => {
     const result = await callFunction('submit-contact', {
       first_name: values.firstName.trim(), last_name: values.lastName.trim(), email: values.email.trim(), phone: values.phone.trim(),
-      topics: values.topics, message: values.message.trim(), website: honeypot,
+      topics: values.topics, message: values.message.trim(), website: honeypot, turnstile_token: turnstileToken,
     });
     if (result.ok) return 'sent';
     return result.status === 429 ? 'limited' : 'failed';
@@ -69,7 +70,7 @@ export default function ContactForm() {
     if (first) { document.querySelector(`[name="${first}"]`)?.focus(); return; }
     if (!connected) { setStatus('sent'); return; }
     setStatus('sending');
-    const outcome = isBackend ? await sendToBackend() : await sendToEndpoint();
+    const outcome = isBackend ? await sendToBackend(formBotToken(event.currentTarget)) : await sendToEndpoint();
     if (outcome === 'sent') setValues(EMPTY);
     setStatus(outcome);
   };
@@ -101,5 +102,5 @@ export default function ContactForm() {
     {status === 'limited' && <p className="ov-form-error" role="alert">You have sent several messages recently. Please wait a few minutes and try again.</p>}
     <button type="submit" className="ov-button ov-button-dark" disabled={status === 'sending'}>{status === 'sending' ? 'Sending…' : connected ? 'Send message' : 'Preview message'}</button>
     {!connected && <p className="ov-note">Demo: this form is not connected, so nothing is sent.</p>}
-  </form>;
+  <BotCheck /></form>;
 }

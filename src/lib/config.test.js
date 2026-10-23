@@ -24,7 +24,7 @@ describe('backend configuration', () => {
     expect(checkPublicKey(jwt({ role: 'service_role' }))).toEqual({ ok: false, reason: 'service_role_key_in_browser_variable' });
     expect(checkPublicKey(jwt({ role: 'anon' })).ok).toBe(true);
     const unsafe = resolveBackend({ VITE_SUPABASE_URL: 'https://abcd.supabase.co', VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_secret_0123456789abcdefghij' });
-    expect(unsafe).toMatchObject({ mode: 'demo', configured: false, issue: 'secret_key_in_browser_variable' });
+    expect(unsafe).toMatchObject({ mode: 'error', configured: false, issue: 'secret_key_in_browser_variable' });
     expect(unsafe).not.toHaveProperty('key');
   });
 

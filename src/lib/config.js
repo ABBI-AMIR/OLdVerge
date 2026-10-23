@@ -22,12 +22,14 @@ export function checkPublicKey(key) {
   if (typeof key !== 'string' || key.length < 20) return { ok: false, reason: 'missing' };
   if (/^sb_secret_/i.test(key)) return { ok: false, reason: 'secret_key_in_browser_variable' };
   if (key.split('.').length === 3 && decodeJwtRole(key) === 'service_role') return { ok: false, reason: 'service_role_key_in_browser_variable' };
+  if (!/^sb_publishable_[A-Za-z0-9_-]+$/.test(key) && !(key.split('.').length === 3 && decodeJwtRole(key) === 'anon')) return { ok: false, reason: 'invalid_public_key' };
   return { ok: true, reason: null };
 }
 
 export function checkProjectUrl(url, { dev = false } = {}) {
   try {
     const parsed = new URL(url);
+    if (parsed.username || parsed.password || parsed.search || parsed.hash || parsed.pathname !== '/') return { ok: false, reason: 'invalid_project_url' };
     const local = dev && ['localhost', '127.0.0.1'].includes(parsed.hostname);
     if (parsed.protocol !== 'https:' && !(local && parsed.protocol === 'http:')) return { ok: false, reason: 'url_must_be_https' };
     return { ok: true, reason: null, origin: parsed.origin };
@@ -49,14 +51,14 @@ export function resolveBackend(env = {}, { dev = false } = {}) {
   const key = checkPublicKey(rawKey);
   if (!url.ok || !key.ok) {
     // A half-set or unsafe configuration is reported, never silently ignored and never used.
-    return { mode: 'demo', configured: false, issue: !url.ok ? url.reason : key.reason };
+    return { mode: 'error', configured: false, issue: !url.ok ? url.reason : key.reason };
   }
   return { mode: 'supabase', configured: true, issue: null, url: url.origin, key: rawKey, functionsUrl: `${url.origin}/functions/v1` };
 }
 
-export const backend = resolveBackend(import.meta.env, { dev: import.meta.env.DEV });
+export const backend = resolveBackend(typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : {}, { dev: Boolean(typeof import.meta !== 'undefined' && import.meta.env?.DEV) });
 export const isBackend = backend.mode === 'supabase';
 
 if (backend.issue && typeof console !== 'undefined') {
-  console.error(`OLDVERGE: the Supabase configuration was ignored (${backend.issue}). Running in demo mode.`);
+  console.error(`OLDVERGE: the Supabase configuration was ignored (${backend.issue}). Store configuration is unavailable.`);
 }

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { isBackend } from '../lib/config.js';
 import { useCatalog } from './catalog.js';
 import { useSite } from './site.js';
@@ -21,5 +21,6 @@ export function pickFeatured(products, slugs) {
 export function useFeatured() {
   const products = useCatalog((state) => state.products);
   const configured = useSite((state) => state.settings['home.featured']);
+  useEffect(() => { if (isBackend && Array.isArray(configured)) useCatalog.getState().ensure(configured.slice(0, FEATURED_LIMIT)).catch(() => {}); }, [configured]);
   return useMemo(() => pickFeatured(products, isBackend ? configured : DEMO_FEATURED), [products, configured]);
 }

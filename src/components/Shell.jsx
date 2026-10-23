@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import BotCheck from './BotCheck.jsx';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { AlignLeft, ChevronDown, CircleUserRound, Instagram, Search, ShoppingBag, ShoppingCart, Store, X } from 'lucide-react';
@@ -10,8 +11,8 @@ import { formatPrice } from '../lib/money.js';
 import { NAV_GROUPS } from '../data/collections.js';
 import { policyPath } from '../data/policies.js';
 import ProductArt from './ProductArt.jsx';
-import CartDrawer from './CartDrawer.jsx';
-import SearchPanel from './SearchPanel.jsx';
+const CartDrawer = lazy(() => import('./CartDrawer.jsx'));
+const SearchPanel = lazy(() => import('./SearchPanel.jsx'));
 import { cartCount, useStore } from '../store.js';
 import { useScrollLock } from '../lib/scrollLock.js';
 import { useDialogFocus } from '../lib/useDialogFocus.js';
@@ -55,6 +56,7 @@ function NavDropdown({ group }) {
 
 export function Header() {
   const [menu, setMenu] = useState(false);
+  const cartOpen = useStore(state => state.cartOpen);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mobileGroups, setMobileGroups] = useState({});
@@ -128,8 +130,7 @@ export function Header() {
         <p className="ov-mm-note">{footerNotice()}</p>
       </aside>
     </div>, document.body)}
-    <SearchPanel open={searchOpen} onClose={() => setSearchOpen(false)} />
-    <CartDrawer />
+    <Suspense fallback={<span className="ov-sr-only" role="status">Opening…</span>}>{searchOpen && <SearchPanel open={searchOpen} onClose={() => setSearchOpen(false)} />}{cartOpen && <CartDrawer />}</Suspense>
     <nav className="mobile-tabs" aria-label="Quick navigation">
       <NavLink to="/" end><Store aria-hidden="true" /><span>Home</span></NavLink>
       <NavLink to="/shop"><ShoppingBag aria-hidden="true" /><span>Shop</span></NavLink>
@@ -145,14 +146,14 @@ function FooterNewsletter() {
   const news = useNewsletter('footer');
   return <div className="ov-footer-news">
     <h3>Subscribe to our newsletter</h3>
-    {news.status === 'done' ? <p className="ov-footer-news-done" role="status">{news.backend ? 'Thank you, your address has been saved.' : 'Demo only: nothing was saved and no email will be sent.'}</p>
+    {news.status === 'done' ? <p className="ov-footer-news-done" role="status">{news.backend ? 'Thank you, your address has been saved pending email confirmation.' : 'Demo only: nothing was saved and no email will be sent.'}</p>
       : <form onSubmit={news.submit} noValidate>
         <label className="ov-sr-only" htmlFor="ov-footer-email">Email address</label>
         <input id="ov-footer-email" type="email" autoComplete="email" placeholder="Email" value={news.email} aria-invalid={news.error ? 'true' : undefined} aria-describedby={news.error ? 'ov-footer-email-error' : undefined} onChange={(event) => news.setEmail(event.target.value)} />
         {news.backend && <label className="ov-news-consent"><input type="checkbox" checked={news.consent} onChange={(event) => news.setConsent(event.target.checked)} /> <span>{NEWSLETTER_CONSENT}</span></label>}
         {news.error && <p className="ov-footer-news-error" id="ov-footer-email-error" role="alert">{news.error}</p>}
         <button type="submit" disabled={news.status === 'sending'}>{news.status === 'sending' ? 'Saving…' : 'Subscribe'}</button>
-      </form>}
+      <BotCheck /></form>}
     {!news.backend && <p className="ov-footer-news-note">This form is a demo and is not connected to a mailing list.</p>}
   </div>;
 }

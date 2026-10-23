@@ -1,3 +1,4 @@
+import BotCheck from './BotCheck.jsx';
 import { NEWSLETTER_CONSENT, useNewsletter } from '../lib/newsletter.js';
 import { getSetting, useSite } from '../data/site.js';
 
@@ -16,7 +17,7 @@ export default function NewsletterForm() {
       <p>{news.backend ? 'Leave your email to hear from us. You choose whether to subscribe.' : 'This sign-up form is a preview and is not connected yet.'}</p>
     </div>
     {news.status === 'done' ? <p className="ov-form-ok" role="status">{news.backend
-      ? `Thank you, your address has been saved.${active ? '' : ' OLDVERGE has not started sending newsletters yet.'}`
+      ? `Thank you, your address has been saved pending email confirmation.${active ? '' : ' OLDVERGE has not started sending newsletters yet.'}`
       : 'Demo only: nothing was saved and no email will be sent.'}</p>
       : <form onSubmit={news.submit} noValidate>
         <label htmlFor="ov-news-email">Email address</label>
@@ -25,6 +26,6 @@ export default function NewsletterForm() {
         {news.backend && <label className="ov-news-consent"><input type="checkbox" checked={news.consent} onChange={(event) => news.setConsent(event.target.checked)} /> <span>{NEWSLETTER_CONSENT}</span></label>}
         {news.error && <p className="ov-field-error" id="ov-news-error" role="alert">{news.error}</p>}
         {!news.backend && <p className="ov-note">Demo form: it is not connected to a mailing list.</p>}
-      </form>}
+      <BotCheck /></form>}
   </section>;
 }

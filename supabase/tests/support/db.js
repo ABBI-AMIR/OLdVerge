@@ -7,11 +7,11 @@ const baseConfig = () => ({ host: '127.0.0.1', port: inject('pgPort'), user: 'po
 let counter = 0;
 
 /** Creates an isolated copy of the migrated template database for one test file. */
-export async function createTestDatabase() {
+export async function createTestDatabase({ empty = false } = {}) {
   const name = `t_${process.pid}_${Date.now()}_${counter += 1}`;
   const admin = new pg.Client({ ...baseConfig(), database: 'postgres' });
   await admin.connect();
-  await admin.query(`create database ${name} template template_oldverge`);
+  await admin.query(`create database ${name} template ${empty ? 'template0' : 'template_oldverge'}`);
   await admin.end();
   const clients = [];
   const connect = async () => {

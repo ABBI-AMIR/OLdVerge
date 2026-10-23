@@ -3,7 +3,9 @@
 // SUPABASE_PUBLISHABLE_KEYS, plus the legacy SUPABASE_SERVICE_ROLE_KEY / SUPABASE_ANON_KEY as a fallback).
 // Custom secrets (TOKEN_SECRET, ALLOWED_ORIGINS, CRON_SECRET, TURNSTILE_SECRET_KEY, ORDER_TEST_MODE) are set with
 // `supabase secrets set` and are NEVER exposed to the browser.
+// Optional staging mail adapter settings are listed in supabase/email-secrets.example.
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
+import { createStagingMailer } from './mailer.js';
 
 const firstKey = (name: string, legacy: string): string | undefined => {
   try {
@@ -20,9 +22,12 @@ export function buildDeps() {
   const secretKey = firstKey('SUPABASE_SECRET_KEYS', 'SUPABASE_SERVICE_ROLE_KEY')!;
   const publishableKey = firstKey('SUPABASE_PUBLISHABLE_KEYS', 'SUPABASE_ANON_KEY')!;
   const options = { auth: { persistSession: false, autoRefreshToken: false } };
+  const env = { get: (name: string) => Deno.env.get(name) ?? null };
+  const admin = createClient(url, secretKey, options);
   return {
-    env: { get: (name: string) => Deno.env.get(name) ?? null },
-    admin: createClient(url, secretKey, options),
+    env,
+    admin,
+    mailer: createStagingMailer({ env, admin, fetch }),
     userClient: (token: string) => createClient(url, publishableKey, { ...options, global: { headers: { Authorization: `Bearer ${token}` } } }),
     fetch,
   };

@@ -2,7 +2,7 @@
 // bounded JSON parsing, optional/required user authentication, uniform error mapping and request ids.
 //
 // deps = { env: { get(name) }, admin, userClient(token) }
-//   admin: a service-role client (bypasses RLS: only ever used for narrowly granted RPCs)
+//   admin: a service-role client (narrow RPCs; the mailer also reads explicit order/contact columns)
 //   userClient(token): a client acting as that user (RLS applies)
 // The functions use verify_jwt = false (see supabase/config.toml) because publishable API keys are not JWTs:
 // the caller is identified only by the user session token validated here, never by the API key.

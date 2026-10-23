@@ -43,7 +43,7 @@ export const POLICIES = [
     sections: [
       { heading: 'Stored in your browser', body: ['Your bag, the item you chose with Buy now and your recent searches are kept in this browser using localStorage. They stay on your device and are not sent to OLDVERGE or to anyone else.', 'Your browser’s sessionStorage also remembers whether the opening animation has played, where you were on a page when you went back, the last filters you used in the shop and, if you use the demonstration sign-in, the name, email address and phone number you typed there. It is cleared when you close the tab.', 'You can remove all of this at any time by clearing the site data for this website in your browser.'] },
       { heading: 'What this website does not do', body: ['It has no real customer accounts (the sign-in and account pages are a demonstration), no analytics or advertising trackers and no payment processing. Details typed into the demonstration checkout are held in memory until you reload or leave the site and are never sent or stored.', formSentence] },
-      { heading: 'Third parties', body: ['The Cormorant Garamond and Manrope fonts are loaded from Google Fonts (fonts.googleapis.com and fonts.gstatic.com). When a page loads, Google receives your IP address and browser details, as it does for any request to its servers.'] },
+      { heading: 'Third parties', body: ['The fonts are hosted with this website. Loading them does not make a request to Google Fonts.'] },
     ],
   },
   {

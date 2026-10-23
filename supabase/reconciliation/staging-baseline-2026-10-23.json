@@ -1,0 +1,158 @@
+{
+  "project": "qeczhyiwgvglilwqbveh",
+  "verifiedAt": "2026-10-23T10:07:38.151Z",
+  "baselineMethod": "Supabase CLI 2.121.0 migration repair --status applied; existing application SQL not replayed",
+  "sourceHashFormat": "SHA-256 of UTF-8 SQL with CRLF normalized to LF",
+  "applicationEntries": 2201,
+  "counts": {
+    "bucket": 3,
+    "column": 335,
+    "column_access": 1005,
+    "constraint": 214,
+    "function": 72,
+    "function_access": 216,
+    "index": 87,
+    "policy": 68,
+    "relation": 38,
+    "schema_access": 6,
+    "table_access": 114,
+    "trigger": 43
+  },
+  "comparison": {
+    "missing": 0,
+    "changed": 0,
+    "unexpected": 0
+  },
+  "applicationSchemaUnchanged": true,
+  "postconditions": {
+    "admin_mfa_required": true,
+    "buckets_present": true,
+    "cod_disabled": true,
+    "ordering_closed": true,
+    "policy_rows_present": true,
+    "private_settings_present": true,
+    "profiles_backfilled": true,
+    "public_settings_present": true
+  },
+  "history": [
+    {
+      "name": "20261019000100_core_catalog.sql",
+      "statement_count": 30,
+      "version": "20261019000100",
+      "sha256": "a8dac4e0bf68a05356482712dcd1aacf5e7051784841f183e2c6c3214e891fd8",
+      "migrationName": "core_catalog"
+    },
+    {
+      "name": "20261019000200_accounts_admin_config.sql",
+      "statement_count": 46,
+      "version": "20261019000200",
+      "sha256": "f70d643611d3b1adb15370bb59384d2e3c1bd979ce3b160543fcee370e4249cc",
+      "migrationName": "accounts_admin_config"
+    },
+    {
+      "name": "20261019000300_orders_inventory_support.sql",
+      "statement_count": 83,
+      "version": "20261019000300",
+      "sha256": "3404b0e6d0df21d33fe237a3f9e92980c5044fffe43e904be33d6d0b54386ecf",
+      "migrationName": "orders_inventory_support"
+    },
+    {
+      "name": "20261019000400_catalog_checkout_functions.sql",
+      "statement_count": 26,
+      "version": "20261019000400",
+      "sha256": "a3cb1895afb69fc955ba187c55b72fc581369b79b49d3301ed0f6f1c468931d1",
+      "migrationName": "catalog_checkout_functions"
+    },
+    {
+      "name": "20261019000500_admin_functions.sql",
+      "statement_count": 26,
+      "version": "20261019000500",
+      "sha256": "6928907462467f279b71d59f0b40eed8d8a5b9b595b77bd662b3f7b1dcfcffc2",
+      "migrationName": "admin_functions"
+    },
+    {
+      "name": "20261019000600_admin_queries.sql",
+      "statement_count": 2,
+      "version": "20261019000600",
+      "sha256": "eb80b1422b96c568b5833e049b06e2ae658136cb7973738f12e4e26d7dfec2f3",
+      "migrationName": "admin_queries"
+    },
+    {
+      "name": "20261019000700_rls_grants_storage.sql",
+      "statement_count": 101,
+      "version": "20261019000700",
+      "sha256": "546d3f95e14ac72058148504751bc70cc1b5734dc203445b52caa6328ccc1ba5",
+      "migrationName": "rls_grants_storage"
+    },
+    {
+      "name": "20261019000800_profile_backfill.sql",
+      "statement_count": 1,
+      "version": "20261019000800",
+      "sha256": "d22263e6fef6b9c61319e2bf53b31e287ed3c72bbd69b521f3360195708ce348",
+      "migrationName": "profile_backfill"
+    },
+    {
+      "name": "20261019000900_image_integrity.sql",
+      "statement_count": 9,
+      "version": "20261019000900",
+      "sha256": "414b16bd6aca82ae1c698b0aa6f342a133b9ae1254407c4538b4e8a7ac68444b",
+      "migrationName": "image_integrity"
+    },
+    {
+      "name": "20261019001000_security_review_fixes.sql",
+      "statement_count": 10,
+      "version": "20261019001000",
+      "sha256": "2b3836c2ec8a81452dcb919627653c4ee1bc217ac5efa6150441a774275bac7c",
+      "migrationName": "security_review_fixes"
+    },
+    {
+      "name": "20261019001100_customer_cart.sql",
+      "statement_count": 16,
+      "version": "20261019001100",
+      "sha256": "bc2d169f07483bd117b08f37307a4296e6360d883f73d2397f49065f38ba007f",
+      "migrationName": "customer_cart"
+    },
+    {
+      "name": "20261022000100_cart_sync.sql",
+      "statement_count": 6,
+      "version": "20261022000100",
+      "sha256": "d9d90c51d73870496f00247afb8bafda7fc4888e3e07f941b9a76f3794e29de9",
+      "migrationName": "cart_sync"
+    },
+    {
+      "name": "20261022000200_security_operations.sql",
+      "statement_count": 18,
+      "version": "20261022000200",
+      "sha256": "3c5a1ea5d491920a0c20bce0c4e135fd2df5484d01ead65227178d98314926a0",
+      "migrationName": "security_operations"
+    },
+    {
+      "name": "20261022000300_catalog_paging.sql",
+      "statement_count": 5,
+      "version": "20261022000300",
+      "sha256": "125ff117fb84ce705a4124f4d7bdf000dfeb621be3cb4b8f60f442710a2c7106",
+      "migrationName": "catalog_paging"
+    }
+  ],
+  "ledgerApiAccess": [
+    {
+      "role": "anon",
+      "schema_usage": false,
+      "table_read": false,
+      "table_write": false
+    },
+    {
+      "role": "authenticated",
+      "schema_usage": false,
+      "table_read": false,
+      "table_write": false
+    }
+  ],
+  "dryRun": {
+    "upToDate": true,
+    "migrations": [],
+    "seeds": [],
+    "roles": [],
+    "skipVault": true
+  }
+}

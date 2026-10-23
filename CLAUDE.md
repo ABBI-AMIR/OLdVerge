@@ -98,3 +98,31 @@ See `CONTRIBUTING.md`. Stage intended paths only, check the staged diff for secr
 
 ## Known limitations
 See `docs/code-audit.md` and `docs/project-handover.md` section 8. Key ones: no real product photos (all images are Unsplash stand-ins that only approximate product names and colours; some watch dials show another brand's text; only `watch-casio-a168.jpg` is a close match); no listings or photos for Rolex, Patek Philippe, Cartier, Franck Muller, Best Win; no 3D viewer; no contact channel and no real shipping/returns terms (launch blockers).
+
+## Cart synchronization (2026-10-22)
+
+Apply migration `20261022000100_cart_sync.sql` before deploying this frontend (also included in full-schema-setup.sql). Login waits for the catalog and merges overlapping quantities using the maximum, not addition; retries and repeated logins do not inflate quantities. Signed-in cart changes use the atomic replace_customer_cart RPC, serialized in the browser, including removals and cart-checkout clearing. Buy now leaves the cart unchanged. Changes during login loading are preserved; stale login responses are ignored after signout. Failed sync shows a bag notice and retries on reconnect or the next cart edit. Simultaneous devices use last completed snapshot write; there is no realtime collaborative cart.
+
+## Security and operations update (2026-10-22)
+
+Follow `docs/security-operations-changes.md`: migration 20261022000200 enables admin MFA, production writes require Turnstile, browser environment exposure is explicitly allowed, addresses save atomically, and newsletter addresses are pending until email confirmation. Use VITE_STORE_MODE=demo only for intentional demo builds. No provider adapter or hosted rollout is implied by local tests.
+
+## Performance conventions (2026-10-22)
+
+Backend browsing/search must use catalog_page, not assume getProducts() is the whole catalogue. getProducts() is now a bounded detail cache; protect cart/current-product details and hydrate remote cart slugs before merging. Do not restore full-catalog browser downloads or eager route imports. Run npm run check:bundle after build. Fonts are self-hosted; no Google Fonts runtime stylesheet. See docs/performance-and-scale.md for migration/measurement limits.
+
+## Staging schema reconciliation (2026-10-23)
+
+Existing staging qeczhyiwgvglilwqbveh matches all 14 migrations through 20261022000300; 2,201 application definition/permission entries were compared before/after recording the previously absent migration ledger. Official dry-run is up to date. Do not replay full-schema-setup.sql or seed this project. That script is for empty databases only; its newsletter pending-subscription condition now matches the migrations. Use npm run schema:reference and schema:compare plus supabase/reconciliation/postconditions.sql for future evidence. Keep recorded migrations unchanged and use forward migrations for later fixes. See docs/staging-schema-reconciliation-2026-10-23.md; ordering stays closed.
+
+## Staging commerce email adapter (2026-10-23)
+
+Shared mailer.js/buildDeps implement Mailtrap Sandbox API delivery for newsletter confirmation and the three existing outbox kinds. It is pinned to the existing staging project/site/sandbox, requires an exact recipient allowlist, and refuses non-test orders; there is no live endpoint. Server-only names are in supabase/email-secrets.example. Implementation passed 299 unit/125 DB/all Deno checks. Owner-approved 30-day sandbox-only API token is now configured; newsletter-subscribe/process-outbox ACTIVE v6. One synthetic hosted capture passed without database access, and temporary probe/credentials were removed. Auth SMTP is unchanged. Do not enable schedulers or drain outbox to test delivery; no hosted order/inventory writes. Actual hosted opt-in still needs valid bot protection; do not bypass it. See docs/staging-email-activation-2026-10-23.md and the adapter implementation guide for scope and at-least-once behavior.
+
+## Staging Turnstile/newsletter (2026-10-23)
+Real Managed widget is restricted to o-ld-verge.vercel.app, pre-clearance off; private key only Supabase TURNSTILE_SECRET_KEY/public key only Vercel VITE_TURNSTILE_SITE_KEY. ORDER_TEST_MODE absent. Hosted signup→Mailtrap confirmation→UI confirmation→unsubscribe verified for one controlled alias, left unsubscribed. Current staging dpl_EioQHGq9mN2W4qy8J9tVnNWYzAT2. Consent input CSS now distinguishes email/checkbox; current-width QA passed, exact390/768/1440 not claimed. No order/inventory/outbox/domain changes. Next bounded order test requires new explicit write limits; see docs/staging-turnstile-newsletter-2026-10-23.md and staging-to-launch-checklist.md.
+
+## Completed single staging order (2026-10-23)
+Supersedes the earlier no-hosted-order checkpoints for this single owner-approved run only. OV-261023-06007E7F, one OV-STAGING-TEST-20261023 unit/PKR100, real Turnstile and unpaid test COD: checkout/readback, browser+remote cart clearing, two Mailtrap captures, owner cancellation and exactly one restock passed. Customer email initially provider-rejected then captured on one controlled retry; cause unknown. Ordering closed, testmode removed, MFAtrue, fixture archived/inactive, temporarymethods off, priorcontact/policycontent restored; otherinventory identical; all15 final checks pass. No furtherorder/stock/domain permission inferred. No source/deployment/security changes for the run. Production/operations and domain/launch gates remain; disabled-payment display in admin-authenticated checkout and status-only email failure diagnostics are follow-ups. See docs/staging-single-order-test-2026-10-23.md.
+
+Staging email diagnostics deployed2026-10-23: newsletter-subscribe/process-outbox ACTIVEv10, each downloaded mailer hash matches tested source; GET/OPTIONS-only smoke and all15 unchanged postconditions pass. No sends/orders/stock/domain activity. See docs/staging-email-rejection-2026-10-23.md. Earlier not-deployed checkpoint is historical.

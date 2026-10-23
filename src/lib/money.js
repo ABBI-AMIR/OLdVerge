@@ -1,5 +1,13 @@
 // All amounts are whole PKR (integers), so sums never pick up floating-point error.
-export const formatPrice = (price) => `PKR ${new Intl.NumberFormat('en-PK', { maximumFractionDigits: 0 }).format(price)}`;
+export const formatPrice = (price) => {
+  // Store amounts are non-negative whole PKR. Grouping those integers needs no
+  // ICU/locale initialization on the first SSR render. Preserve the existing
+  // Intl behavior for decimals, negative zero, negatives and non-number input.
+  const amount=Number.isSafeInteger(price)&&price>=0&&!Object.is(price,-0)
+    ? String(price).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    : new Intl.NumberFormat('en-PK', { maximumFractionDigits: 0 }).format(price);
+  return `PKR ${amount}`;
+};
 
 export const MAX_QTY = 9;
 

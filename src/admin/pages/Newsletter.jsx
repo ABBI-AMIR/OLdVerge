@@ -8,10 +8,10 @@ export default function Newsletter() {
   const { gateway } = useAdmin();
   const [filter, setFilter] = useState('');
   const list = useLoad(() => gateway.query((db) => db.from('newsletter_subscriptions')
-    .select('id, email, consent_text, consent_at, source, unsubscribed_at, created_at').order('created_at', { ascending: false }).limit(1000)), []);
+    .select('id, email, consent_text, consent_at, source, unsubscribed_at, confirmed_at, created_at').order('created_at', { ascending: false }).limit(1000)), []);
   const all = list.data || [];
-  const rows = all.filter((row) => (filter === 'active' ? !row.unsubscribed_at : filter === 'unsubscribed' ? Boolean(row.unsubscribed_at) : true));
-  const active = all.filter((row) => !row.unsubscribed_at).length;
+  const rows = all.filter((row) => (filter === 'active' ? (!row.unsubscribed_at && row.confirmed_at) : filter === 'unsubscribed' ? Boolean(row.unsubscribed_at) : true));
+  const active = all.filter((row) => (!row.unsubscribed_at && row.confirmed_at)).length;
 
   return (
     <>
@@ -31,7 +31,7 @@ export default function Newsletter() {
                     <td><DateText value={row.consent_at} /></td>
                     <td className="ovad-clip">{row.consent_text}</td>
                     <td>{row.source}</td>
-                    <td>{row.unsubscribed_at ? <Badge tone="muted">unsubscribed <DateText value={row.unsubscribed_at} /></Badge> : <Badge tone="ok">subscribed</Badge>}</td>
+                    <td>{row.unsubscribed_at ? <Badge tone="muted">unsubscribed <DateText value={row.unsubscribed_at} /></Badge> : <Badge tone={row.confirmed_at ? "ok" : "muted"}>{row.confirmed_at ? "subscribed" : "pending confirmation"}</Badge>}</td>
                   </tr>
                 ))}
               </tbody>

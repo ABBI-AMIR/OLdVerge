@@ -1,12 +1,13 @@
+import BrandLoader from './components/BrandLoader.jsx';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { getProducts } from './data/catalog.js';
+import { getProducts, useCatalog } from './data/catalog.js';
 import { collectionForCategory } from './data/collections.js';
 import { imageSize } from './data/imageSizes.js';
 import { siteImage, useSite } from './data/site.js';
 import NewsletterForm from './components/NewsletterForm.jsx';
 import { NotFoundPage } from './pages/NotFoundPage.jsx';
-import HomeHero from './components/HomeHero.jsx';
+import HomeHero, { heroImages } from './components/HomeHero.jsx';
 import FeaturedCarousel from './components/FeaturedCarousel.jsx';
 import ColorExplorer from './components/ColorExplorer.jsx';
 import CollectionPage from './components/CollectionPage.jsx';
@@ -15,6 +16,7 @@ import Reveal from './components/Reveal.jsx';
 const SiteImg = ({ name, ...rest }) => { const image = siteImage(name); return image ? <img src={image.src} alt={image.alt} {...imageSize(image.src)} {...rest} /> : null; };
 
 export function HomePage() {
+  useCatalog(state => state.products);
   useSite((state) => state.siteImages);         // re-render when the site images load
   // Quarter-zip colour links use the colour values already defined on the
   // quarter-zip products, and the product routes that already exist.
@@ -23,6 +25,7 @@ export function HomePage() {
     return { name, hex: product?.artColor, slug: product?.slug };
   }).filter((color) => color.slug);
   return <main id="main-content" className="ov-home">
+    <BrandLoader readyImages={heroImages().slice(0, 3).map(image => image.src)} />
     <HomeHero />
     <FeaturedCarousel />
     {colors.length > 0 && <ColorExplorer colors={colors} />}

@@ -68,7 +68,7 @@ describe('customer shopping cart persistence and RLS', () => {
     expect(afterDelete).toEqual([]);
   });
 
-  it('sync_customer_cart merges guest items atomically and caps at 9', async () => {
+  it('sync_customer_cart merges idempotently using the larger quantity', async () => {
     // Initial sync with zipM (qty 3)
     const initialSync = (await asUser(db.main, ids.customerB, (c) =>
       c.query("select * from public.sync_customer_cart($1::jsonb)", [JSON.stringify([{ variant_id: ids.zipM, quantity: 3 }])]),
@@ -90,7 +90,21 @@ describe('customer shopping cart persistence and RLS', () => {
     expect(secondSync).toHaveLength(2);
     const mItem = secondSync.find((item) => item.variant_id === ids.zipM);
     const sItem = secondSync.find((item) => item.variant_id === ids.zipS);
-    expect(mItem.quantity).toBe(9); // Capped at MAX_QTY 9
+    expect(mItem.quantity).toBe(8);
     expect(sItem.quantity).toBe(1);
+  });
+  it('replays login without adding quantities and atomically replaces/removes/clears lines', async () => {
+    const call = (fn, lines) => asUser(db.main, ids.customerA, (c) => c.query('select * from public.' + fn + '($1::jsonb)', [JSON.stringify(lines)]));
+    const lines = [{ variant_id: ids.zipM, quantity: 3 }];
+    await call('sync_customer_cart', lines);
+    expect((await call('sync_customer_cart', lines)).rows[0].quantity).toBe(3);
+    await call('replace_customer_cart', [{ variant_id: ids.zipS, quantity: 2 }]);
+    const replaced = (await call('sync_customer_cart', [])).rows;
+    expect(replaced).toHaveLength(1);
+    expect(replaced[0].variant_id).toBe(ids.zipS);
+    expect(replaced[0].quantity).toBe(2);
+    await call('replace_customer_cart', []);
+    expect((await call('sync_customer_cart', [])).rows).toEqual([]);
+    await expectDenied(asAnon(db.main, (c) => c.query("select public.replace_customer_cart('[]'::jsonb)")));
   });
 });

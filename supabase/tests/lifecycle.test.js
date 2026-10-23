@@ -318,10 +318,10 @@ describe('order lifecycle, stock semantics and payment events', () => {
       const sub = (email, hash) => asService(db.main, (c) => c.query("select public.newsletter_subscribe($1, 'I agree to receive news', 'footer', $2)", [email, hash]));
       const { sha256 } = await import('./support/db.js');
       await sub('Reader@Example.test', sha256('one'));
-      await sub('reader@example.test', sha256('two'));            // same address: silent no-op
+      await sub('reader@example.test', sha256('two'));            // pending address: rotate the unsubscribe capability
       expect((await db.main.query("select count(*)::int as n from public.newsletter_subscriptions where lower(email) = 'reader@example.test'")).rows[0].n).toBe(1);
-      expect((await asService(db.main, (c) => c.query('select public.newsletter_unsubscribe($1) as ok', [sha256('two')]))).rows[0].ok).toBe(false);
-      expect((await asService(db.main, (c) => c.query('select public.newsletter_unsubscribe($1) as ok', [sha256('one')]))).rows[0].ok).toBe(true);
+      expect((await asService(db.main, (c) => c.query('select public.newsletter_unsubscribe($1) as ok', [sha256('two')]))).rows[0].ok).toBe(true);
+      expect((await asService(db.main, (c) => c.query('select public.newsletter_unsubscribe($1) as ok', [sha256('one')]))).rows[0].ok).toBe(false);
     });
 
     it('searches published products with escaped wildcards and bounded results', async () => {

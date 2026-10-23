@@ -1,3 +1,4 @@
+import { formBotToken } from '../components/BotCheck.jsx';
 import { useState } from 'react';
 import { isBackend } from './config.js';
 import { callFunction } from './api.js';
@@ -32,8 +33,9 @@ export function useNewsletter(source) {
     if (isBackend && !consent) { setError('Tick the box to agree before subscribing.'); return; }
     setError('');
     if (!isBackend) { setStatus('done'); return; }
+    const turnstileToken = formBotToken(event.currentTarget);
     setStatus('sending');
-    const result = await callFunction('newsletter-subscribe', { email: email.trim(), consent: true, consent_text: NEWSLETTER_CONSENT, source, website: '' });
+    const result = await callFunction('newsletter-subscribe', { email: email.trim(), consent: true, consent_text: NEWSLETTER_CONSENT, source, website: '', turnstile_token: turnstileToken });
     if (result.ok) { setStatus('done'); setEmail(''); setConsent(false); return; }
     setStatus('idle');
     setError(newsletterError(result.status, result.data?.error));

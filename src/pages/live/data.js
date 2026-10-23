@@ -36,6 +36,7 @@ export function isExpiredSession(error) {
 export function classifyError(error) {
   if (isExpiredSession(error)) return { ok: false, error: 'expired', message: 'Your session has expired. Please sign in again.' };
   const text = String(error?.message || '');
+  if (/ov_error:not_found/.test(text)) return { ok: false, error: 'not_found', message: 'That address no longer exists. Reload and try again.' };
   if (/ov_error:too_many_addresses/.test(text)) return { ok: false, error: 'too_many_addresses', message: `You can save up to ${MAX_ADDRESSES} addresses. Remove one first.` };
   if (/failed to fetch|networkerror|network request failed|load failed/i.test(text)) return { ok: false, error: 'network', message: 'We could not reach the server. Check your connection and try again.' };
   if (error?.code === '42501' || /permission denied/i.test(text)) return { ok: false, error: 'forbidden', message: 'This action is not allowed for your account.' };
@@ -112,7 +113,7 @@ export async function countAddresses(client = supabase) {
 
 /**
  * Creates (no id) or updates (id) an address. There is at most one default per customer (unique partial index), so a
- * new default first clears the old one. Those are two statements: if the second fails the old default stays cleared.
+ * the server saves the address and changes the previous default in one transaction.
  */
 export async function saveAddress({ id, values, existingCount = 0 }, client = supabase) {
   const missing = need(client);
@@ -120,17 +121,9 @@ export async function saveAddress({ id, values, existingCount = 0 }, client = su
   const payload = addressPayload(values);
   if (!id && existingCount >= MAX_ADDRESSES) return classifyError({ message: 'ov_error:too_many_addresses' });
   try {
-    if (payload.is_default) {
-      let clear = client.from('addresses').update({ is_default: false }).eq('is_default', true);
-      if (id) clear = clear.neq('id', id);
-      const { error } = await clear;
-      if (error) return classifyError(error);
-    }
-    const query = id
-      ? client.from('addresses').update(payload).eq('id', id)
-      : client.from('addresses').insert(payload);
-    const { data, error } = await query.select(join(ADDRESS_READ_COLUMNS));
+    const { data, error } = await client.rpc('save_customer_address', { p_id: id || null, p_values: payload });
     if (error) return classifyError(error);
+
     if (id && !(data || []).length) return { ok: false, error: 'not_found', message: 'That address no longer exists. Reload the page.' };
     return { ok: true, data: data?.[0] || null };
   } catch (error) {
