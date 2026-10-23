@@ -1,15 +1,12 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import App from './App.jsx';
+import { createRoot, hydrateRoot } from 'react-dom/client';
+import ClientBoot from './ssr/ClientBoot.jsx';
 import './styles.css';
 import './home.css';
 import './store.css';
 
-createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>,
-);
+let snapshot=null;
+try { const value=JSON.parse(document.getElementById('ov-ssr-state')?.textContent||'null'); if(value?.version===1&&Array.isArray(value.products)) snapshot=value; } catch { /* normal client-only fallback */ }
+const app=<React.StrictMode><ClientBoot snapshot={snapshot} /></React.StrictMode>;
+const root=document.getElementById('root');
+if(snapshot) hydrateRoot(root,app);else createRoot(root).render(app);

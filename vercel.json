@@ -1,8 +1,38 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
+  "git": {
+    "deploymentEnabled": {
+      "publish/staging-integration": false,
+      "main": false
+    }
+  },
   "installCommand": "npm ci",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "regions": ["hnd1"],
+  "functions": {
+    "api/render.js": {
+      "includeFiles": "{dist/index.html,dist/ssr-public.json,server-dist/**}",
+      "maxDuration": 15
+    }
+  },
+  "routes": [
+    {
+      "src": "/index.html",
+      "status": 308,
+      "headers": { "Location": "/" }
+    },
+    {
+      "src": "/",
+      "dest": "/api/render?route=/"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/render?route=/$1"
+    }
+  ]
 }

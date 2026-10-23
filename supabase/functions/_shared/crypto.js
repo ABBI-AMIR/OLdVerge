@@ -31,10 +31,6 @@ export async function orderAccessToken(secret, orderId, scopeHashHex) {
   return toBase64Url(await hmacSha256(secret, `order:${orderId}:${scopeHashHex}`));
 }
 
-export async function newsletterToken(secret, email) {
-  return toBase64Url(await hmacSha256(secret, `newsletter:${String(email).trim().toLowerCase()}`));
-}
-
 /** Constant-time comparison of two strings. */
 export function safeEqual(a, b) {
   const x = encoder.encode(String(a)); const y = encoder.encode(String(b));

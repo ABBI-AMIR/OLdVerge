@@ -9,6 +9,8 @@ import { newUuid, sha256 } from './db.js';
 export async function seedStore(db) {
   const c = db.main;
   const ids = {};
+  // Most fixtures exercise business rules at AAL1; dedicated security tests assert MFA enforcement.
+  await c.query("update private.settings set value = 'false'::jsonb where key = 'require_mfa'");
 
   const q = async (sql, params) => (await c.query(sql, params)).rows;
 

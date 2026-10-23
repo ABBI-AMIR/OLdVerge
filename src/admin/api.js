@@ -27,7 +27,13 @@ export function createGateway({ client, callFunction, onProblem }) {
   return {
     client,
     /** Calls a database function. Resolves with its result or throws AdminError. */
-    rpc: (name, args) => guard(() => unwrap(client.rpc(name, args))),
+    rpc: (name, args) => guard(async () => {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const result = await client.rpc(name, args);
+        if (attempt === 0 && ['40P01', '40001'].includes(result.error?.code)) continue;
+        return unwrap(Promise.resolve(result));
+      }
+    }),
     /** build(client) returns a query or storage call that resolves { data, error }. Resolves with data or throws AdminError. */
     query: (build) => guard(() => unwrap(build(client))),
     /** Calls an Edge Function. Resolves with the parsed body or throws AdminError. */

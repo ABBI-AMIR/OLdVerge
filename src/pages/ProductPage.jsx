@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Maximize2, X } from 'lucide-react';
-import { getProducts, productBySlug } from '../data/catalog.js';
+import { getProducts, productBySlug, useCatalog } from '../data/catalog.js';
 import { crumbsFor } from '../data/collections.js';
 import { imageSize } from '../data/imageSizes.js';
 import { galleryFor } from '../data/productImages.js';
@@ -73,6 +73,22 @@ function ShippingInfo() {
 }
 
 export default function ProductPage() {
+  const { slug } = useParams();
+  const products = useCatalog(state => state.products);
+  const [load, setLoad] = useState({ slug: '', error: false });
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    let cancelled = false;
+    useCatalog.getState().ensure([slug]).then(() => { if (!cancelled) setLoad({ slug, error: false }); }).catch(() => { if (!cancelled) setLoad({ slug, error: true }); });
+    return () => { cancelled = true; };
+  }, [slug, attempt]);
+  if (isBackend && !products.some(product => product.slug === slug)) {
+    if (load.slug !== slug) return <main className="ov-page" role="status">Loading product…</main>;
+    if (load.error) return <main className="ov-page" role="alert">We could not load this product. <button onClick={() => setAttempt(value => value + 1)}>Try again</button></main>;
+  }
+  return <ProductContent />;
+}
+function ProductContent() {
   const { slug } = useParams();
   useSite((state) => state.settings);
   const navigate = useNavigate();

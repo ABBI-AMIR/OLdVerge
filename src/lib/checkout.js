@@ -92,3 +92,11 @@ export function parseConfirmationHash(hash) {
   const order = params.get('o'); const token = params.get('t');
   return order && token ? { order, token } : null;
 }
+
+/** Always release the UI lock, including hashing/storage failures before a request is sent. */
+export async function runCheckoutSubmission(lock, setBusy, work) {
+  if (lock.current) return;
+  lock.current = true; setBusy(true);
+  try { return await work(); }
+  finally { lock.current = false; setBusy(false); }
+}

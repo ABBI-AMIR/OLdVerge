@@ -4,8 +4,9 @@
 
 import { endpoint, HttpError, hit, requireAdmin, rpc } from './endpoint.js';
 import { bearerToken, clientIp } from './http.js';
-import { newsletterToken, orderAccessToken, safeEqual, sha256, toBytea, toHex } from './crypto.js';
+import { toBase64Url, orderAccessToken, safeEqual, sha256, toBytea, toHex } from './crypto.js';
 import * as v from './validate.js';
+import { mailFailureCode } from './mailer.js';
 
 const IDEMPOTENCY_KEY = /^[A-Za-z0-9_-]{16,100}$/;
 const ACCESS_TOKEN = /^[A-Za-z0-9_-]{43}$/;
@@ -17,16 +18,20 @@ const tokenSecret = (deps) => {
   return secret;
 };
 
-/** Optional bot check: enforced only when TURNSTILE_SECRET_KEY is configured. */
+/** Production submissions require bot verification; isolated test mode may omit it. */
 async function checkBot(deps, request, body) {
   const secret = deps.env.get('TURNSTILE_SECRET_KEY');
-  if (!secret) return;
+  if (!secret) {
+    if (deps.env.get('ORDER_TEST_MODE') !== 'true') throw new HttpError(503, { error: 'not_configured' });
+    return;
+  }
   const response = typeof body.turnstile_token === 'string' ? body.turnstile_token : '';
   if (!response || response.length > 2048) throw new HttpError(400, { error: 'bot_check_failed' });
   const form = new URLSearchParams({ secret, response, remoteip: clientIp(request) });
-  const reply = await (deps.fetch || fetch)('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body: form });
+  const reply = await (deps.fetch || fetch)('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body: form, signal: AbortSignal.timeout(10000) });
   const result = await reply.json().catch(() => ({}));
-  if (!result.success) throw new HttpError(400, { error: 'bot_check_failed' });
+  const hostnames = String(deps.env.get('ALLOWED_ORIGINS') || '').split(',').flatMap((origin) => { try { return [new URL(origin.trim()).hostname]; } catch { return []; } });
+  if (!reply.ok || !result.success || !hostnames.includes(result.hostname)) throw new HttpError(400, { error: 'bot_check_failed' });
 }
 
 // ------------------------------------------------------------------ quote and order creation
@@ -63,8 +68,10 @@ export const createOrder = (deps) => endpoint({
       contact: v.contact(body.contact), address: v.address(body.address),
     };
     // Per-contact limit (on top of the per-IP limit) so one person cannot tie up stock with many unpaid orders.
-    const contactKey = toHex(await sha256(`${String(payload.contact.email || payload.contact.phone || '').toLowerCase()}:${secret}`));
-    if (!(await hit(deps, `create-order-contact:${contactKey}`, 8, 3600))) throw new HttpError(429, { error: 'rate_limited' });
+    for (const contact of [payload.contact.email.toLowerCase(), payload.contact.phone.replace(/[^0-9]/g, '')]) {
+      const contactKey = toHex(await sha256(contact + ':' + secret));
+      if (!(await hit(deps, 'create-order-contact:' + contactKey, 8, 3600))) throw new HttpError(429, { error: 'rate_limited' });
+    }
     const expected = v.integer(body.expected_total_pkr, 'expected_total_pkr', { min: 0, max: 1000000000 });
     const result = await rpc(deps.admin, 'create_order', {
       p_order_id: orderId, p_user_id: userId, p_scope_hash: toBytea(scopeHash), p_idempotency_key: key, p_payload: payload,
@@ -94,7 +101,7 @@ export const orderStatus = (deps) => endpoint({
     const token = typeof body.access_token === 'string' ? body.access_token.trim() : '';
     if (!ORDER_NUMBER.test(number) || !ACCESS_TOKEN.test(token)) throw new HttpError(404, { error: 'not_found' });
     // A second, per-order limiter stops an attacker from rotating IPs to guess one order's token.
-    if (!(await hit(deps, `order-status:${number}`, 10, 60))) throw new HttpError(429, { error: 'rate_limited' });
+    if (!(await hit(deps, `order-status:${number}:${toHex(await sha256(token))}`, 10, 60))) throw new HttpError(429, { error: 'rate_limited' });
     const order = await rpc(deps.admin, 'get_order_for_access', { p_order_number: number, p_token_hash: toBytea(await sha256(token)) });
     if (!order) throw new HttpError(404, { error: 'not_found' });
     return { status: 200, body: { order } };
@@ -129,15 +136,23 @@ export const newsletterSubscribe = (deps) => endpoint({
     v.rejectUnknown(body, ['email', 'consent', 'consent_text', 'source', 'website', 'turnstile_token']);
     if (typeof body.website === 'string' && body.website.trim() !== '') return { status: 200, body: { saved: true } };
     if (body.consent !== true) throw new HttpError(400, { error: 'consent_required' });
-    const secret = tokenSecret(deps);
+    tokenSecret(deps);
     await checkBot(deps, request, body);
+    if (!deps.mailer) throw new HttpError(503, { error: 'email_not_configured' });
     const email = v.email(body.email);
+    const unsubscribe = toBase64Url(crypto.getRandomValues(new Uint8Array(32)));
+    const confirmation = toBase64Url(crypto.getRandomValues(new Uint8Array(32)));
     await rpc(deps.admin, 'newsletter_subscribe', {
       p_email: email, p_consent_text: v.text(body.consent_text, 'consent_text', { min: 1, max: 500 }),
-      p_source: v.text(body.source, 'source', { max: 40 }) || 'footer', p_token_hash: toBytea(await sha256(await newsletterToken(secret, email))),
+      p_source: v.text(body.source, 'source', { max: 40 }) || 'footer', p_token_hash: toBytea(await sha256(unsubscribe)),
     });
-    // Identical response whether or not the address was already subscribed.
-    return { status: 201, body: { saved: true } };
+    const pending = await rpc(deps.admin, 'request_newsletter_confirmation', { p_email: email, p_token_hash: toBytea(await sha256(confirmation)) });
+    if (pending) {
+      try { await deps.mailer.send('newsletter_confirmation', { email, confirmation_token: confirmation, unsubscribe_token: unsubscribe }); }
+      catch { throw new HttpError(503, { error: 'email_unavailable' }); }
+    }
+    // Provider acceptance does not confirm the subscription. Only the one-use confirmation RPC does.
+    return { status: 201, body: { saved: true, pending_confirmation: true } };
   },
 });
 
@@ -189,7 +204,7 @@ export const processOutbox = (deps) => endpoint({
         await rpc(deps.admin, 'finish_outbox', { p_id: row.id, p_status: 'sent', p_error: null });
         sent += 1;
       } catch (error) {
-        await rpc(deps.admin, 'finish_outbox', { p_id: row.id, p_status: 'failed', p_error: String(error?.message || 'send failed').slice(0, 200) });
+        await rpc(deps.admin, 'finish_outbox', { p_id: row.id, p_status: 'failed', p_error: mailFailureCode(error) });
         failed += 1;
       }
     }
@@ -206,5 +221,15 @@ export const paymentWebhook = (deps) => endpoint({
   name: 'payment-webhook', deps, rate: { max: 120, windowSeconds: 60 }, body: false,
   async run() {
     return { status: 501, body: { error: 'payment_provider_not_configured' } };
+  },
+});
+
+export const newsletterConfirm = (deps) => endpoint({
+  name: 'newsletter-confirm', deps, rate: { max: 10, windowSeconds: 600 },
+  async run({ body }) {
+    v.rejectUnknown(body, ['token']);
+    if (typeof body.token !== 'string' || !ACCESS_TOKEN.test(body.token)) throw new HttpError(400, { error: 'invalid_token' });
+    const confirmed = await rpc(deps.admin, 'confirm_newsletter', { p_token_hash: toBytea(await sha256(body.token)) });
+    return { status: 200, body: { confirmed: confirmed === true } };
   },
 });

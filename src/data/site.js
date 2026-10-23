@@ -7,6 +7,7 @@ import { backend, isBackend } from '../lib/config.js';
 import { supabase } from '../lib/supabase.js';
 import { mapSiteImages, settingsMap } from './catalogMapper.js';
 import { POLICIES as DEMO_POLICIES } from './policies.js';
+import { STALE_MS } from './catalog.js';
 import { registerImageSize } from './imageSizes.js';
 
 const DEMO_NOTICE = 'Displayed prices are samples. Orders are not open yet.';
@@ -48,22 +49,24 @@ let inflight = null;
 
 export const useSite = create((set, get) => ({
   ...(isBackend ? { status: 'idle', error: null, settings: {}, siteImages: {}, policies: [], paymentMethods: [], shippingMethods: [] } : demoState),
+  loadedAt: 0, refreshing: false, refreshError: null,
   async load({ force = false } = {}) {
     if (!isBackend) return;
-    if (!force && (get().status === 'ready' || get().status === 'loading')) return;
+    if (!force && get().status === 'ready' && Date.now() - get().loadedAt < STALE_MS) return;
     if (inflight) { await inflight; return; }
-    set({ status: 'loading', error: null });
+    const warm = get().status === 'ready';
+    set({ ...(warm ? {} : { status: 'loading', error: null }), refreshing: true });
     inflight = fetchSite()
-      .then((data) => set({ ...data, status: 'ready', error: null }))
-      .catch((error) => set({ status: 'error', error: error.message || 'site_unavailable' }))
-      .finally(() => { inflight = null; });
+      .then((data) => set({ ...data, status: 'ready', error: null, refreshError: null, loadedAt: Date.now() }))
+      .catch((error) => set(warm ? { refreshError: error.message || 'site_unavailable' } : { status: 'error', error: error.message || 'site_unavailable' }))
+      .finally(() => { set({ refreshing: false }); inflight = null; });
     await inflight;
   },
 }));
 
 const state = () => useSite.getState();
 export const getSetting = (key, fallback = null) => (key in state().settings ? state().settings[key] : fallback);
-export const orderingOpen = () => state().settings.ordering_enabled === true;
+export const orderingOpen = () => state().status === 'ready' && !state().refreshError && state().settings.ordering_enabled === true;
 export const maxQuantity = () => Number(getSetting('max_quantity_per_line', 9)) || 9;
 export const getPolicies = () => state().policies;
 export const footerNotice = () => getSetting('notice.footer', DEMO_NOTICE);

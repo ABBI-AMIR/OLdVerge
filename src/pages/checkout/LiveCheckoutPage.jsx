@@ -1,3 +1,4 @@
+import BotCheck, { formBotToken } from '../../components/BotCheck.jsx';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { formatPrice } from '../../lib/money.js';
@@ -7,7 +8,7 @@ import { EMAIL_PATTERN, EmptyState, Field } from '../../components/ui.jsx';
 import { imageSize } from '../../data/imageSizes.js';
 import { useCatalog } from '../../data/catalog.js';
 import { orderingOpen, useSite } from '../../data/site.js';
-import { attemptFor, clearAttempt, confirmationHash, explainOrderError, payloadFingerprint, requestQuote, submitOrder, toOrderLines } from '../../lib/checkout.js';
+import { attemptFor, clearAttempt, confirmationHash, explainOrderError, payloadFingerprint, requestQuote, runCheckoutSubmission, submitOrder, toOrderLines } from '../../lib/checkout.js';
 import { PROVINCES } from '../CheckoutPage.jsx';
 
 const BLANK = { firstName: '', lastName: '', line1: '', line2: '', city: '', province: '', postalCode: '' };
@@ -116,32 +117,36 @@ export default function LiveCheckoutPage() {
       window.setTimeout(() => (document.querySelector(`[name="${keys[0]}"]`) || summaryRef.current)?.focus(), 0);
       return;
     }
-    submitLock.current = true; setSubmitting(true); setProblem(null);
-    const payload = {
-      lines: orderLines.lines, shipping_method: activeShipping, payment_method: activePayment,
-      contact: { name: `${address.firstName.trim()} ${address.lastName.trim()}`, email: contact.email.trim(), phone: contact.phone.trim() },
-      address: { recipient: `${address.firstName.trim()} ${address.lastName.trim()}`, line1: address.line1.trim(), line2: address.line2.trim(), city: address.city.trim(), province: address.province, postal_code: address.postalCode.trim(), country: 'PK' },
-    };
-    const { key, secret } = attemptFor(window.sessionStorage, source, await payloadFingerprint(payload));
-    const result = await submitOrder({ ...payload, idempotency_key: key, checkout_secret: secret, expected_total_pkr: selected.total_pkr });
-    submitLock.current = false; setSubmitting(false);
-    if (result.ok) {
-      clearAttempt(window.sessionStorage);
-      finishCheckout(source);
-      navigate({ pathname: '/order-confirmation', hash: confirmationHash(result.data.order_number, result.data.access_token) }, { replace: true });
-      return;
-    }
-    const explained = explainOrderError(result.status, result.data);
-    if (explained.kind === 'price_changed') {
-      setQuotes((current) => ({ ...current, [activeShipping]: { quote: explained.quote } }));
-      setNeedsReconfirm(true);
-    }
-    if (explained.kind === 'stock') refreshAfterStockProblem();
-    if (explained.kind === 'closed') useSite.getState().load({ force: true });
-    if (explained.kind === 'restart') clearAttempt(window.sessionStorage);
-    if (explained.kind === 'field' && FIELD_TO_KEY[explained.field]) setErrors({ [FIELD_TO_KEY[explained.field]]: explained.message });
-    setProblem(explained);
-    window.setTimeout(() => summaryRef.current?.focus(), 0);
+    return runCheckoutSubmission(submitLock, setSubmitting, async () => {
+      setProblem(null);
+      try {
+        const turnstileToken = formBotToken(event.currentTarget);
+        const payload = {
+          lines: orderLines.lines, shipping_method: activeShipping, payment_method: activePayment,
+          contact: { name: `${address.firstName.trim()} ${address.lastName.trim()}`, email: contact.email.trim(), phone: contact.phone.trim() },
+          address: { recipient: `${address.firstName.trim()} ${address.lastName.trim()}`, line1: address.line1.trim(), line2: address.line2.trim(), city: address.city.trim(), province: address.province, postal_code: address.postalCode.trim(), country: 'PK' },
+        };
+        const { key, secret } = attemptFor(window.sessionStorage, source, await payloadFingerprint(payload));
+        const result = await submitOrder({ ...payload, turnstile_token: turnstileToken, idempotency_key: key, checkout_secret: secret, expected_total_pkr: selected.total_pkr });
+        if (result.ok) {
+          clearAttempt(window.sessionStorage);
+          finishCheckout(source);
+          navigate({ pathname: '/order-confirmation', hash: confirmationHash(result.data.order_number, result.data.access_token) }, { replace: true });
+          return;
+        }
+        const explained = explainOrderError(result.status, result.data);
+        if (explained.kind === 'price_changed') {
+          setQuotes((current) => ({ ...current, [activeShipping]: { quote: explained.quote } }));
+          setNeedsReconfirm(true);
+        }
+        if (explained.kind === 'stock') refreshAfterStockProblem();
+        if (explained.kind === 'closed') useSite.getState().load({ force: true });
+        if (explained.kind === 'restart') clearAttempt(window.sessionStorage);
+        if (explained.kind === 'field' && FIELD_TO_KEY[explained.field]) setErrors({ [FIELD_TO_KEY[explained.field]]: explained.message });
+        setProblem(explained);
+        window.setTimeout(() => summaryRef.current?.focus(), 0);
+      } catch { setProblem({ kind: 'unknown', message: 'We could not finish this attempt. Please try again.' }); }
+    });
   };
 
   const errorList = Object.entries(errors);
@@ -188,7 +193,7 @@ export default function LiveCheckoutPage() {
         </fieldset>
         <button type="submit" className="ov-button ov-button-dark ov-place-order" disabled={submitting}>{submitting ? 'Placing your order…' : needsReconfirm ? 'Confirm the new total and place order' : 'Place order'}</button>
         <p className="ov-note">Your details are sent to the store to fulfil this order. No card details are collected.</p>
-      </form>
+      <BotCheck /></form>
       <aside className="ov-summary" aria-label="Order summary">
         <h2>{buyNow ? 'Buying now' : 'Your bag'}</h2>
         <ul className="ov-summary-lines">{lines.map((line) => <li key={line.key}>

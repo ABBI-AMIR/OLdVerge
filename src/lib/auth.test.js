@@ -40,9 +40,13 @@ describe('password rules (mirror supabase/config.toml)', () => {
     expect(passwordProblems(undefined)).toHaveLength(4);
   });
 
-  it('refuses passwords longer than 72 characters (bcrypt limit)', () => {
+  it('refuses passwords longer than 72 UTF-8 bytes (bcrypt limit)', () => {
     expect(validatePassword(`Aa1${'x'.repeat(69)}`)).toBeNull();
     expect(validatePassword(`Aa1${'x'.repeat(70)}`)).toMatch(/no more than 72/);
+    expect(validatePassword(`Aa1x${'é'.repeat(34)}`)).toBeNull(); // 72 bytes
+    expect(validatePassword(`Aa1${'é'.repeat(35)}`)).toMatch(/no more than 72/); // 73 bytes
+    expect(validatePassword(`Aa1x${'😀'.repeat(17)}`)).toBeNull();
+    expect(validatePassword(`Aa1${'😀'.repeat(18)}`)).toMatch(/no more than 72/);
   });
 
   it('produces one readable sentence', () => {

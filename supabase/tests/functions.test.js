@@ -5,7 +5,7 @@ import { freshKey, freshSecret, jsonRequest, makeDeps, tokenFor } from './suppor
 import {
   createOrder, maintenance, newsletterSubscribe, newsletterUnsubscribe, orderStatus, paymentWebhook, processOutbox, quoteOrder, submitContact,
 } from '../functions/_shared/handlers.js';
-import { newsletterToken } from '../functions/_shared/crypto.js';
+
 
 const URL_BASE = 'https://project.functions.test/functions/v1/';
 
@@ -223,7 +223,8 @@ describe('Edge Function handlers against the real database', () => {
     });
 
     it('requires explicit newsletter consent, gives the same answer for duplicates and supports unsubscribe', async () => {
-      const subscribe = newsletterSubscribe(deps);
+      let delivered;
+      const subscribe = newsletterSubscribe({ ...deps, mailer: { send: async (_kind, payload) => { delivered = payload; } } });
       const body = { email: 'reader2@example.test', consent: true, consent_text: 'I agree to receive OLDVERGE news' };
       expect((await call(subscribe, { ...body, consent: false })).status).toBe(400);
       expect((await call(subscribe, { ...body, consent: undefined })).status).toBe(400);
@@ -231,7 +232,7 @@ describe('Edge Function handlers against the real database', () => {
       const again = await call(subscribe, body);
       expect([first.status, again.status]).toEqual([201, 201]);
       expect(first.body).toEqual(again.body);
-      const token = await newsletterToken(deps.env.get('TOKEN_SECRET'), 'reader2@example.test');
+      const token = delivered.unsubscribe_token;
       expect((await call(newsletterUnsubscribe(deps), { token: 'x'.repeat(43) })).body.unsubscribed).toBe(false);
       expect((await call(newsletterUnsubscribe(deps), { token })).body.unsubscribed).toBe(true);
     });
@@ -262,7 +263,7 @@ describe('Edge Function handlers against the real database', () => {
       expect(res.body.provider).toBe('configured');
       expect(res.body.sent + res.body.failed).toBeGreaterThan(0);
       const failed = (await db.main.query("select status, last_error from public.notification_outbox where status = 'failed' limit 1")).rows[0];
-      if (res.body.failed > 0) expect(failed.last_error).toMatch(/provider rejected/);
+      if (res.body.failed > 0) expect(failed.last_error).toBe('email_send_failed');
     });
 
     it('refuses payment webhooks until a provider is configured', async () => {

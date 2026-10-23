@@ -26,6 +26,40 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm run check:secrets
+      - run: npm audit --omit=dev --audit-level=high
       - run: npm run lint
       - run: npm test
+      - run: npm run test:db
       - run: npm run build
+        env:
+          VITE_STORE_MODE: demo
+      - run: npm run check:bundle
+      - name: Scan generated client and server output for privileged credentials
+        run: npm run check:secrets
+      - run: npm run test:ssr:uncached
+      - run: npm run test:load:local
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: local-ssr-load-report
+          path: scripts/out/load-local.json
+          if-no-files-found: ignore
+
+  edge-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # Deno resolves npm imports against this project's package.json. A fresh
+      # runner must install the locked dependencies before checking functions.
+      - run: npm ci --ignore-scripts
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno check --no-lock supabase/functions/*/index.ts

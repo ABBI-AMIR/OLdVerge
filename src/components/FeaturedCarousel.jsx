@@ -1,3 +1,4 @@
+import { imageSize } from '../data/imageSizes.js';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Pause, Play } from 'lucide-react';
@@ -36,8 +37,8 @@ function Card({ product, hidden, index, twinFocus }) {
     <li className={`ov-fp-item ${twinFocus ? 'is-twin-focus' : ''}`} data-i={index} aria-hidden={hidden || undefined}>
       <Link to={`/product/${product.slug}`} className="ov-fp-card" draggable={false} tabIndex={hidden ? -1 : undefined}>
         <span className={`ov-fp-media ${product.type === 'watch' ? 'is-watch' : 'is-zip'}`}>
-          <img src={product.photo || originalPhoto(product.image)} alt={hidden ? '' : `${product.name}`} loading="lazy" draggable={false} />
-          {hover && <img className="ov-fp-hover" src={hover} alt="" loading="lazy" draggable={false} />}
+          <img src={product.photo || originalPhoto(product.image)} {...imageSize(product.photo || originalPhoto(product.image))} decoding="async" alt={hidden ? '' : `${product.name}`} loading="lazy" draggable={false} />
+          {hover && <img className="ov-fp-hover" src={hover} {...imageSize(hover)} decoding="async" alt="" loading="lazy" draggable={false} />}
         </span>
         <span className="ov-fp-info">
           <span className="ov-fp-top"><span className="ov-fp-name">{product.name}</span><span className="ov-fp-label">{label}</span></span>

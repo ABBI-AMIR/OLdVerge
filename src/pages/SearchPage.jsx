@@ -1,3 +1,5 @@
+import BackendBrowse from '../components/BackendBrowse.jsx';
+import { isBackend } from '../lib/config.js';
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { getProducts } from '../data/catalog.js';
@@ -6,7 +8,8 @@ import { SORTS, sortProducts } from '../lib/collectionFilters.js';
 import { ProductCard } from '../components/Shell.jsx';
 import { EmptyState, PageHead } from '../components/ui.jsx';
 
-export default function SearchPage() {
+export default function SearchPage() { return isBackend ? <BackendBrowse search /> : <DemoSearchPage />; }
+function DemoSearchPage() {
   const [params, setParams] = useSearchParams();
   const q = (params.get('q') || '').trim();
   const sort = SORTS.some((option) => option.value === params.get('sort')) ? params.get('sort') : 'featured';

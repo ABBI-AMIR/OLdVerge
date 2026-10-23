@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ATTEMPT_KEY, attemptFor, clearAttempt, confirmationHash, explainOrderError, parseConfirmationHash, payloadFingerprint, toOrderLines } from './checkout.js';
+import { ATTEMPT_KEY, attemptFor, clearAttempt, confirmationHash, explainOrderError, parseConfirmationHash, payloadFingerprint, runCheckoutSubmission, toOrderLines } from './checkout.js';
 
 const memoryStorage = () => { const map = new Map(); return { getItem: (k) => map.get(k) ?? null, setItem: (k, v) => map.set(k, String(v)), removeItem: (k) => map.delete(k), raw: map }; };
 const product = { variants: [{ id: 'v-m', size: 'M', color: 'Black' }, { id: 'v-s', size: 'S', color: 'Black' }] };
@@ -68,4 +68,14 @@ describe('confirmation link', () => {
     expect(parseConfirmationHash('')).toBeNull();
     expect(parseConfirmationHash('#o=OV-1')).toBeNull();
   });
+});
+
+it('releases checkout after pre-request failures and ignores simultaneous duplicate submits', async () => {
+  const lock = { current: false }; const busy = [];
+  await expect(runCheckoutSubmission(lock, value => busy.push(value), async () => { throw new Error('hash failed'); })).rejects.toThrow('hash failed');
+  expect(lock.current).toBe(false); expect(busy).toEqual([true, false]);
+  let release; let calls = 0;
+  const first = runCheckoutSubmission(lock, () => {}, () => { calls++; return new Promise(resolve => { release = resolve; }); });
+  await runCheckoutSubmission(lock, () => {}, () => { calls++; });
+  release(); await first; expect(calls).toBe(1); expect(lock.current).toBe(false);
 });

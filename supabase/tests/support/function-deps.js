@@ -55,6 +55,7 @@ export function makeDeps(db, { env = {}, mailer = null } = {}) {
     },
   });
   const environment = {
+    ORDER_TEST_MODE: 'true',
     TOKEN_SECRET: 'unit-test-token-secret-0123456789abcdef',
     ALLOWED_ORIGINS: 'https://oldverge-storefront.vercel.app',
     CRON_SECRET: 'unit-test-cron-secret-0123456789',

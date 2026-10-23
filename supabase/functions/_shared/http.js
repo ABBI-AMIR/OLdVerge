@@ -35,8 +35,8 @@ export async function readJson(request, maxBytes = MAX_JSON_BYTES) {
   const declared = Number(request.headers.get('content-length') || 0);
   if (declared > maxBytes) return { ok: false, status: 413, error: 'payload_too_large' };
   let text;
-  try { text = await request.text(); } catch { return { ok: false, status: 400, error: 'invalid_body' }; }
-  if (new TextEncoder().encode(text).length > maxBytes) return { ok: false, status: 413, error: 'payload_too_large' };
+  try { text = new TextDecoder('utf-8', { fatal: true }).decode(await readBoundedBody(request, maxBytes)); }
+  catch (error) { return { ok: false, status: error.status || 400, error: error.status === 413 ? 'payload_too_large' : 'invalid_body' }; }
   try {
     const data = JSON.parse(text);
     if (data === null || typeof data !== 'object' || Array.isArray(data)) return { ok: false, status: 400, error: 'invalid_body' };
@@ -63,3 +63,23 @@ export const clientIp = (request) => {
 };
 
 export const requestId = () => crypto.randomUUID();
+
+/** Cancel the stream as soon as the byte budget is exceeded, even without Content-Length. */
+export async function readBoundedBody(request, maxBytes) {
+  if (Number(request.headers.get('content-length')) > maxBytes) throw Object.assign(new Error('payload_too_large'), { status: 413 });
+  const reader = request.body?.getReader();
+  if (!reader) return new Uint8Array();
+  const chunks = []; let size = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > maxBytes) { await reader.cancel(); throw Object.assign(new Error('payload_too_large'), { status: 413 }); }
+      chunks.push(value);
+    }
+  } finally { reader.releaseLock(); }
+  const bytes = new Uint8Array(size); let offset = 0;
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
+  return bytes;
+}

@@ -42,7 +42,7 @@ export function passwordProblems(password) {
   if (!/[a-z]/.test(value)) problems.push('a lower case letter');
   if (!/[A-Z]/.test(value)) problems.push('an upper case letter');
   if (!/[0-9]/.test(value)) problems.push('a number');
-  if (value.length > PASSWORD_MAX_LENGTH) problems.push(`no more than ${PASSWORD_MAX_LENGTH} characters`);
+  if (new TextEncoder().encode(value).byteLength > PASSWORD_MAX_LENGTH) problems.push(`no more than ${PASSWORD_MAX_LENGTH} UTF-8 bytes`);
   return problems;
 }
 

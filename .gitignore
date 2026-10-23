@@ -61,3 +61,9 @@ exports/
 
 # generated reports
 scripts/out/
+
+# Private local conversation exports are not application source.
+chat_history.md
+
+# Server bundle is packaged into the function, never a public static asset.
+server-dist/

@@ -1,3 +1,4 @@
+import BotCheck, { formBotToken } from '../../components/BotCheck.jsx';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth, validateEmail } from '../../lib/auth.js';
@@ -127,7 +128,7 @@ export function ReturnsPage() {
     const orderNumber = form.values.order_number.trim().toUpperCase();
     setBusy(true);
     const result = await callFunction('submit-contact', {
-      kind: 'return_request',
+      kind: 'return_request', turnstile_token: formBotToken(event.currentTarget),
       first_name: first,
       last_name: last,
       email: form.values.email.trim(),
@@ -167,7 +168,7 @@ export function ReturnsPage() {
           </div>
           <FormMessage>{problem}</FormMessage>
           <button type="submit" className="ov-button ov-button-dark" disabled={busy}>{busy ? 'Saving…' : 'Save my request'}</button>
-        </form>}
+        <BotCheck /></form>}
     </Reveal>
   </main>;
 }

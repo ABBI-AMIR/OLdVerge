@@ -1,33 +1,49 @@
+import { finishIntro } from './introState.js';
 import { Suspense, lazy, useEffect } from 'react';
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { Footer, Header } from './components/Shell.jsx';
-import BrandLoader from './components/BrandLoader.jsx';
 import BackendGate, { useBackendBootstrap } from './components/BackendGate.jsx';
-import { heroImages } from './components/HomeHero.jsx';
-import { HomePage, ShopPage } from './pages.jsx';
-import ProductPage from './pages/ProductPage.jsx';
-import CartPage from './pages/CartPage.jsx';
-import CheckoutPage from './pages/CheckoutPage.jsx';
-import ConfirmationPage from './pages/ConfirmationPage.jsx';
-import LiveCheckoutPage from './pages/checkout/LiveCheckoutPage.jsx';
-import LiveConfirmationPage from './pages/checkout/LiveConfirmationPage.jsx';
-import SearchPage from './pages/SearchPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
-import * as demoAccount from './pages/account.jsx';
-import * as livePages from './pages/live/index.js';
-import { ReturnsPage as DemoReturnsPage, ShippingPage, TrackOrderPage as DemoTrackOrderPage } from './pages/support.jsx';
-import AboutPage from './pages/AboutPage.jsx';
-import FaqPage from './pages/FaqPage.jsx';
-import ContactPage from './pages/ContactPage.jsx';
-import PolicyPage from './components/PolicyPage.jsx';
 import { policyPath } from './data/policies.js';
 import { PAGE_META } from './data/siteInfo.js';
 import { useStore } from './store.js';
 import SmoothScroll from './components/SmoothScroll.jsx';
-import { productBySlug } from './data/catalog.js';
+import { productBySlug, useCatalog } from './data/catalog.js';
 import { getPolicies, useSite } from './data/site.js';
 import { shopTitle } from './data/collections.js';
-import { isBackend } from './lib/config.js';
+import { backend, isBackend } from './lib/config.js';
+
+const NewsletterActionPage = lazy(() => import('./pages/NewsletterActionPage.jsx'));
+
+const ProductPage = lazy(() => import('./pages/ProductPage.jsx'));
+
+const CartPage = lazy(() => import('./pages/CartPage.jsx'));
+
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage.jsx'));
+
+const ConfirmationPage = lazy(() => import('./pages/ConfirmationPage.jsx'));
+
+const LiveCheckoutPage = lazy(() => import('./pages/checkout/LiveCheckoutPage.jsx'));
+
+const LiveConfirmationPage = lazy(() => import('./pages/checkout/LiveConfirmationPage.jsx'));
+
+const SearchPage = lazy(() => import('./pages/SearchPage.jsx'));
+
+const AboutPage = lazy(() => import('./pages/AboutPage.jsx'));
+
+const FaqPage = lazy(() => import('./pages/FaqPage.jsx'));
+
+const ContactPage = lazy(() => import('./pages/ContactPage.jsx'));
+
+const PolicyPage = lazy(() => import('./components/PolicyPage.jsx'));
+
+const HomePage = lazy(() => import('./pages.jsx').then(module => ({ default: module.HomePage })));
+const ShopPage = lazy(() => import('./pages/ShopPage.jsx'));
+const accountPage = name => lazy(() => (isBackend ? import('./pages/live/index.js') : import('./pages/account.jsx')).then(module => ({ default: module[name] })));
+const account = Object.fromEntries(['DashboardPage','LoginPage','RegisterPage','ForgotPasswordPage','ResetPasswordPage','OrdersPage','OrderDetailPage','AddressesPage','ProfilePage'].map(name => [name,accountPage(name)]));
+const ReturnsPage = lazy(() => (isBackend ? import('./pages/live/SupportPages.jsx') : import('./pages/support.jsx')).then(module => ({ default: module.ReturnsPage })));
+const TrackOrderPage = lazy(() => (isBackend ? import('./pages/live/SupportPages.jsx') : import('./pages/support.jsx')).then(module => ({ default: module.TrackOrderPage })));
+const ShippingPage = lazy(() => import('./pages/support.jsx').then(module => ({ default: module.ShippingPage })));
 
 // The owner's admin area is a separate chunk: visitors to the shop never download it.
 const AdminApp = lazy(() => import('./admin/AdminApp.jsx'));
@@ -70,9 +86,6 @@ function CollectionRedirect() { const { handle } = useParams(); return <Navigate
 function ProductRedirect() { const { handle } = useParams(); return <Navigate to={`/product/${handle}`} replace />; }
 
 // Demo mode keeps the original sample screens. Backend mode uses the Supabase-backed ones.
-const account = isBackend ? livePages : demoAccount;
-const ReturnsPage = isBackend ? livePages.ReturnsPage : DemoReturnsPage;
-const TrackOrderPage = isBackend ? livePages.TrackOrderPage : DemoTrackOrderPage;
 const Checkout = isBackend ? LiveCheckoutPage : CheckoutPage;
 const Confirmation = isBackend ? LiveConfirmationPage : ConfirmationPage;
 const gated = (element) => <BackendGate>{element}</BackendGate>;
@@ -80,6 +93,7 @@ const gated = (element) => <BackendGate>{element}</BackendGate>;
 function RouteContent() {
   const location = useLocation();
   const policies = useSite((state) => state.policies);
+  const products = useCatalog(state => state.products);
   useEffect(() => {
     const path = location.pathname.replace(/\/$/, '') || '/';
     const policy = getPolicies().find((item) => policyPath(item) === path);
@@ -95,19 +109,25 @@ function RouteContent() {
     document.title = title;
     const description = document.querySelector('meta[name="description"]');
     if (description) description.content = product ? `${product.name}. ${product.description} OLDVERGE, Pakistan.` : info?.[1] || policy?.description || 'Quarter zips and watches for everyday wear. OLDVERGE, Pakistan.';
-  }, [location.pathname, location.search, policies]);
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    const ogDescription = document.querySelector('meta[property="og:description"]');
+    if (ogTitle) ogTitle.content = title;
+    if (ogDescription && description) ogDescription.content = description.content;
+  }, [location.pathname, location.search, policies, products]);
   // Keyed by path only: changing filters or sort (query string) updates the same page in place.
-  return <div key={location.pathname} className="ov-page-enter"><Routes location={location}>
+  return <div key={location.pathname} className="ov-page-enter"><Suspense fallback={<main className="ov-page" role="status">Loading…</main>}><Routes location={location}>
     <Route path="/" element={gated(<HomePage />)} />
     <Route path="/shop" element={gated(<ShopPage />)} /><Route path="/shop/:category" element={gated(<ShopPage />)} />
     <Route path="/collections" element={<Redirect to="/shop" />} /><Route path="/collections/:handle" element={<CollectionRedirect />} />
     <Route path="/product/:slug" element={gated(<ProductPage />)} /><Route path="/products/:handle" element={<ProductRedirect />} />
     <Route path="/cart" element={gated(<CartPage />)} /><Route path="/checkout" element={gated(<Checkout />)} />
     <Route path="/order-confirmation" element={<Confirmation />} />
+    <Route path="/newsletter/confirm" element={<NewsletterActionPage action="confirm" />} />
+    <Route path="/newsletter/unsubscribe" element={<NewsletterActionPage action="unsubscribe" />} />
     <Route path="/search" element={gated(<SearchPage />)} />
     <Route path="/account" element={<account.DashboardPage />} /><Route path="/account/login" element={<account.LoginPage />} /><Route path="/account/register" element={<account.RegisterPage />} />
     <Route path="/account/forgot-password" element={<account.ForgotPasswordPage />} />
-    {isBackend && <Route path="/account/reset-password" element={<livePages.ResetPasswordPage />} />}
+    {isBackend && <Route path="/account/reset-password" element={<account.ResetPasswordPage />} />}
     <Route path="/account/orders" element={<account.OrdersPage />} /><Route path="/account/orders/:id" element={<account.OrderDetailPage />} />
     <Route path="/account/addresses" element={<account.AddressesPage />} /><Route path="/account/profile" element={<account.ProfilePage />} />
     <Route path="/about" element={<AboutPage />} /><Route path="/faq" element={<FaqPage />} /><Route path="/contact" element={<ContactPage />} />
@@ -121,7 +141,7 @@ function RouteContent() {
     <Route path="/wishlist" element={<Redirect to="/shop" />} /><Route path="/size-guide" element={<Redirect to="/faq#sizing" />} />
     <Route path="/admin/*" element={<Suspense fallback={<main className="ov-backend-state" aria-busy="true"><p role="status">Loading…</p></main>}><AdminApp /></Suspense>} />
     <Route path="*" element={<NotFoundPage />} />
-  </Routes></div>;
+  </Routes></Suspense></div>;
 }
 
 export default function App() {
@@ -130,6 +150,8 @@ export default function App() {
   const location = useLocation();
   const inAdmin = location.pathname.startsWith('/admin');
   useBackendBootstrap();
+  useEffect(() => { let slug = null; try { if (location.pathname.startsWith('/product/')) slug = decodeURIComponent(location.pathname.slice(9)); } catch { /* malformed paths render the not-found screen */ } useCatalog.setState({ activeSlug: slug }); }, [location.pathname]);
+  useEffect(() => { if (location.pathname !== '/') finishIntro(); }, [location.pathname]);
   useSite((state) => state.siteImages);
   useEffect(() => {
     // The site always renders in its light theme.
@@ -145,8 +167,8 @@ export default function App() {
       tag.content = 'noindex, nofollow';
     } else if (tag) tag.remove();
   }, [inAdmin]);
+  if (backend.issue) return <main role="alert"><h1>The store is temporarily unavailable.</h1><p>Please try again later.</p></main>;
   return <div className="app-shell"><SmoothScroll />{!inAdmin && <Header />}<RouteContent />{!inAdmin && <Footer />}
-    {!inAdmin && <BrandLoader readyImages={heroImages().slice(0, 6).map((image) => image.src)} />}
     <div className="ov-sr-only" role="status" aria-live="polite" aria-atomic="true">{announcement}</div>
     {announcement && !cartOpen && <div className="toast-message" aria-hidden="true">{announcement}</div>}
   </div>;

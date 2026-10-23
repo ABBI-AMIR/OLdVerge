@@ -69,7 +69,7 @@ function fakeClient(result) {
       return (...args) => { log.push([property, ...args]); return builder; };
     },
   });
-  return { log, from: (table) => { log.push(['from', table]); return builder; } };
+  return { log, rpc: (...args) => { log.push(['rpc', ...args]); return Promise.resolve(result); }, from: (table) => { log.push(['from', table]); return builder; } };
 }
 const calls = (client, name) => client.log.filter(([method]) => method === name).map(([, ...args]) => args);
 
@@ -118,21 +118,22 @@ describe('getMyOrder', () => {
 describe('addresses', () => {
   const values = { label: ' Home ', recipient: 'Ada', phone: '0300 1234567', line1: '1 Road', line2: '', city: 'Lahore', province: 'Punjab', postal_code: '54000', is_default: true, user_id: 'attacker', id: 'x' };
 
-  it('inserts only the granted columns (never user_id) and clears the old default first', async () => {
+  it('saves only granted columns through the atomic address RPC', async () => {
     const client = fakeClient({ data: [{ id: 'a1' }], error: null });
     const result = await saveAddress({ values, existingCount: 2 }, client);
     expect(result.ok).toBe(true);
-    const [payload] = calls(client, 'insert')[0];
+    const [name, args] = calls(client, 'rpc')[0];
+    expect(name).toBe('save_customer_address');
+    const payload = args.p_values;
     expect(Object.keys(payload).sort()).toEqual([...ADDRESS_WRITE_COLUMNS].sort());
     expect(payload.label).toBe('Home');
-    expect(calls(client, 'update')[0][0]).toEqual({ is_default: false });
-    expect(client.log.findIndex(([m]) => m === 'update')).toBeLessThan(client.log.findIndex(([m]) => m === 'insert'));
+    expect(calls(client, 'update')).toHaveLength(0);
   });
 
   it('updates by id and reports a vanished row', async () => {
     const client = fakeClient({ data: [], error: null });
     const result = await saveAddress({ id: 'a1', values: { ...values, is_default: false }, existingCount: 3 }, client);
-    expect(calls(client, 'update')).toHaveLength(1);
+    expect(calls(client, 'rpc')[0][1].p_id).toBe('a1');
     expect(result).toMatchObject({ ok: false, error: 'not_found' });
   });
 

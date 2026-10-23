@@ -1,5 +1,7 @@
 # Backend verification
 
+> Historical verification record below. Current staging has all 12 Edge Functions deployed and sandbox Auth verification completed. Its 14-migration application schema/history was reconciled on 2026-10-23: 2,201 entries match, 278 unit and 121 local PostgreSQL tests pass; ordering remains closed. See [schema reconciliation](staging-schema-reconciliation-2026-10-23.md), [Auth evidence](staging-auth-email-verification-2026-10-22.md), and the earlier [integration audit](integration-audit-2026-10-22.md). These results do not establish a working hosted checkout or production readiness.
+
 States are kept separate on purpose: **implemented locally**, **tested locally**, **deployed to preview**, **deployed to production**, **approved for selling**.
 
 | Area | Implemented locally | Tested locally | Preview | Production | Selling |

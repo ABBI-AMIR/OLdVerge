@@ -1,4 +1,6 @@
-# Vercel + Supabase deployment
+# Vercel + Supabase deployment — historical notes
+
+> **Superseded on 2026-10-22. Do not follow the setup or release commands below.** They refer to a different repository/account, an obsolete SPA deployment, and unsafe assumptions about migration history and blank Preview configuration. The active account is `abdullah-f9b8/o-ld-verge`, using `ABBI-AMIR/OLdVerge` and Supabase project `qeczhyiwgvglilwqbveh`. Follow sections I and K of [the current integration audit](integration-audit-2026-10-22.md) instead. The existing Vercel platform Production target is a protected staging environment; `oldverge.com` is not attached. The hosted migration ledger is absent: do not run a blind `db push` or full-schema setup.
 
 ## Verified facts (2026-10-18/19)
 - GitHub repository `SpideyAB/oldverge-storefront` (private) is connected to the existing Vercel project **`avme12/oldverge-storefront`**; pushes to a branch create a Vercel preview deployment and report a `Vercel` commit status (checked through the GitHub API).

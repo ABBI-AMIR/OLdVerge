@@ -1,3 +1,4 @@
+import { imageSize } from '../data/imageSizes.js';
 import * as React from 'react';
 
 /*
@@ -100,10 +101,6 @@ export function TiltedGridHero({
     return () => ro.disconnect();
   }, [tileHeight, aspectRatio, gap, bend]);
 
-  // Fetch every image up front; a tile picks up its next one just before it comes into view.
-  React.useEffect(() => {
-    for (const { src } of images) new Image().src = src;
-  }, [images]);
 
   const { columns, sweep, unit, limit } = layout ?? measure(1200, 560, tileHeight, aspectRatio, gap, bend);
   const shown = picked.columns === columns ? picked.map : {};
@@ -180,6 +177,8 @@ export function TiltedGridHero({
                   {img ? (
                     <img
                       src={img.src}
+                      {...imageSize(img.src)}
+                      decoding="async"
                       alt=""
                       draggable={false}
                       className="tgh-img"

@@ -1,3 +1,5 @@
+import { isBackend } from '../lib/config.js';
+import { useCatalogPage } from '../lib/useCatalogPage.js';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Search, X } from 'lucide-react';
@@ -20,9 +22,12 @@ export default function SearchPanel({ open, onClose }) {
   useDialogFocus(open, onClose);
   useScrollLock(open, 'search-panel');
   useEffect(() => { if (open) { setQuery(''); window.setTimeout(() => inputRef.current?.focus(), 0); } }, [open]);
+  const [debounced, setDebounced] = useState('');
+  useEffect(() => { const timer = setTimeout(() => setDebounced(query.trim()), 200); return () => clearTimeout(timer); }, [query]);
+  const remote = useCatalogPage({ q: debounced, size: 5 }, { enabled: isBackend && open && Boolean(debounced) });
   if (!open) return null;
   const trimmed = query.trim();
-  const matches = trimmed ? searchProducts(trimmed).slice(0, 5) : [];
+  const matches = isBackend ? (trimmed === debounced && remote.status === 'ready' ? remote.products : []) : trimmed ? searchProducts(trimmed).slice(0, 5) : [];
   const submit = (event) => {
     event.preventDefault();
     if (!trimmed) return;
@@ -40,7 +45,7 @@ export default function SearchPanel({ open, onClose }) {
         <button type="button" className="ov-icon-close" aria-label="Close search" onClick={onClose}><X size={22} aria-hidden="true" /></button>
       </form>
       <div className="ov-search-body" aria-live="polite">
-        {trimmed ? (matches.length
+        {isBackend && trimmed && (trimmed !== debounced || remote.status === 'loading') ? <p>Searching…</p> : isBackend && trimmed && remote.status === 'error' ? <p>Search is unavailable. <button onClick={remote.retry}>Try again</button></p> : trimmed ? (matches.length
           ? <>
             <h2>{matches.length === 1 ? '1 match' : `Top matches`}</h2>
             <ul className="ov-search-results">{matches.map((product) => <li key={product.id}><Link to={`/product/${product.slug}`} onClick={() => { rememberSearch(trimmed); onClose(); }}>
@@ -54,7 +59,7 @@ export default function SearchPanel({ open, onClose }) {
             <ul className="ov-search-links">
               <li><Link to={COLLECTIONS.watches.path} onClick={onClose}>Watches</Link></li>
               <li><Link to={COLLECTIONS['quarter-zips'].path} onClick={onClose}>Quarter zips</Link></li>
-              <li><Link to={COLLECTIONS.all.path} onClick={onClose}>All products ({getProducts().length})</Link></li>
+              <li><Link to={COLLECTIONS.all.path} onClick={onClose}>All products{!isBackend && ` (${getProducts().length})`}</Link></li>
             </ul>
           </>}
       </div>

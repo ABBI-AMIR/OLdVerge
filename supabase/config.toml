@@ -462,3 +462,7 @@ entrypoint = "./functions/admin-upload-image/index.ts"
 [functions.admin-approve-image]
 verify_jwt = false
 entrypoint = "./functions/admin-approve-image/index.ts"
+
+[functions.newsletter-confirm]
+verify_jwt = false
+entrypoint = "./functions/newsletter-confirm/index.ts"
