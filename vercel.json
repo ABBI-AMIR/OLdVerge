@@ -3,7 +3,8 @@
   "framework": "vite",
   "git": {
     "deploymentEnabled": {
-      "publish/staging-integration": false
+      "publish/staging-integration": false,
+      "main": false
     }
   },
   "installCommand": "npm ci",
