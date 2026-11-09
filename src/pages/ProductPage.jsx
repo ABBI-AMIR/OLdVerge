@@ -29,7 +29,7 @@ function Lightbox({ images, index, onIndex, onClose }) {
   return <div className="overlay ov-lightbox" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
     <div role="dialog" aria-modal="true" aria-label="Enlarged product image" className="ov-lightbox-panel">
       <button type="button" className="ov-icon-close" aria-label="Close enlarged image" onClick={onClose}><X size={22} aria-hidden="true" /></button>
-      <img src={image.src} alt={image.alt} />
+      <img src={image.src} alt={image.alt} {...imageSize(image.src)} loading="eager" decoding="async" />
       {images.length > 1 && <div className="ov-lightbox-nav">
         <button type="button" aria-label="Previous image" onClick={() => step(-1)}><ChevronLeft aria-hidden="true" /></button>
         <span aria-live="polite">{index + 1} / {images.length}</span>
@@ -49,11 +49,11 @@ function Gallery({ product }) {
   if (!current) return <div className="ov-gallery"><div className="ov-gallery-main is-empty" role="img" aria-label={`${product.name}, no photograph yet`} /></div>;
   return <div className="ov-gallery">
     <div className="ov-gallery-main ov-product-figure">
-      <img src={current.src} alt={current.alt} {...imageSize(current.src)} decoding="async" fetchPriority="high" />
+      <img src={current.src} alt={current.alt} {...imageSize(current.src)} loading="eager" decoding="async" fetchPriority="high" />
       <button type="button" ref={zoomButton} className="ov-zoom" aria-label="Enlarge image" aria-haspopup="dialog" onClick={() => setZoom(true)}><Maximize2 size={18} aria-hidden="true" /></button>
     </div>
     {images.length > 1 && <ul className="ov-thumbs" aria-label="Product images">{images.map((image, index) => <li key={image.src}>
-      <button type="button" aria-label={`Show image ${index + 1} of ${images.length}`} aria-pressed={index === active} className={index === active ? 'is-active' : ''} onClick={() => setActive(index)}><img src={image.src} alt="" loading="lazy" /></button>
+      <button type="button" aria-label={`Show ${image.alt} (${index + 1} of ${images.length})`} aria-pressed={index === active} className={index === active ? 'is-active' : ''} onClick={() => setActive(index)}><img src={image.src} alt="" width="76" height="95" loading="lazy" decoding="async" /></button>
     </li>)}</ul>}
     {zoom && <Lightbox images={images} index={active} onIndex={setActive} onClose={() => { setZoom(false); window.setTimeout(() => zoomButton.current?.focus(), 0); }} />}
   </div>;
@@ -117,6 +117,7 @@ function ProductContent() {
   const related = getProducts().filter((item) => item.id !== product.id && item.category === product.category).slice(0, 4);
   const colourProducts = product.groupKey ? getProducts().filter((item) => item.groupKey === product.groupKey) : getProducts().filter((item) => item.category === 'Quarter-Zips');
   const soldOutEverywhere = product.soldOut || (!needsSize(product) && variantStatus(product, product.sizes[0]) === 'sold-out');
+  const purchaseDisabled = soldOutEverywhere || product.pricePending;
   const options = { size, color: product.colors[0], quantity };
 
   const check = () => {
@@ -147,8 +148,8 @@ function ProductContent() {
         {error && <p className="ov-form-error" id="ov-option-error" role="alert">{error}</p>}
         <div className="ov-qty-block"><span className="ov-qty-label" id="ov-qty-label">Quantity</span><QuantityControl value={quantity} label="Quantity" onChange={setQuantity} /></div>
         <div className="ov-purchase" ref={actionsRef}>
-          <button type="button" className="ov-button ov-button-dark" onClick={onAdd} disabled={soldOutEverywhere}>{soldOutEverywhere ? 'Sold out' : 'Add to cart'}</button>
-          <button type="button" className="ov-button ov-button-light" onClick={onBuyNow} disabled={soldOutEverywhere}>Buy now</button>
+          <button type="button" className="ov-button ov-button-dark" onClick={onAdd} disabled={purchaseDisabled}>{product.pricePending ? 'Price coming soon' : soldOutEverywhere ? 'Sold out' : 'Add to cart'}</button>
+          <button type="button" className="ov-button ov-button-light" onClick={onBuyNow} disabled={purchaseDisabled}>Buy now</button>
         </div>
         {!isBackend && <p className="ov-note">Demo store: prices are samples and orders are not open yet.</p>}
         {isBackend && !orderingOpen() && <p className="ov-note">Orders are not open yet.</p>}
@@ -165,7 +166,7 @@ function ProductContent() {
     {related.length > 0 && <section className="ov-related" aria-labelledby="ov-related-title"><h2 id="ov-related-title">More like this</h2><div className="ov-product-grid">{related.map((item) => <ProductCard product={item} key={item.id} />)}</div></section>}
     <div className={`ov-sticky-buy ${stickyVisible ? 'is-visible' : ''}`} aria-hidden={!stickyVisible}>
       <div><strong>{product.name}</strong><span>{formatPrice(product.price)}</span></div>
-      <button type="button" className="ov-button ov-button-dark" tabIndex={stickyVisible ? 0 : -1} onClick={onAdd} disabled={soldOutEverywhere}>{soldOutEverywhere ? 'Sold out' : 'Add to cart'}</button>
+      <button type="button" className="ov-button ov-button-dark" tabIndex={stickyVisible ? 0 : -1} onClick={onAdd} disabled={purchaseDisabled}>{product.pricePending ? 'Price coming soon' : soldOutEverywhere ? 'Sold out' : 'Add to cart'}</button>
     </div>
   </main>;
 }

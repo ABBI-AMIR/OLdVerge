@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { backend, isBackend } from '../lib/config.js';
 import { supabase } from '../lib/supabase.js';
-import { products as demoProducts } from './products.js';
+import { products as demoProducts } from './localProductImages.js';
 import { registerImageSize } from './imageSizes.js';
 import { PRODUCT_SELECT, mapProductRow } from './catalogMapper.js';
 

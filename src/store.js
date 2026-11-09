@@ -19,6 +19,7 @@ export const needsSize = (product) => product.sizes.length > 1;
 /** Returns an error message, or '' when the options are valid for this product. */
 export function validateOptions(product, { size, color, quantity }) {
   if (!product) return 'This product is no longer available.';
+  if (product.pricePending) return 'The price has not been confirmed yet.';
   if (needsSize(product) && !size) return 'Choose a size first.';
   const chosen = size || product.sizes[0];
   if (!product.sizes.includes(chosen)) return 'Choose a size from the list.';
@@ -36,7 +37,7 @@ export function sanitizeLines(raw) {
     if (!entry || typeof entry !== 'object') return;
     const productId = entry.productId ?? entry.slug ?? entry.id;
     const product = typeof productId === 'string' ? productBySlug(productId) : null;
-    if (!product) return;
+    if (!product || product.pricePending) return;
     const size = typeof entry.size === 'string' && product.sizes.includes(entry.size) ? entry.size : product.sizes[0];
     const color = typeof entry.color === 'string' && product.colors.includes(entry.color) ? entry.color : product.colors[0];
     const key = lineKey(product.id, size, color);
@@ -72,9 +73,9 @@ export function reconcileLines(lines) {
     const product = productBySlug(line.productId);
     const validSize = product && product.sizes.includes(line.size);
     const validColor = product && (!line.color || product.colors.includes(line.color));
-    const available = product && validSize && validColor && variantStatus(product, line.size) !== 'sold-out';
+    const available = product && !product.pricePending && validSize && validColor && variantStatus(product, line.size) !== 'sold-out';
     if (available) kept.push({ ...line, quantity: clampQty(line.quantity) });
-    else removed.push({ productId: line.productId, name: product?.name || line.productId, reason: !product ? 'no_longer_sold' : !validSize || !validColor ? 'option_unavailable' : 'sold_out' });
+    else removed.push({ productId: line.productId, name: product?.name || line.productId, reason: !product ? 'no_longer_sold' : product.pricePending ? 'price_pending' : !validSize || !validColor ? 'option_unavailable' : 'sold_out' });
   });
   return { kept, removed };
 }
@@ -82,7 +83,7 @@ export function reconcileLines(lines) {
 export function resolveLines(lines) {
   return (lines || []).map((line) => {
     const product = productBySlug(line.productId ?? line.slug);
-    if (!product) return null;
+    if (!product || product.pricePending) return null;
     const unitPrice = variantFor(product, line.size, line.color)?.price ?? product.price;
     const quantity = clampQty(line.quantity);
     return { key: lineKey(product.id, line.size, line.color), product, size: line.size, color: line.color, quantity, unitPrice, lineTotal: unitPrice * quantity };

@@ -1,3 +1,4 @@
+import { productImageFiles } from './productImages.js';
 // Shared constructors for catalogue entries. Kept apart from products.js so
 // demoListings.js can build entries without a circular import.
 
@@ -14,6 +15,7 @@ export const watch = (id, brand, model, price, color, image, description, style)
   sizes: ['One size'],
   material: 'See manufacturer specifications',
   image,
+  imageFiles: productImageFiles('watches', id),
   style,
   badge: '',
   description,
@@ -32,6 +34,7 @@ export const quarterZip = (id, color, image, artColor) => ({
   sizes: ['S', 'M', 'L', 'XL', 'XXL'],
   material: 'Fabric composition to be confirmed',
   image,
+  imageFiles: productImageFiles('quarter-zips', id),
   artColor,
   style: 'Everyday',
   badge: '',

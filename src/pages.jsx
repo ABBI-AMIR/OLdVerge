@@ -1,7 +1,9 @@
 import BrandLoader from './components/BrandLoader.jsx';
+import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { getProducts, useCatalog } from './data/catalog.js';
+import { useCatalog } from './data/catalog.js';
+import { quarterZipColors } from './lib/quarterZipShowcase.js';
 import { collectionForCategory } from './data/collections.js';
 import { imageSize } from './data/imageSizes.js';
 import { siteImage, useSite } from './data/site.js';
@@ -16,14 +18,11 @@ import Reveal from './components/Reveal.jsx';
 const SiteImg = ({ name, ...rest }) => { const image = siteImage(name); return image ? <img src={image.src} alt={image.alt} {...imageSize(image.src)} {...rest} /> : null; };
 
 export function HomePage() {
-  useCatalog(state => state.products);
+  const products = useCatalog(state => state.products);
   useSite((state) => state.siteImages);         // re-render when the site images load
   // Quarter-zip colour links use the colour values already defined on the
   // quarter-zip products, and the product routes that already exist.
-  const colors = ['Black', 'Beige', 'Navy', 'Olive'].map((name) => {
-    const product = getProducts().find((item) => item.category === 'Quarter-Zips' && item.colors[0] === name);
-    return { name, hex: product?.artColor, slug: product?.slug };
-  }).filter((color) => color.slug);
+  const colors = useMemo(() => quarterZipColors(products), [products]);
   return <main id="main-content" className="ov-home">
     <BrandLoader readyImages={heroImages().slice(0, 3).map(image => image.src)} />
     <HomeHero />

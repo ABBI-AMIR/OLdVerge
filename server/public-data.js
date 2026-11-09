@@ -1,5 +1,5 @@
 import { PRODUCT_SELECT, mapProductRow } from '../src/data/catalogMapper.js';
-import { products as demoProducts } from '../src/data/products.js';
+import { products as demoProducts } from '../src/data/localProductImages.js';
 import { readBoundedBody } from '../supabase/functions/_shared/http.js';
 
 const publicPaths = new Set(['/', '/shop', '/shop/watches', '/shop/quarter-zips', '/search', '/about', '/faq', '/contact', '/shipping', '/refund-policy', '/privacy-policy', '/terms-and-conditions']);

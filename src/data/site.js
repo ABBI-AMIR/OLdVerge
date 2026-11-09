@@ -82,6 +82,10 @@ export function contactInfo() {
 
 /** Demo mode: the original files in /public/images. Backend mode: only approved images from Storage, else null. */
 export const DEMO_SITE_IMAGES = {
+  'ribbon-watch-stone': { src: '/images/ribbon-watch-stone.jpg', alt: 'Leather-strap wristwatch on stone' },
+  'ribbon-navy-collar': { src: '/images/ribbon-navy-collar.webp', alt: 'Navy Oldverge quarter-zip collar detail' },
+  'ribbon-watch-wrist': { src: '/images/ribbon-watch-wrist.jpg', alt: 'Classic wristwatch with a brown leather strap' },
+  'ribbon-brown-knit': { src: '/images/ribbon-brown-knit.webp', alt: 'Folded chocolate brown Oldverge quarter-zip' },
   'quarter-zip-beige': { src: '/images/quarter-zip-beige.jpg', alt: 'Man in a beige quarter-zip' },
   'watch-seiko-sports': { src: '/images/watch-seiko-sports.jpg', alt: 'A sports watch on a white surface' },
   'oldverge-hero-model': { src: '/images/oldverge-hero-model.jpg', alt: 'Man wearing a grey-green quarter-zip, smiling' },
