@@ -19,6 +19,7 @@
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 3px solid var(--ov-focus); outline-offset: 3px; }
 html { scroll-behavior: auto; scroll-padding-top: 84px; }
 body { font-size: 16px; }
+.app-shell:has(.ov-collection), .app-shell[data-ssr="public"] { background: var(--ov-ivory); }
 
 /* ---------- Readable type ---------- */
 .ov-page, .ov-product-page, .ov-cart, .ov-checkout { font-family: 'Manrope', sans-serif; font-size: 16px; line-height: 1.6; color: var(--ov-espresso); }
@@ -389,3 +390,42 @@ body { font-size: 16px; }
 .ov-backend-state { max-width: 40rem; margin: 6rem auto; padding: 0 1.25rem; text-align: center; }
 .ov-backend-state h1, .ov-backend-state h2 { font-weight: 400; }
 .ov-backend-state p { color: var(--ov-stone, #655E54); }
+
+.ov-garment-details { margin: 0; padding-inline-start: 1.2em; }
+.ov-garment-details li + li { margin-top: .6em; }
+.ov-garment-links { margin: clamp(32px, 5vw, 72px) auto; display: flex; justify-content: center; }
+.ov-garment-links a { flex: 0 1 340px; display: flex; align-items: center; justify-content: center; gap: 14px; padding: 8px 14px; color: inherit; text-decoration: none; }
+.ov-garment-links a + a { border-inline-start: 1px solid var(--ov-line, #d2c9bd); }
+.ov-garment-links svg { flex: none; width: 22px; stroke-width: 1.4; }
+.ov-garment-links small { display: block; }
+.ov-garment-links a:hover strong, .ov-garment-links a:focus-visible strong { text-decoration: underline; }
+.ov-product-page.ov-quarter-zip-page {
+  max-width: none;
+  padding-inline: 0;
+  display: grid;
+  grid-template-columns: 1fr minmax(0, min(1208px, 92%)) 1fr;
+}
+.ov-quarter-zip-page > * { grid-column: 2; }
+.ov-quarter-zip-page .ov-gallery-main { max-height: none; }
+.ov-quarter-zip-page > .ov-garment-banner { grid-column: 1 / -1; }
+.ov-garment-banner { position: relative; display: grid; place-items: center; isolation: isolate; overflow: hidden; background: #191713; aspect-ratio: 5 / 2; }
+.ov-garment-banner img { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+@media (max-width: 600px) {
+  .ov-garment-banner { aspect-ratio: 3 / 2; }
+}
+.ov-garment-banner::before { content: ''; position: absolute; inset: 0; z-index: -1; background: rgba(21, 18, 16, .32); }
+.ov-garment-banner span { padding-left: .25em; font: 600 clamp(24px, 3vw, 42px)/1 'Cormorant Garamond', serif; letter-spacing: .25em; color: white; }
+@media (max-width: 580px) {
+  .ov-garment-links a { align-items: flex-start; flex-direction: column; gap: 6px; }
+  .ov-garment-links a + a { padding-inline-start: 20px; }
+}
+.ov-size-chart { margin-top: 1rem; overflow-x: auto; scroll-margin-top: 7rem; }
+.ov-size-chart summary { display: inline-flex; align-items: center; gap: .65rem; min-height: 44px; padding-inline: 3px; cursor: pointer; font-size: .88rem; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; list-style: none; }
+.ov-size-chart summary::-webkit-details-marker { display: none; }
+.ov-size-chart summary svg { transform: rotate(-45deg); }
+.ov-size-chart summary:focus-visible { outline-offset: -2px; }
+.ov-size-chart table { border-collapse: collapse; width: 100%; font-size: .85rem; font-variant-numeric: tabular-nums; }
+.ov-size-chart caption { text-align: left; font-size: 1rem; font-weight: 600; margin-bottom: .6rem; }
+.ov-size-chart caption small { display: block; font-weight: 400; }
+.ov-size-chart th, .ov-size-chart td { padding: .45em .25em; text-align: center; border-bottom: 1px solid #d2c9bd; }
+.ov-size-chart th:first-child { text-align: left; }

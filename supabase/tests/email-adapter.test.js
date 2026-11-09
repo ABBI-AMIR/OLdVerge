@@ -2,7 +2,8 @@ import {afterAll,beforeAll,describe,expect,it,vi} from 'vitest';
 import {createTestDatabase,newUuid,sha256} from './support/db.js';
 import {jsonRequest,makeDeps} from './support/function-deps.js';
 import {newsletterConfirm,newsletterSubscribe,newsletterUnsubscribe,processOutbox} from '../functions/_shared/handlers.js';
-import {createStagingMailer,STAGING_EMAIL} from '../functions/_shared/mailer.js';
+import {createOutboxMailer,createStagingMailer,STAGING_EMAIL} from '../functions/_shared/mailer.js';
+import {openOrdering,placeOrder,seedStore} from './support/fixtures.js';
 
 const address='adapter@example.test';
 const env={SUPABASE_URL:STAGING_EMAIL.projectUrl,COMMERCE_EMAIL_PROVIDER:'mailtrap_sandbox',COMMERCE_EMAIL_SITE_URL:STAGING_EMAIL.siteUrl,
@@ -13,6 +14,43 @@ const call=async(handler,body,headers={})=>{
   return {status:response.status,body:await response.json()};
 };
 const subscription={email:address,consent:true,consent_text:'I agree to receive OLDVERGE news'};
+
+it('sends a checkout owner alert and retries only the rejected customer confirmation',async()=>{
+  const db=await createTestDatabase();
+  try {
+    const ids=await seedStore(db);
+    await openOrdering(db);
+    const order=await placeOrder(db.main,{lines:[{variant_id:ids.zipM,quantity:1}],expectedTotal:8740});
+    const deps=makeDeps(db,{env:{ORDER_TEST_MODE:'false',ORDER_EMAIL_PROVIDER:'mailtrap_live',
+      ORDER_EMAIL_SITE_URL:'https://store.example.test',MAILTRAP_LIVE_FROM:'orders@example.test',
+      ORDER_EMAIL_ADMIN_TO:'owner@example.test',MAILTRAP_LIVE_API_TOKEN:'local-only-test-credential'}});
+    deps.admin.from=table=>{
+      expect(table).toBe('orders');
+      return {select:()=>({eq:(_,id)=>({abortSignal:()=>({maybeSingle:async()=>({
+        data:(await db.main.query('select * from public.orders where id=$1',[id])).rows[0],error:null
+      })})})})};
+    };
+    const deliveries=[];
+    deps.fetch=async(url,request)=>{
+      expect(url).toBe('https://send.api.mailtrap.io/api/send');
+      const message=JSON.parse(request.body);
+      expect(message.subject).toContain(order.order_number);
+      const recipient=message.to[0].email;
+      deliveries.push(recipient);
+      if (recipient==='customer@example.test' && deliveries.filter(v=>v===recipient).length===1)
+        return new Response(null,{status:429});
+      return Response.json({success:true,message_ids:['local-ack']});
+    };
+    deps.mailer=createOutboxMailer(deps);
+    const run=()=>call(processOutbox(deps),{}, {'x-cron-secret':deps.env.get('CRON_SECRET')});
+    expect((await run()).body).toMatchObject({sent:1,failed:1});
+    expect((await run()).body).toMatchObject({sent:0,failed:0});
+    await db.main.query("update public.notification_outbox set next_attempt_at=now() where status='failed'");
+    expect((await run()).body).toMatchObject({sent:1,failed:0});
+    expect(deliveries.sort()).toEqual(['customer@example.test','customer@example.test','owner@example.test']);
+    expect((await db.main.query("select count(*)::int as n from public.notification_outbox where status='sent'")).rows[0].n).toBe(2);
+  } finally { await db.close(); }
+});
 
 describe('email pipeline with real isolated PostgreSQL and mocked Mailtrap',()=>{
   let db;

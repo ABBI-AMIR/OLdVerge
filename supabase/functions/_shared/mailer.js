@@ -1,4 +1,4 @@
-// Staging only. There is deliberately no live-delivery URL or configurable provider host.
+// Provider endpoints are fixed. Live delivery is selected only by the outbox worker.
 import { readBoundedBody } from './http.js';
 
 export const STAGING_EMAIL = Object.freeze({
@@ -33,17 +33,37 @@ function config(env) {
     const allowed = new Set(recipients.map(email));
     const adminTo = email(env.get('COMMERCE_EMAIL_ADMIN_TO'));
     if (!allowed.has(adminTo)) return null;
-    return { apiToken, allowed, adminTo };
+    return { apiToken, allowed, adminTo, siteUrl: STAGING_EMAIL.siteUrl,
+      endpoint: `https://sandbox.api.mailtrap.io/api/send/${STAGING_EMAIL.sandboxId}`,
+      from: {email:'oldverge-staging@example.test',name:'OLDVERGE Staging — Test Only'} };
   } catch { return null; }
 }
 
 /** No provider call, row claim or data mutation when configuration is incomplete/incorrect. */
-export function createStagingMailer({env, admin, fetch: request = fetch}) {
-  const settings = config(env);
+export function createStagingMailer(deps) {
+  return buildMailer(deps, config(deps.env));
+}
+
+export function createOutboxMailer(deps) {
+  const {env} = deps;
+  if (env.get('ORDER_EMAIL_PROVIDER') !== 'mailtrap_live') return createStagingMailer(deps);
+  if (env.get('ORDER_TEST_MODE') === 'true') return null;
+  try {
+    const site = new URL(env.get('ORDER_EMAIL_SITE_URL'));
+    const sender = email(env.get('MAILTRAP_LIVE_FROM'));
+    const apiToken = env.get('MAILTRAP_LIVE_API_TOKEN');
+    if (site.protocol !== 'https:' || site.href !== site.origin + '/' || site.origin === STAGING_EMAIL.siteUrl
+      || sender.endsWith('@demomailtrap.co') || !apiToken || !/^[\x21-\x7e]{16,512}$/.test(apiToken)) return null;
+    return buildMailer(deps, {live:true, siteUrl:site.origin, endpoint:'https://send.api.mailtrap.io/api/send',
+      from:{email:sender,name:'Oldverge'}, apiToken, adminTo:email(env.get('ORDER_EMAIL_ADMIN_TO'))});
+  } catch { return null; }
+}
+
+function buildMailer({admin, fetch: request = fetch}, settings) {
   if (!settings) return null;
   const recipient = (value) => {
     const address = email(value);
-    if (!settings.allowed.has(address)) fail('email_recipient_blocked');
+    if (settings.allowed && !settings.allowed.has(address)) fail('email_recipient_blocked');
     return address;
   };
   const read = async (table, columns, id, signal) => {
@@ -58,7 +78,7 @@ export function createStagingMailer({env, admin, fetch: request = fetch}) {
   };
   async function render(kind, payload, signal) {
     if (!payload || typeof payload !== 'object' || Array.isArray(payload)) fail('email_invalid_payload');
-    if (kind === 'newsletter_confirmation') {
+    if (!settings.live && kind === 'newsletter_confirmation') {
       const to = recipient(payload.email);
       return {to,subject:'Confirm your newsletter subscription',lines:[
         'Confirm that you want to receive OLDVERGE news:',newsletterLink('confirm',payload.confirmation_token),
@@ -68,25 +88,26 @@ export function createStagingMailer({env, admin, fetch: request = fetch}) {
     }
     if (kind === 'order_confirmation' || kind === 'admin_new_order') {
       const order = await read('orders','order_number,customer_email,customer_name,total_pkr,currency,payment_status,fulfilment_status,is_test',payload.order_id,signal);
-      if (order.is_test !== true) fail('email_non_test_order');
+      if (settings.live && order.is_test !== false) fail('email_recipient_blocked');
+      if (!settings.live && order.is_test !== true) fail('email_non_test_order');
       // Validate the customer's allowlist even for admin notices; never capture unrelated customer data.
       const customer = recipient(order.customer_email);
       if (order.currency !== 'PKR' || !/^OV-\d{6}-[0-9A-F]{8}$/.test(order.order_number)) fail('email_invalid_payload');
-      const title = kind === 'order_confirmation' ? 'Order received' : 'New test order';
+      const title = kind === 'order_confirmation' ? 'Order received' : (settings.live ? 'New order' : 'New test order');
       return {to:kind === 'order_confirmation' ? customer : recipient(settings.adminTo),subject:`${title}: ${order.order_number}`,lines:[
         `${title}: ${order.order_number}`,`Customer: ${text(order.customer_name,160)}`,
         `Total: ${money(order.total_pkr)}`,`Payment status: ${text(order.payment_status,40)}`,
         `Fulfilment status: ${text(order.fulfilment_status,40)}`,
-        ...(kind === 'admin_new_order' ? [`Review in staging admin: ${STAGING_EMAIL.siteUrl}/admin/orders/${payload.order_id}`]
-          : ['Keep the access code from your checkout confirmation for guest order lookup.',`Account: ${STAGING_EMAIL.siteUrl}/account`]),
+        ...(kind === 'admin_new_order' ? [`Review order: ${settings.siteUrl}/admin/orders/${payload.order_id}`]
+          : ['Keep the access code from your checkout confirmation for guest order lookup.',`Account: ${settings.siteUrl}/account`]),
       ]};
     }
     if (kind === 'admin_new_contact_message') {
       const message = await read('contact_messages','first_name,last_name,email,kind,message',payload.message_id,signal);
       const sender = recipient(message.email);
-      return {to:recipient(settings.adminTo),subject:'New staging contact message',lines:[
+      return {to:recipient(settings.adminTo),subject:settings.live ? 'New contact message' : 'New staging contact message',lines:[
         `From: ${text(message.first_name,80)} ${text(message.last_name,80)}`,`Email: ${sender}`,
-        `Type: ${text(message.kind,40)}`,text(message.message),`Staging admin: ${STAGING_EMAIL.siteUrl}/admin`,
+        `Type: ${text(message.kind,40)}`,text(message.message),`Admin: ${settings.siteUrl}/admin`,
       ]};
     }
     fail('email_invalid_payload');
@@ -97,12 +118,12 @@ export function createStagingMailer({env, admin, fetch: request = fetch}) {
       const timer = setTimeout(() => controller.abort(),10000);
       try {
         const message = await render(kind,payload,controller.signal);
-        const lines = ['STAGING TEST — captured in Mailtrap. No real purchase is implied.','',...message.lines];
-        const response = await request(`https://sandbox.api.mailtrap.io/api/send/${STAGING_EMAIL.sandboxId}`,{
+        const lines = settings.live ? message.lines : ['STAGING TEST — captured in Mailtrap. No real purchase is implied.','',...message.lines];
+        const response = await request(settings.endpoint,{
           method:'POST',redirect:'error',signal:controller.signal,
-          headers:{'Content-Type':'application/json','Api-Token':settings.apiToken},
-          body:JSON.stringify({from:{email:'oldverge-staging@example.test',name:'OLDVERGE Staging — Test Only'},to:[{email:message.to}],
-            subject:`[STAGING] ${message.subject}`,text:lines.join('\n'),
+          headers:{'Content-Type':'application/json',...(settings.live ? {Authorization:`Bearer ${settings.apiToken}`} : {'Api-Token':settings.apiToken})},
+          body:JSON.stringify({from:settings.from,to:[{email:message.to}],
+            subject:settings.live ? message.subject : `[STAGING] ${message.subject}`,text:lines.join('\n'),
             html:`<!doctype html><html><body>${lines.map(line=>line.startsWith(`${STAGING_EMAIL.siteUrl}/`)
               ? `<p><a href="${escapeHtml(line)}">${escapeHtml(line)}</a></p>` : `<p>${escapeHtml(line)}</p>`).join('')}</body></html>`}),
         });

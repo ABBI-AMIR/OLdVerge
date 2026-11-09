@@ -29,7 +29,7 @@ export default function AboutPage() {
       <Reveal className="ov-about-media"><Photo className="ov-about-photo" name="oldverge-hero-model" alt="A man wearing a grey-green quarter zip" /></Reveal>
       <Reveal className="ov-about-text" delay={0.08}>
         <h3>The quarter zip</h3>
-        <p>One layer, in black, beige, navy and olive. It is the piece you reach for when the day starts cool and ends later than planned.</p>
+        <p>One layer, in black, burgundy, navy and brown. It is the piece you reach for when the day starts cool and ends later than planned.</p>
         <h3>The watches</h3>
         <p>Digital, field, sport and dress styles at different price points, so there is something for the desk and something for the weekend.</p>
         <p className="ov-about-links"><Link to="/shop/quarter-zips">Shop quarter zips</Link><span aria-hidden="true">·</span><Link to="/shop/watches">Shop watches</Link></p>

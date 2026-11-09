@@ -19,14 +19,14 @@ describe('draft seed import', () => {
     const products = (await db.main.query('select status, ready_to_sell from public.products')).rows;
     expect(products).toHaveLength(10);
     expect(products.every((p) => p.status === 'draft' && p.ready_to_sell === false)).toBe(true);
-    expect((await db.main.query('select count(*)::int as n from public.product_variants')).rows[0].n).toBe(6 + 4 * 5);
+    expect((await db.main.query('select count(*)::int as n from public.product_variants')).rows[0].n).toBe(6 + 4 * 4);
     expect((await db.main.query('select count(*)::int as n from public.inventory where stock_verified or on_hand <> 0')).rows[0].n).toBe(0);
-    const images = (await db.main.query("select distinct approval_status, bucket, licence from public.product_images")).rows;
-    expect(images).toEqual([{ approval_status: 'unverified', bucket: 'product-private', licence: 'Unsplash License' }]);
+    const images = (await db.main.query("select distinct approval_status, bucket from public.product_images")).rows;
+    expect(images).toEqual([{ approval_status: 'unverified', bucket: 'product-private' }]);
   });
 
   it('records provenance for every image and leaves the five requested brands without listings', async () => {
-    const missing = (await db.main.query("select count(*)::int as n from public.product_images where source_name is null or source_url is null or checksum_sha256 is null")).rows[0].n;
+    const missing = (await db.main.query("select count(*)::int as n from public.product_images where source_name is null or (source_name <> 'Owner upload' and (source_url is null or licence is null)) or checksum_sha256 is null")).rows[0].n;
     expect(missing).toBe(0);
     const brands = (await db.main.query("select b.slug, count(p.id)::int as n from public.brands b left join public.products p on p.brand_id = b.id where b.slug in ('rolex', 'patek-philippe', 'cartier', 'franck-muller', 'best-win') group by 1 order by 1")).rows;
     expect(brands.map((b) => b.n)).toEqual([0, 0, 0, 0, 0]);
@@ -53,7 +53,7 @@ describe('draft seed import', () => {
   it('the optional preview script makes the samples browsable but still not purchasable', async () => {
     await db.main.query(read('seed-demo-publish.sql'));
     expect((await asAnon(db.main, (c) => c.query('select count(*)::int as n from public.products'))).rows[0].n).toBe(10);
-    expect((await asAnon(db.main, (c) => c.query("select count(*)::int as n from public.product_images where is_cover"))).rows[0].n).toBe(10);
+    expect((await asAnon(db.main, (c) => c.query("select count(*)::int as n from public.product_images where is_cover"))).rows[0].n).toBe(8);
     const buyable = (await db.main.query("select count(*)::int as n from public.products p join public.product_variants v on v.product_id = p.id join public.inventory i on i.variant_id = v.id where p.ready_to_sell and i.stock_verified")).rows[0].n;
     expect(buyable).toBe(0);
     const ownerId = newUuid();

@@ -10,8 +10,8 @@ const reduce = (state, type, slug) => showcaseReducer(state, {type, slug});
 
 describe('quarter-zip showcase', () => {
   it('drives labels, copy, swatches and photos from the current catalogue', () => {
-    expect(colors.map(color => color.name)).toEqual(['Black', 'Chocolate Brown', 'Navy', 'Burgundy']);
-    expect(colorNames(colors)).toBe('black, chocolate brown, navy, and burgundy');
+    expect(colors.map(color => color.name)).toEqual(['Black', 'Brown', 'Navy', 'Burgundy']);
+    expect(colorNames(colors)).toBe('black, brown, navy, and burgundy');
     expect(colorWays(colors.length)).toBe('Four ways.');
     expect(colorWays(1)).toBe('One way.');
     const extended = [...colors, {slug: 'new', name: 'Stone', hex: '#ccc', image: '/new.jpg'}];
@@ -58,11 +58,12 @@ describe('quarter-zip showcase', () => {
   it('SSR renders every idle photo, eager single images, accessible controls and accurate copy', () => {
     const html=renderToStaticMarkup(<MemoryRouter><ColorExplorer colors={colors} /></MemoryRouter>);
     expect(html).toContain('Four ways.');
-    expect(html).toContain('black, chocolate brown, navy, and burgundy');
+    expect(html).toContain('black, brown, navy, and burgundy');
     expect(html).not.toContain('beige, navy, and olive');
     for(const color of colors) {
       expect(html).toContain(`alt="Oldverge quarter-zip in ${color.name}"`);
-      expect(html).toContain(`aria-label="Preview Oldverge quarter-zip in ${color.name}"`);
+      expect(html).toContain(`aria-label="Shop Oldverge quarter-zip in ${color.name}"`);
+      expect(html).toContain(`href="/product/${color.slug}"`);
     }
     expect((html.match(/loading="eager"/g)||[])).toHaveLength(colors.length*2);
     expect(html).not.toContain('loading="lazy"');

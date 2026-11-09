@@ -1,42 +1,10 @@
 import { imageSize } from '../data/imageSizes.js';
 import * as React from 'react';
 
-/*
- * TiltedGridHero — JSX adaptation of the supplied `tilted-grid-hero.tsx`.
- *
- * What changed from the supplied component, and nothing else:
- *   - TypeScript types removed (the project is plain JavaScript).
- *   - `cn` from "@/lib/utils" replaced by a two-line local join.
- *   - Tailwind utility classes replaced by the equivalent plain CSS in
- *     src/home.css (.tgh-root, .tgh-band, .tgh-tile, .tgh-strip, .tgh-img),
- *     so the component does not depend on shadcn or Tailwind theme tokens.
- *   - `bg-muted` -> --tgh-placeholder (OLDVERGE Sand); `rounded-lg` ends ->
- *     --tgh-radius (0: OLDVERGE uses square corners).
- *   - A `.tgh-tile` class on each tile so the page can hold the band still until the
- *     loader has left, and a `--tgh-duration` variable so home.css can pause the band
- *     under prefers-reduced-motion. (In the supplied code the inline `animation`
- *     shorthand overrides the class that was meant to pause it, and this site's
- *     global reduced-motion rule shortens every animation to 0.01ms, which would
- *     collapse the ribbon. home.css restores the duration and pauses it instead.)
- *   - FIX: the tiles are only rendered once the hero has been measured, and the whole set is
- *     re-keyed whenever the number of columns changes. In the supplied code each tile's place on
- *     the ribbon is its own running time (a negative `animation-delay` from the moment it was
- *     created). When a resize, a scrollbar appearing, or the first real measurement changed the
- *     column count, the tiles that already existed kept their clocks while the new ones started
- *     from zero, so the evenly spaced set fell out of step and left a tile-sized hole in the
- *     middle of the ribbon. Re-keying makes every tile in a set start together, so the spacing
- *     is correct from the first frame and stays correct after any resize.
- *   - `images[].position` (optional object-position) so each photo's subject stays in the crop;
- *     tile images use empty alt text because the whole band is aria-hidden decoration.
- *
- * The geometry (SLICES, CAMERA, arc(), measure(), the keyframes, the mask) is
- * the supplied code, unmodified.
- */
+// Each photograph moves as one surface around the shared horizontal orbit.
 
 const cn = (...parts) => parts.filter(Boolean).join(' ');
 
-// Strips per tile. Each is a few degrees of arc, too little to read as a facet.
-const SLICES = 16;
 
 // Camera distance from the screen, as a multiple of the cylinder's radius.
 const CAMERA = 1.6;
@@ -102,7 +70,7 @@ export function TiltedGridHero({
   }, [tileHeight, aspectRatio, gap, bend]);
 
 
-  const { columns, sweep, unit, limit } = layout ?? measure(1200, 560, tileHeight, aspectRatio, gap, bend);
+  const { columns, sweep, limit } = layout ?? measure(1200, 560, tileHeight, aspectRatio, gap, bend);
   const shown = picked.columns === columns ? picked.map : {};
 
   const u = (n) => `calc(${+n.toFixed(4)} * min(${tileHeight}cqh, ${+(MAX_WIDTH / aspectRatio).toFixed(4)}cqw))`;
@@ -119,7 +87,7 @@ export function TiltedGridHero({
     `${hide + 0.001}%,${100 - hide - 0.001}%{visibility:visible}}` +
     `@media(prefers-reduced-motion:reduce){.${tile}{animation-play-state:paused}}`;
 
-  const share = aspectRatio / SLICES;
+
   const duration = columns * speed;
   const mask = `linear-gradient(90deg,transparent,#000 ${fade}%,#000 ${100 - fade}%,transparent)`;
 
@@ -150,7 +118,6 @@ export function TiltedGridHero({
                 top: `calc(${axis}% - ${u(0.5)})`,
                 width: u(aspectRatio),
                 height: u(1),
-                transformStyle: 'preserve-3d',
                 '--tgh-duration': `${duration}s`,
                 animation: `${orbit} ${duration}s linear ${-t * speed}s infinite`,
               }}
@@ -163,30 +130,15 @@ export function TiltedGridHero({
                 });
               }}
             >
-              {Array.from({ length: SLICES }, (_, k) => (
-                <div
-                  key={k}
-                  className={cn('tgh-strip', k === 0 && 'tgh-strip-first', k === SLICES - 1 && 'tgh-strip-last')}
-                  style={{
-                    left: u((aspectRatio - share) / 2),
-                    width: k === SLICES - 1 ? u(share) : `calc(${u(share)} + 1px)`,
-                    height: u(1),
-                    transform: turn((aspectRatio / 2 - (k + 0.5) * share) * unit),
-                  }}
-                >
-                  {img ? (
-                    <img
-                      src={img.src}
-                      {...imageSize(img.src)}
-                      decoding="async"
-                      alt=""
-                      draggable={false}
-                      className="tgh-img"
-                      style={{ left: u(-k * share), width: u(aspectRatio), height: u(1), objectPosition: img.position || '50% 50%' }}
-                    />
-                  ) : null}
-                </div>
-              ))}
+              {img && <img
+                src={img.src}
+                {...imageSize(img.src)}
+                decoding="async"
+                alt=""
+                draggable={false}
+                className="tgh-img"
+                style={{ objectPosition: img.position || '50% 50%' }}
+              />}
             </div>
           );
         })}

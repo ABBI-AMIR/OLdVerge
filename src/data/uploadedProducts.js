@@ -1,3 +1,4 @@
+import { QUARTER_ZIP_SIZES } from './quarterZipSizes.js';
 import { uploadedProductData } from './uploadedProductData.js';
 import { registerImageSize } from './imageSizes.js';
 
@@ -16,8 +17,8 @@ export const uploadedProducts = uploadedProductData.map(entry => {
     ...details, id: entry.slug, colors: [color], images,
     image: images[0].src, photo: images[0].src,
     price: null, pricePending: true, ownerUpload: true,
-    sizes: entry.type === 'watch' ? ['One size'] : ['S', 'M', 'L', 'XL', 'XXL'],
+    sizes: entry.type === 'watch' ? ['One size'] : QUARTER_ZIP_SIZES,
     material: 'Composition and specifications to be confirmed', badge: '',
-    listingStatus: 'Price, specifications, sizes and availability await owner confirmation.',
+    listingStatus: 'Price, specifications and availability await owner confirmation.',
   };
 });

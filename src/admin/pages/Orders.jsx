@@ -286,6 +286,7 @@ export function OrderDetail() {
                 {!['cancelled', 'delivered'].includes(order.fulfilment_status) ? <ShipmentForm order={order} call={call} busy={busy} /> : null}
                 <ActionBox title="Payment and access">
                   <div className="ovad-row">
+                    {order.payment_method_code === 'allied_bank' && order.payment_status === 'pending' && order.fulfilment_status !== 'cancelled' && <Button busy={busy} onClick={() => ask({ title: 'Confirm Allied Bank transfer?', body: <p>Verify the full amount of <Money value={order.total_pkr} /> in your bank account for {order.order_number} before confirming.</p>, confirmLabel: 'Confirm receipt', action: () => call('admin_confirm_bank_transfer', { p_order_id: order.id }, 'Bank payment confirmed.') })}>Confirm bank receipt</Button>}
                     {order.payment_status === 'unpaid' && order.fulfilment_status !== 'cancelled' ? <Button busy={busy} onClick={markCod}>Mark cash on delivery as paid</Button> : null}
                     <Button busy={busy} onClick={revoke}>Revoke guest access</Button>
                     {canCancel(order) ? <Button tone="danger" busy={busy} onClick={cancel}>Cancel order</Button> : null}

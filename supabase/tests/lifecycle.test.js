@@ -27,6 +27,18 @@ describe('order lifecycle, stock semantics and payment events', () => {
   const payEvent = (o, over = {}) => asService(db.main, (c) => c.query('select public.apply_payment_event($1, $2, $3, $4, $5, $6, $7) as r',
     [over.provider ?? 'test', over.eventId ?? `evt-${Math.random()}`, o.order_id, over.amount ?? o.total_pkr, over.currency ?? 'PKR', over.status ?? 'succeeded', over.ref ?? null])).then((r) => r.rows[0].r.result);
 
+  it('keeps a manual bank order pending until the owner verifies the incoming transfer', async () => {
+    await db.main.query("update public.payment_methods set enabled=true where code='allied_bank'");
+    const o = await placeOrder(db.main, {
+      payload: checkoutPayload(lines(ids.zipM), { payment_method: 'allied_bank' }), expectedTotal: totalFor(ids.zipM, 1),
+    });
+    expect(await order(o.order_id)).toMatchObject({ payment_status: 'pending', stock_state: 'committed' });
+    expect(await stockOf(db, ids.zipM)).toEqual({ on_hand: 4, reserved: 0 });
+    await rpc('admin_confirm_bank_transfer', [o.order_id]);
+    expect((await order(o.order_id)).payment_status).toBe('paid');
+    await expectOvError(rpc('admin_confirm_bank_transfer', [o.order_id]), 'invalid_transition');
+    expect(await stockOf(db, ids.zipM)).toEqual({ on_hand: 4, reserved: 0 });
+  });
   describe('cash on delivery orders', () => {
     it('follow the fulfilment transition matrix and reject skipped or backward steps', async () => {
       const o = await codOrder();

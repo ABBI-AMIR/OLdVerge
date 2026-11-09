@@ -15,7 +15,6 @@ export default function ColorExplorer({ colors }) {
   const stageRef = useRef(null);
   const holdTimer = useRef(0);
   const tiltFrame = useRef(0);
-  const lastPointer = useRef(null);
   const [frame, setFrame] = useState(0);
   const studioIndex = colors.findIndex(color => color.slug === 'quarter-zip-burgundy' && studioFront(color.image));
   const [paused, setPaused] = useState(false);
@@ -86,9 +85,8 @@ export default function ColorExplorer({ colors }) {
           holdTimer.current = window.setTimeout(() => dispatch({type: 'expire'}), RETURN_TO_IDLE_MS);
         }}>
         {colors.map(color => <li key={color.slug}>
-          <button type="button" className={`ov-color-link ov-cx-btn${active?.slug === color.slug ? ' is-active' : ''}`}
-            aria-pressed={state.selected === color.slug} aria-label={`Preview Oldverge quarter-zip in ${color.name}`} aria-controls="ov-cx-display"
-            onPointerDown={event => { lastPointer.current = event.pointerType; }}
+          <Link to={`/product/${color.slug}`} className={`ov-color-link ov-cx-btn${active?.slug === color.slug ? ' is-active' : ''}`}
+            aria-label={`Shop Oldverge quarter-zip in ${color.name}`}
             onPointerEnter={event => {
               if (event.pointerType !== 'touch') { clearHold(); dispatch({type: 'hover', slug: color.slug}); }
             }}
@@ -96,14 +94,10 @@ export default function ColorExplorer({ colors }) {
               if (event.currentTarget.matches(':focus-visible')) { clearHold(); dispatch({type: 'focus', slug: color.slug}); }
             }}
             onBlur={blurPreview}
-            onClick={event => {
-              if (lastPointer.current === 'touch' || event.detail === 0) { clearHold(); dispatch({type: 'tap', slug: color.slug}); }
-              lastPointer.current = null;
-            }}
             onKeyDown={event => { if (event.key === 'Escape') { reset(); event.currentTarget.blur(); } }}>
             <i style={{background: color.hex}} aria-hidden="true" />
             <span>{color.name}</span><span className="ov-cx-mark" aria-hidden="true" />
-          </button>
+          </Link>
         </li>)}
       </ul>
       <button type="button" className="ov-cx-reset" onClick={reset} onBlur={blurPreview} disabled={!active}>

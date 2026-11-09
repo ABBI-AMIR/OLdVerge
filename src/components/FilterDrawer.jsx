@@ -35,7 +35,7 @@ export default function FilterDrawer({ open, onClose, facets, filters, scoped, o
 
   const toggle = (key, id) => setDraft((current) => ({ ...current, [key]: current[key].includes(id) ? current[key].filter((value) => value !== id) : [...current[key], id] }));
   const setPrice = (key, raw) => setDraft((current) => ({ ...current, [key]: raw === '' ? null : Math.max(0, Math.floor(Number(raw))) }));
-  const matches = applyFilters(scoped, draft).length;
+  const matches = scoped ? applyFilters(scoped, draft).length : null;
   const draftCount = activeFilterCount(draft);
 
   return <AnimatePresence>
@@ -77,12 +77,12 @@ export default function FilterDrawer({ open, onClose, facets, filters, scoped, o
                 <span aria-hidden="true">–</span>
                 <label>Max<input type="number" inputMode="numeric" min="0" step="100" placeholder={String(facets.price.max)} value={draft.priceMax ?? ''} onChange={(event) => setPrice('priceMax', event.target.value)} /></label>
               </div>
-              <p className="ov-fd-hint">Sample prices here run from {formatPrice(facets.price.min)} to {formatPrice(facets.price.max)}.</p>
+              <p className="ov-fd-hint">Prices range from {formatPrice(facets.price.min)} to {formatPrice(facets.price.max)}.</p>
             </fieldset>}
           </div>
           <div className="ov-fd-foot">
             <button type="button" className="ov-fd-clear" onClick={onClear}>Clear all</button>
-            <button type="submit" className="ov-button ov-button-dark ov-fd-apply">Apply · {matches} {matches === 1 ? 'piece' : 'pieces'}</button>
+            <button type="submit" className="ov-button ov-button-dark ov-fd-apply">Apply{matches !== null && ` · ${matches} ${matches === 1 ? 'piece' : 'pieces'}`}</button>
           </div>
         </form>
       </motion.aside>

@@ -20,8 +20,6 @@
   --ov-champagne: #D7C6A6;
   --ov-stone: #655E54;
   --ov-cocoa: #514034;
-  --tgh-placeholder: var(--ov-sand);
-  --tgh-radius: 0px;
 }
 
 /* ---------- Homepage typography: Quattrocento + Helvetica Bold / Light ----------
@@ -50,11 +48,8 @@
 
 .tgh-root { position: relative; overflow: hidden; }
 .tgh-band { position: absolute; inset: 0; pointer-events: none; transition: opacity .5s; }
-.tgh-tile { position: absolute; }
-.tgh-strip { position: absolute; top: 0; overflow: hidden; background: var(--tgh-placeholder); }
-.tgh-strip-first { border-radius: var(--tgh-radius) 0 0 var(--tgh-radius); }
-.tgh-strip-last { border-radius: 0 var(--tgh-radius) var(--tgh-radius) 0; }
-.tgh-img { position: absolute; top: 0; max-width: none; display: block; object-fit: cover; user-select: none; }
+.tgh-tile { position: absolute; backface-visibility: hidden; }
+.tgh-img { display: block; width: 100%; height: 100%; object-fit: cover; user-select: none; }
 
 /* The band waits (still and invisible) until the loader has left, then fades in and starts moving. */
 .ov-hero2.is-waiting .tgh-band { opacity: 0 !important; }
@@ -720,10 +715,11 @@ html { scroll-padding-top: 74px; }
 .ov-product-page .ov-product-figure img[src^="/images/products/"],
 .ov-thumbs img[src^="/images/products/"] { object-fit: contain; }
 
-/* Square garment photos fill the portrait cards; only background at the sides
-   is trimmed. Detailed galleries retain the complete uploaded photograph. */
+/* Fill the portrait garment tiles; the lightbox displays the complete photo. */
 .ov-pc-media .is-clothing img[src^="/images/products/"],
-.ov-fp-media.is-zip img[src^="/images/products/"] {
+.ov-fp-media.is-zip img[src^="/images/products/"],
+.ov-quarter-zip-page .ov-product-figure img[src^="/images/products/"],
+.ov-quarter-zip-page .ov-thumbs img[src^="/images/products/"] {
   object-fit: cover;
   object-position: center;
 }

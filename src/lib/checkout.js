@@ -63,6 +63,7 @@ export function explainOrderError(status, data) {
   if (status === 429) return { kind: 'rate', message: 'Too many attempts. Please wait a minute and try again.' };
   if (status === 401) return { kind: 'session', message: 'Your sign-in has expired. Sign in again, or continue as a guest by signing out.' };
   if (status === 503) return { kind: 'unavailable', message: 'Ordering is temporarily unavailable. Please try again later.' };
+  if (error === 'bot_check_failed') return { kind: 'verification', message: 'Complete the verification again, then place your order.' };
   if (error === 'ordering_closed') return { kind: 'closed', message: 'Orders are not open yet.' };
   if (error === 'price_changed') return { kind: 'price_changed', quote: data.details, message: 'The total changed while you were checking out. Please review the new total and confirm again.' };
   if (error === 'insufficient_stock' || error === 'variant_unavailable') {

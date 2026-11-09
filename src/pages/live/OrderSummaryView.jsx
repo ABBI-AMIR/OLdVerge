@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { formatPrice } from '../../lib/money.js';
+import { useSite } from '../../data/site.js';
 import { formatDate, formatDateTime, fulfilmentLabel, humaniseKind, paymentLabel, safeHttpUrl, safeSlug, taxLine } from './helpers.js';
 
 const money = (value) => formatPrice(Number(value) || 0);
@@ -28,6 +29,7 @@ function Tracking({ order }) {
  * rebuilt from the orders table for signed-in customers). Everything is rendered as React text.
  */
 export default function OrderSummaryView({ order }) {
+  const bankInstructions = useSite(state => state.paymentMethods.find(method => method.code === 'allied_bank')?.description);
   if (!order) return null;
   const items = Array.isArray(order.items) ? order.items : [];
   const events = Array.isArray(order.events) ? order.events : [];
@@ -75,6 +77,11 @@ export default function OrderSummaryView({ order }) {
       <AddressBlock address={order.shipping_address} />
       <h3>Payment</h3>
       <p>{[order.payment_method, paymentLabel(order.payment_status)].filter(Boolean).join(' · ')}</p>
+      {order.payment_method_code === 'allied_bank' && order.payment_status === 'pending' && !cancelled && <div>
+        <p>Amount to transfer: <strong>{money(order.total_pkr)}</strong></p>
+        <p>{bankInstructions || 'Contact OLDVERGE on WhatsApp for Allied Bank transfer details.'}</p>
+        <p>Send your payment screenshot and order number <strong>{order.order_number}</strong> to <a href="https://wa.me/923442765766">03442765766 on WhatsApp</a>. We’ll confirm payment once the transfer reaches the account.</p>
+      </div>}
       <h3>Tracking</h3>
       <Tracking order={order} />
       <p className="ov-note">Tracking details are recorded by the store. This page is not a live courier feed.</p>

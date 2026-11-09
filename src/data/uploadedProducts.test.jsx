@@ -20,7 +20,7 @@ describe('owner uploaded catalogue', () => {
     expect(products.filter(p => p.category === 'Quarter-Zips')).toHaveLength(4);
     expect(new Set(products.map(p => p.slug)).size).toBe(23);
     expect(products.some(p => p.slug === 'casio-a168')).toBe(false);
-    expect(products.filter(p => p.type === 'clothing').map(p => p.colors[0])).toEqual(['Black','Chocolate Brown','Navy','Burgundy']);
+    expect(products.filter(p => p.type === 'clothing').map(p => p.colors[0])).toEqual(['Black','Brown','Navy','Burgundy']);
   });
   it('maps every uploaded product folder and every gallery image to an existing browser-compatible file', () => {
     const mappedFolders = new Set();
@@ -29,7 +29,13 @@ describe('owner uploaded catalogue', () => {
       expect(product.slug).toMatch(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
       expect(product.image).toBe(product.images[0].src);
       expect(copyFor(product).join(' ')).toBe(product.description);
-      expect(product.description.length).toBeGreaterThan(70);
+      if (product.category === 'Quarter-Zips') {
+        expect(product.sizes).toEqual(['S', 'M', 'L', 'XL']);
+        expect(product.description.trim().length).toBeGreaterThan(0);
+        expect(product.description.length).toBeLessThanOrEqual(80);
+      } else {
+        expect(product.description.length).toBeGreaterThan(70);
+      }
       for (const image of galleryFor(product)) {
         const file = `public${decodeURIComponent(image.src)}`;
         expect(existsSync(file),file).toBe(true);

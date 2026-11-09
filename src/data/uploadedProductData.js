@@ -11,7 +11,7 @@ export const uploadedProductData = [
     "color": "Black",
     "style": "Everyday",
     "artColor": "#262622",
-    "description": "A clean black layer with a stand collar, short gold-tone zip and ribbed cuffs and hem. Wear the collar open over a tee or zipped up for a simpler silhouette.",
+    "description": "Deep black with a stand collar and a quiet flash of gold at the zip.",
     "photos": [
       [
         "/images/products/quarter-zips/quarter-zip-black/IMG_7255-black.png",
@@ -31,16 +31,16 @@ export const uploadedProductData = [
     ]
   },
   {
-    "slug": "quarter-zip-chocolate-brown",
-    "name": "Essential Quarter-Zip — Chocolate Brown",
+    "slug": "quarter-zip-brown",
+    "name": "Essential Quarter-Zip — Brown",
     "brand": "OLDVERGE",
     "model": "",
     "category": "Quarter-Zips",
     "type": "clothing",
-    "color": "Chocolate Brown",
+    "color": "Brown",
     "style": "Everyday",
     "artColor": "#63372D",
-    "description": "Warm chocolate brown with a stand collar and a contrasting gold-tone quarter zip. Ribbed cuffs and hem give the plain silhouette a neat finish. Pair it with cream trousers or dark denim.",
+    "description": "Rich brown, finished with a gold-tone zip and ribbed cuffs.",
     "photos": [
       [
         "/images/products/quarter-zips/quarter-zip-beige/IMG_7303-brown.png",
@@ -69,7 +69,7 @@ export const uploadedProductData = [
     "color": "Navy",
     "style": "Everyday",
     "artColor": "#202B40",
-    "description": "Deep navy with a short gold-tone zip, stand collar and ribbed edges. An understated layer to pair with stone trousers, denim or other dark neutrals.",
+    "description": "Deep navy with a clean stand collar. Wear it open over a white tee.",
     "photos": [
       [
         "/images/products/quarter-zips/quarter-zip-navy/IMG_7270-navy.png",
@@ -98,7 +98,7 @@ export const uploadedProductData = [
     "color": "Burgundy",
     "style": "Everyday",
     "artColor": "#651F31",
-    "description": "Rich burgundy brings colour to a simple quarter-zip silhouette. A stand collar, gold-tone zip and ribbed cuffs and hem keep the details considered. Pair with black, cream or charcoal.",
+    "description": "Burgundy with a gold-tone zip. A little colour for cooler days.",
     "photos": [
       [
         "/images/products/quarter-zips/quarter-zip-burgundy/IMG_7284-burgundy.png",

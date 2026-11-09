@@ -105,17 +105,18 @@ function CountPanel({ row, onChanged, onClose }) {
 export default function Inventory() {
   const { gateway } = useAdmin();
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState('');
+  const [filter, setFilter] = useState('quarter-zips');
   const [selectedId, setSelectedId] = useState(null);
   const list = useLoad(() => gateway.query((db) => db.from('product_variants')
-    .select('id, sku, color_name, size_label, active, product:products(name, slug, status), inventory(on_hand, reserved, low_stock_threshold, stock_verified, verified_at)')
+    .select('id, sku, color_name, size_label, product:products!inner(name, slug, status, group_key), inventory(on_hand, reserved, low_stock_threshold, stock_verified, verified_at)')
+    .eq('active', true).neq('product.status', 'archived')
     .order('sku').limit(1000)), []);
 
   const rows = useMemo(() => (list.data || []).map((v) => ({ ...v, product: one(v.product), inventory: one(v.inventory) })).filter((v) => v.inventory), [list.data]);
   const visible = useMemo(() => {
     const needle = search.trim().toLowerCase();
     return rows.filter((v) => (!needle || v.sku.toLowerCase().includes(needle) || (v.product?.name || '').toLowerCase().includes(needle))
-      && (filter === '' || (filter === 'unverified' && !v.inventory.stock_verified) || (filter === 'low' && v.inventory.stock_verified && v.inventory.on_hand - v.inventory.reserved <= v.inventory.low_stock_threshold)));
+      && (filter === '' || (filter === 'quarter-zips' && v.product.group_key === 'quarter-zip') || (filter === 'unverified' && !v.inventory.stock_verified) || (filter === 'low' && v.inventory.stock_verified && v.inventory.on_hand - v.inventory.reserved <= v.inventory.low_stock_threshold)));
   }, [rows, search, filter]);
   const selected = rows.find((v) => v.id === selectedId);
 
@@ -126,16 +127,17 @@ export default function Inventory() {
       <Card>
         <div className="ovad-filters">
           <TextInput label="Search SKU or product" value={search} onChange={setSearch} type="search" />
-          <SelectInput label="Show" value={filter} onChange={setFilter} options={[{ value: '', label: 'All variants' }, { value: 'unverified', label: 'Not counted yet' }, { value: 'low', label: 'Low stock' }]} />
+          <SelectInput label="Show" value={filter} onChange={setFilter} options={[{ value: 'quarter-zips', label: 'Quarter-zips' }, { value: '', label: 'All active variants' }, { value: 'unverified', label: 'Not counted yet' }, { value: 'low', label: 'Low stock' }]} />
         </div>
         <LoadState loading={list.loading} error={list.error} data={list.data} onRetry={list.reload} empty={list.data && visible.length === 0} emptyText={rows.length ? 'No variant matches this filter.' : 'No variants yet. Add variants to a product first.'}>
+          <p><strong>{visible.reduce((sum, v) => sum + (v.inventory.stock_verified ? v.inventory.on_hand : 0), 0)} confirmed pieces on hand</strong></p>
           <TableWrap label="Inventory">
             <table className="ovad-table">
               <thead><tr><th scope="col">Product</th><th scope="col">SKU</th><th scope="col">Option</th><th scope="col">On hand</th><th scope="col">Reserved</th><th scope="col">Available</th><th scope="col">Counted</th><th scope="col"><span className="ovad-sr">Actions</span></th></tr></thead>
               <tbody>
                 {visible.map((v) => (
                   <tr key={v.id}>
-                    <td>{v.product?.name || '—'}{!v.active ? <> <Badge tone="muted">off</Badge></> : null}</td>
+                    <td>{v.product?.name || '—'}</td>
                     <td>{v.sku}</td>
                     <td>{optionText(v)}</td>
                     <td>{v.inventory.stock_verified ? v.inventory.on_hand : <span title="Not counted yet">?</span>}</td>

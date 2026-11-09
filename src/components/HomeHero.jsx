@@ -13,6 +13,11 @@ const HERO_SLOTS = [
   { key: 'ribbon-brown-knit', fallback: 'oldverge-hero-model', position: '50% 52%' },
   { key: 'oldverge-hero-watch-detail', position: '50% 55%' },
   { key: 'quarter-zip-neutral', position: '50% 42%' },
+  { key: 'ribbon-seiko', position: '50% 50%' },
+  { key: 'ribbon-black-collar', position: '50% 50%' },
+  { key: 'ribbon-swiss', position: '50% 50%' },
+  { key: 'ribbon-burgundy', position: '50% 50%' },
+  { key: 'quarter-zip-campaign', position: '60% 50%' },
 ];
 
 /** The hero ribbon images that are actually available right now (unapproved or missing images are skipped). */

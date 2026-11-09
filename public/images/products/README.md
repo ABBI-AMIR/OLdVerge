@@ -8,8 +8,8 @@ explicitly lists its photo files and actual pixel dimensions; the first photo is
 the card and product-page cover. PNG filenames and nested brand/model folders
 are preserved exactly. Do not rename or delete an existing file casually.
 
-The folder `quarter-zip-beige` contains the **Chocolate Brown** garment; its
-public product slug is `quarter-zip-chocolate-brown`. Burgundy replaces the old
+The folder `quarter-zip-beige` contains the **Brown** garment; its
+public product slug is `quarter-zip-brown`. Burgundy replaces the old
 olive sample in the visible local collection. The old sample product definitions
 and flat images remain on disk for historical seeds and regression fixtures.
 

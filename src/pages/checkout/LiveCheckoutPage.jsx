@@ -42,7 +42,7 @@ export default function LiveCheckoutPage() {
   const navigate = useNavigate();
   useSite((state) => state.settings);
   const shippingMethods = useSite((state) => state.shippingMethods);
-  const paymentMethods = useSite((state) => state.paymentMethods).filter((method) => method.kind === 'cod');   // online payments need a provider adapter
+  const paymentMethods = useSite((state) => state.paymentMethods).filter((method) => method.kind === 'cod' || method.code === 'allied_bank');   // online payments need a provider adapter
   const cart = useStore((state) => state.cart);
   const directItem = useStore((state) => state.directItem);
   const finishCheckout = useStore((state) => state.finishCheckout);
@@ -111,6 +111,8 @@ export default function LiveCheckoutPage() {
     const found = validate(contact, address);
     if (!orderLines.ok) found.cart = 'An item in your bag is no longer available. Review your bag.';
     if (!selected) found.shipping = 'Choose your province, then a delivery method, to see the total.';
+    const turnstileToken = formBotToken(event.currentTarget);
+    if (import.meta.env.VITE_TURNSTILE_SITE_KEY && !turnstileToken) found.verification = 'Complete the verification above Place order, then submit again.';
     setErrors(found);
     const keys = Object.keys(found);
     if (keys.length) {
@@ -120,7 +122,7 @@ export default function LiveCheckoutPage() {
     return runCheckoutSubmission(submitLock, setSubmitting, async () => {
       setProblem(null);
       try {
-        const turnstileToken = formBotToken(event.currentTarget);
+
         const payload = {
           lines: orderLines.lines, shipping_method: activeShipping, payment_method: activePayment,
           contact: { name: `${address.firstName.trim()} ${address.lastName.trim()}`, email: contact.email.trim(), phone: contact.phone.trim() },
@@ -191,9 +193,10 @@ export default function LiveCheckoutPage() {
             <input type="radio" name="payment" value={method.code} checked={activePayment === method.code} onChange={() => setPaymentCode(method.code)} />
             <span><strong>{method.label}</strong>{method.description && <small>{method.description}</small>}</span></label>)}
         </fieldset>
+        <BotCheck />
         <button type="submit" className="ov-button ov-button-dark ov-place-order" disabled={submitting}>{submitting ? 'Placing your order…' : needsReconfirm ? 'Confirm the new total and place order' : 'Place order'}</button>
         <p className="ov-note">Your details are sent to the store to fulfil this order. No card details are collected.</p>
-      <BotCheck /></form>
+      </form>
       <aside className="ov-summary" aria-label="Order summary">
         <h2>{buyNow ? 'Buying now' : 'Your bag'}</h2>
         <ul className="ov-summary-lines">{lines.map((line) => <li key={line.key}>

@@ -13,8 +13,8 @@ export function faqGroups() {
       title: 'Products & Sizing',
       items: [
         { id: 'sells', q: 'What does OLDVERGE sell?', a: ['Quarter zips and watches. Browse ', { to: '/shop/quarter-zips', text: 'Quarter Zips' }, ' or ', { to: '/shop/watches', text: 'Watches' }, '.'] },
-        { id: 'colours', q: 'Which colours do the quarter zips come in?', a: ['Black, beige, navy and olive.'] },
-        { id: 'sizing', q: 'Which sizes are available?', a: ['Quarter zips are listed in S, M, L, XL and XXL. Garment measurements have not been published yet, so a size guide is not available.'] },
+        { id: 'colours', q: 'Which colours do the quarter zips come in?', a: ['Black, burgundy, navy and brown.'] },
+        { id: 'sizing', q: 'Which sizes are available?', a: ['Quarter zips are listed in S, M, L and XL. Each quarter-zip product page includes a garment size chart beside the size options.'] },
         { id: 'brands', q: 'Which watch brands are listed?', a: [`${list}.`] },
       ],
     },

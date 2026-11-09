@@ -125,9 +125,7 @@ select p.id, 'product-private', 'products/orient-bambino/v1/watch-orient-bambino
 
 -- quarter-zip-black
 insert into public.products (slug, legacy_id, name, description, category_id, brand_id, kind, style, group_key, sort_order)
-select 'quarter-zip-black', 'quarter-zip-black', 'Essential Quarter-Zip — Black', 'The Essential Quarter-Zip in black: a familiar silhouette with a cleaner point of view. A short zip at the collar, a relaxed everyday shape, and nothing you have to think about.
-
-Black is the easiest one to live in. It sits with everything and works from morning to night.', c.id, b.id, 'clothing', 'Everyday', 'quarter-zip', 70
+select 'quarter-zip-black', 'quarter-zip-black', 'Essential Quarter-Zip — Black', 'A clean stand collar and a short zip in black.', c.id, b.id, 'clothing', 'Everyday', 'quarter-zip', 70
   from public.categories c left join public.brands b on b.slug = 'oldverge' where c.slug = 'quarter-zips'
 on conflict (slug) do nothing;
 insert into public.product_variants (product_id, sku, color_name, color_hex, size_label, price_pkr, sort_order)
@@ -142,9 +140,6 @@ on conflict (sku) do nothing;
 insert into public.product_variants (product_id, sku, color_name, color_hex, size_label, price_pkr, sort_order)
 select p.id, 'SMP-QUARTER-ZIP-BLACK-XL', 'Black', '#262622', 'XL', 8490, 3 from public.products p where p.slug = 'quarter-zip-black'
 on conflict (sku) do nothing;
-insert into public.product_variants (product_id, sku, color_name, color_hex, size_label, price_pkr, sort_order)
-select p.id, 'SMP-QUARTER-ZIP-BLACK-XXL', 'Black', '#262622', 'XXL', 8490, 4 from public.products p where p.slug = 'quarter-zip-black'
-on conflict (sku) do nothing;
 insert into public.product_images (product_id, bucket, path, kind, alt_text, width, height, sort_order, is_cover, source_name, source_url, licence, attribution, retrieved_on, approval_status, checksum_sha256)
 select p.id, 'product-private', 'products/quarter-zip-black/v1/quarter-zip-black-cutout.webp', 'cutout', 'Essential Quarter-Zip — Black, product view', 960, 1200, 0, true, 'Unsplash (stand-in photo)', 'https://unsplash.com/photos/man-in-black-jacket-standing-near-bare-tree-during-daytime-BlWuMf0tAsQ', 'Unsplash License', 'Napendra Singh', '2026-10-17', 'unverified', 'ad27e3afd8841e082c2d96e833c291abbae3324640c32b26439d35ecc9c9937b'
   from public.products p where p.slug = 'quarter-zip-black' on conflict (bucket, path) do nothing;
@@ -152,40 +147,30 @@ insert into public.product_images (product_id, bucket, path, kind, alt_text, wid
 select p.id, 'product-private', 'products/quarter-zip-black/v1/quarter-zip-black.jpg', 'photo', 'Essential Quarter-Zip — Black, original photograph', 1200, 1800, 1, false, 'Unsplash (stand-in photo)', 'https://unsplash.com/photos/man-in-black-jacket-standing-near-bare-tree-during-daytime-BlWuMf0tAsQ', 'Unsplash License', 'Napendra Singh', '2026-10-17', 'unverified', '574d8cecc4ddb2a59272df37f30c6b8880f244a35688b9007a68207feda043cc'
   from public.products p where p.slug = 'quarter-zip-black' on conflict (bucket, path) do nothing;
 
--- quarter-zip-beige
+-- quarter-zip-brown
 insert into public.products (slug, legacy_id, name, description, category_id, brand_id, kind, style, group_key, sort_order)
-select 'quarter-zip-beige', 'quarter-zip-beige', 'Essential Quarter-Zip — Beige', 'The Essential Quarter-Zip in beige: a familiar silhouette with a cleaner point of view. A short zip at the collar, a relaxed everyday shape, and nothing you have to think about.
-
-Beige is the soft, light option. It pairs well with darker trousers and warm neutrals.', c.id, b.id, 'clothing', 'Everyday', 'quarter-zip', 80
+select 'quarter-zip-brown', 'quarter-zip-brown', 'Essential Quarter-Zip — Brown', 'A clean stand collar and a short zip in brown.', c.id, b.id, 'clothing', 'Everyday', 'quarter-zip', 80
   from public.categories c left join public.brands b on b.slug = 'oldverge' where c.slug = 'quarter-zips'
 on conflict (slug) do nothing;
 insert into public.product_variants (product_id, sku, color_name, color_hex, size_label, price_pkr, sort_order)
-select p.id, 'SMP-QUARTER-ZIP-BEIGE-S', 'Beige', '#C7B99F', 'S', 8490, 0 from public.products p where p.slug = 'quarter-zip-beige'
+select p.id, 'SMP-QUARTER-ZIP-BROWN-S', 'Brown', '#63372D', 'S', 8490, 0 from public.products p where p.slug = 'quarter-zip-brown'
 on conflict (sku) do nothing;
 insert into public.product_variants (product_id, sku, color_name, color_hex, size_label, price_pkr, sort_order)
-select p.id, 'SMP-QUARTER-ZIP-BEIGE-M', 'Beige', '#C7B99F', 'M', 8490, 1 from public.products p where p.slug = 'quarter-zip-beige'
+select p.id, 'SMP-QUARTER-ZIP-BROWN-M', 'Brown', '#63372D', 'M', 8490, 1 from public.products p where p.slug = 'quarter-zip-brown'
 on conflict (sku) do nothing;
 insert into public.product_variants (product_id, sku, color_name, color_hex, size_label, price_pkr, sort_order)
-select p.id, 'SMP-QUARTER-ZIP-BEIGE-L', 'Beige', '#C7B99F', 'L', 8490, 2 from public.products p where p.slug = 'quarter-zip-beige'
+select p.id, 'SMP-QUARTER-ZIP-BROWN-L', 'Brown', '#63372D', 'L', 8490, 2 from public.products p where p.slug = 'quarter-zip-brown'
 on conflict (sku) do nothing;
 insert into public.product_variants (product_id, sku, color_name, color_hex, size_label, price_pkr, sort_order)
-select p.id, 'SMP-QUARTER-ZIP-BEIGE-XL', 'Beige', '#C7B99F', 'XL', 8490, 3 from public.products p where p.slug = 'quarter-zip-beige'
-on conflict (sku) do nothing;
-insert into public.product_variants (product_id, sku, color_name, color_hex, size_label, price_pkr, sort_order)
-select p.id, 'SMP-QUARTER-ZIP-BEIGE-XXL', 'Beige', '#C7B99F', 'XXL', 8490, 4 from public.products p where p.slug = 'quarter-zip-beige'
+select p.id, 'SMP-QUARTER-ZIP-BROWN-XL', 'Brown', '#63372D', 'XL', 8490, 3 from public.products p where p.slug = 'quarter-zip-brown'
 on conflict (sku) do nothing;
 insert into public.product_images (product_id, bucket, path, kind, alt_text, width, height, sort_order, is_cover, source_name, source_url, licence, attribution, retrieved_on, approval_status, checksum_sha256)
-select p.id, 'product-private', 'products/quarter-zip-beige/v1/quarter-zip-beige-cutout.webp', 'cutout', 'Essential Quarter-Zip — Beige, product view', 960, 1200, 0, true, 'Unsplash (stand-in photo)', 'https://unsplash.com/photos/man-in-white-dress-shirt-standing-beside-brown-wall-n7mTIkd26h4', 'Unsplash License', 'kamal alkhatib', '2026-10-17', 'unverified', '9bfa7315b51ad477746fd2592c110d4cbb7835d1a6b4ecd8409e2d0fc4ac201d'
-  from public.products p where p.slug = 'quarter-zip-beige' on conflict (bucket, path) do nothing;
-insert into public.product_images (product_id, bucket, path, kind, alt_text, width, height, sort_order, is_cover, source_name, source_url, licence, attribution, retrieved_on, approval_status, checksum_sha256)
-select p.id, 'product-private', 'products/quarter-zip-beige/v1/quarter-zip-beige.jpg', 'photo', 'Essential Quarter-Zip — Beige, original photograph', 1200, 1500, 1, false, 'Unsplash (stand-in photo)', 'https://unsplash.com/photos/man-in-white-dress-shirt-standing-beside-brown-wall-n7mTIkd26h4', 'Unsplash License', 'kamal alkhatib', '2026-10-17', 'unverified', 'be7e936012f8e13ddcb6dc61f88490ef13779b57cb1c3161859152fa08df0fc2'
-  from public.products p where p.slug = 'quarter-zip-beige' on conflict (bucket, path) do nothing;
+select p.id, 'product-private', 'products/quarter-zip-brown/v1/IMG_7303-brown.png', 'photo', 'Essential Quarter-Zip — Brown, original photograph', null, null, 0, true, 'Owner upload', null, null, null, null, 'unverified', 'edbf941723b89b3d1de2fff12c8a62494c982ed05d44d6249cc5757c3695b836'
+  from public.products p where p.slug = 'quarter-zip-brown' on conflict (bucket, path) do nothing;
 
 -- quarter-zip-navy
 insert into public.products (slug, legacy_id, name, description, category_id, brand_id, kind, style, group_key, sort_order)
-select 'quarter-zip-navy', 'quarter-zip-navy', 'Essential Quarter-Zip — Navy', 'The Essential Quarter-Zip in navy: a familiar silhouette with a cleaner point of view. A short zip at the collar, a relaxed everyday shape, and nothing you have to think about.
-
-Navy is a quieter alternative to black, a little softer and just as easy to wear.', c.id, b.id, 'clothing', 'Everyday', 'quarter-zip', 90
+select 'quarter-zip-navy', 'quarter-zip-navy', 'Essential Quarter-Zip — Navy', 'A clean stand collar and a short zip in navy.', c.id, b.id, 'clothing', 'Everyday', 'quarter-zip', 90
   from public.categories c left join public.brands b on b.slug = 'oldverge' where c.slug = 'quarter-zips'
 on conflict (slug) do nothing;
 insert into public.product_variants (product_id, sku, color_name, color_hex, size_label, price_pkr, sort_order)
@@ -200,9 +185,6 @@ on conflict (sku) do nothing;
 insert into public.product_variants (product_id, sku, color_name, color_hex, size_label, price_pkr, sort_order)
 select p.id, 'SMP-QUARTER-ZIP-NAVY-XL', 'Navy', '#273447', 'XL', 8490, 3 from public.products p where p.slug = 'quarter-zip-navy'
 on conflict (sku) do nothing;
-insert into public.product_variants (product_id, sku, color_name, color_hex, size_label, price_pkr, sort_order)
-select p.id, 'SMP-QUARTER-ZIP-NAVY-XXL', 'Navy', '#273447', 'XXL', 8490, 4 from public.products p where p.slug = 'quarter-zip-navy'
-on conflict (sku) do nothing;
 insert into public.product_images (product_id, bucket, path, kind, alt_text, width, height, sort_order, is_cover, source_name, source_url, licence, attribution, retrieved_on, approval_status, checksum_sha256)
 select p.id, 'product-private', 'products/quarter-zip-navy/v1/quarter-zip-navy-cutout.webp', 'cutout', 'Essential Quarter-Zip — Navy, product view', 960, 1200, 0, true, 'Unsplash (stand-in photo)', 'https://unsplash.com/photos/a-man-standing-in-front-of-a-black-door-7sjcnB8dLMU', 'Unsplash License', 'Benjamin Fay', '2026-10-17', 'unverified', '5cb5f633cbad21fe94bc77ac2e086f922b0b2d68ea4dc0b2e6f95a1a769942eb'
   from public.products p where p.slug = 'quarter-zip-navy' on conflict (bucket, path) do nothing;
@@ -210,34 +192,26 @@ insert into public.product_images (product_id, bucket, path, kind, alt_text, wid
 select p.id, 'product-private', 'products/quarter-zip-navy/v1/quarter-zip-navy.jpg', 'photo', 'Essential Quarter-Zip — Navy, original photograph', 1200, 1801, 1, false, 'Unsplash (stand-in photo)', 'https://unsplash.com/photos/a-man-standing-in-front-of-a-black-door-7sjcnB8dLMU', 'Unsplash License', 'Benjamin Fay', '2026-10-17', 'unverified', 'f0f1fb99b064a3b83dc53836e8b8146063f991e23e0810c179613d8be761ded8'
   from public.products p where p.slug = 'quarter-zip-navy' on conflict (bucket, path) do nothing;
 
--- quarter-zip-olive
+-- quarter-zip-burgundy
 insert into public.products (slug, legacy_id, name, description, category_id, brand_id, kind, style, group_key, sort_order)
-select 'quarter-zip-olive', 'quarter-zip-olive', 'Essential Quarter-Zip — Olive', 'The Essential Quarter-Zip in olive: a familiar silhouette with a cleaner point of view. A short zip at the collar, a relaxed everyday shape, and nothing you have to think about.
-
-Olive adds a calm, earthy note. It looks good with denim, stone and brown.', c.id, b.id, 'clothing', 'Everyday', 'quarter-zip', 100
+select 'quarter-zip-burgundy', 'quarter-zip-burgundy', 'Essential Quarter-Zip — Burgundy', 'A clean stand collar and a short zip in burgundy.', c.id, b.id, 'clothing', 'Everyday', 'quarter-zip', 100
   from public.categories c left join public.brands b on b.slug = 'oldverge' where c.slug = 'quarter-zips'
 on conflict (slug) do nothing;
 insert into public.product_variants (product_id, sku, color_name, color_hex, size_label, price_pkr, sort_order)
-select p.id, 'SMP-QUARTER-ZIP-OLIVE-S', 'Olive', '#656A4B', 'S', 8490, 0 from public.products p where p.slug = 'quarter-zip-olive'
+select p.id, 'SMP-QUARTER-ZIP-BURGUNDY-S', 'Burgundy', '#651F31', 'S', 8490, 0 from public.products p where p.slug = 'quarter-zip-burgundy'
 on conflict (sku) do nothing;
 insert into public.product_variants (product_id, sku, color_name, color_hex, size_label, price_pkr, sort_order)
-select p.id, 'SMP-QUARTER-ZIP-OLIVE-M', 'Olive', '#656A4B', 'M', 8490, 1 from public.products p where p.slug = 'quarter-zip-olive'
+select p.id, 'SMP-QUARTER-ZIP-BURGUNDY-M', 'Burgundy', '#651F31', 'M', 8490, 1 from public.products p where p.slug = 'quarter-zip-burgundy'
 on conflict (sku) do nothing;
 insert into public.product_variants (product_id, sku, color_name, color_hex, size_label, price_pkr, sort_order)
-select p.id, 'SMP-QUARTER-ZIP-OLIVE-L', 'Olive', '#656A4B', 'L', 8490, 2 from public.products p where p.slug = 'quarter-zip-olive'
+select p.id, 'SMP-QUARTER-ZIP-BURGUNDY-L', 'Burgundy', '#651F31', 'L', 8490, 2 from public.products p where p.slug = 'quarter-zip-burgundy'
 on conflict (sku) do nothing;
 insert into public.product_variants (product_id, sku, color_name, color_hex, size_label, price_pkr, sort_order)
-select p.id, 'SMP-QUARTER-ZIP-OLIVE-XL', 'Olive', '#656A4B', 'XL', 8490, 3 from public.products p where p.slug = 'quarter-zip-olive'
-on conflict (sku) do nothing;
-insert into public.product_variants (product_id, sku, color_name, color_hex, size_label, price_pkr, sort_order)
-select p.id, 'SMP-QUARTER-ZIP-OLIVE-XXL', 'Olive', '#656A4B', 'XXL', 8490, 4 from public.products p where p.slug = 'quarter-zip-olive'
+select p.id, 'SMP-QUARTER-ZIP-BURGUNDY-XL', 'Burgundy', '#651F31', 'XL', 8490, 3 from public.products p where p.slug = 'quarter-zip-burgundy'
 on conflict (sku) do nothing;
 insert into public.product_images (product_id, bucket, path, kind, alt_text, width, height, sort_order, is_cover, source_name, source_url, licence, attribution, retrieved_on, approval_status, checksum_sha256)
-select p.id, 'product-private', 'products/quarter-zip-olive/v1/quarter-zip-olive-cutout.webp', 'cutout', 'Essential Quarter-Zip — Olive, product view', 960, 1200, 0, true, 'Unsplash (stand-in photo)', 'https://unsplash.com/photos/man-in-green-hoodie-smiling-kya_DUurB00', 'Unsplash License', 'Emmalee Couturier', '2026-10-17', 'unverified', 'ac874d43c5391ee2e89bddd826590c237314dc6e8d25e5f585ab821dc8c2914e'
-  from public.products p where p.slug = 'quarter-zip-olive' on conflict (bucket, path) do nothing;
-insert into public.product_images (product_id, bucket, path, kind, alt_text, width, height, sort_order, is_cover, source_name, source_url, licence, attribution, retrieved_on, approval_status, checksum_sha256)
-select p.id, 'product-private', 'products/quarter-zip-olive/v1/quarter-zip-olive.jpg', 'photo', 'Essential Quarter-Zip — Olive, original photograph', 1200, 1800, 1, false, 'Unsplash (stand-in photo)', 'https://unsplash.com/photos/man-in-green-hoodie-smiling-kya_DUurB00', 'Unsplash License', 'Emmalee Couturier', '2026-10-17', 'unverified', '93bf045fd0d93e3636ea01d799526b6cd7106b0c0f343e246aa64c583fc3b449'
-  from public.products p where p.slug = 'quarter-zip-olive' on conflict (bucket, path) do nothing;
+select p.id, 'product-private', 'products/quarter-zip-burgundy/v1/IMG_7284-burgundy.png', 'photo', 'Essential Quarter-Zip — Burgundy, original photograph', null, null, 0, true, 'Owner upload', null, null, null, null, 'unverified', '25abf1926f41f045c4daa8ac78f1c30ea1155879e79644ba7c25a567182a360e'
+  from public.products p where p.slug = 'quarter-zip-burgundy' on conflict (bucket, path) do nothing;
 
 -- Editorial and site images (home hero, category tiles, story). UNVERIFIED until approved.
 insert into public.site_images (key, bucket, path, alt_text, width, height, source_name, source_url, licence, approval_status) values
@@ -256,7 +230,7 @@ on conflict (key) do nothing;
 
 -- Curated home carousel order, newsletter state.
 insert into public.store_settings (key, value, is_public) values
-  ('home.featured', '["quarter-zip-black","casio-mtp","quarter-zip-beige","seiko-5","quarter-zip-navy","timex-weekender","quarter-zip-olive","citizen-eco-drive","casio-a168","orient-bambino"]'::jsonb, true),
+  ('home.featured', '["quarter-zip-black","casio-mtp","quarter-zip-brown","seiko-5","quarter-zip-navy","timex-weekender","quarter-zip-burgundy","citizen-eco-drive","casio-a168","orient-bambino"]'::jsonb, true),
   ('newsletter.active', 'false'::jsonb, true)
 on conflict (key) do nothing;
 
@@ -268,7 +242,7 @@ update public.policy_pages set published_sections = '[{"heading":"Orders and del
 update public.policy_drafts set sections = '[{"heading":"Returns, exchanges and refunds","body":["OLDVERGE is not accepting orders yet, so there is nothing to return or refund.","The terms for returns, exchanges and refunds will be published on this page before the first order is accepted."]}]'::jsonb where slug = 'refund-policy' and sections = '[]'::jsonb;
 update public.policy_pages set published_sections = '[{"heading":"Returns, exchanges and refunds","body":["OLDVERGE is not accepting orders yet, so there is nothing to return or refund.","The terms for returns, exchanges and refunds will be published on this page before the first order is accepted."]}]'::jsonb, version = 1, published_at = now() where slug = 'refund-policy' and published_at is null;
 update public.policy_drafts set sections = '[{"heading":"Stored in your browser","body":["Your bag, the item you chose with Buy now and your recent searches are kept in this browser using localStorage. They stay on your device and are not sent to OLDVERGE or to anyone else.","Your browser’s sessionStorage also remembers whether the opening animation has played, where you were on a page when you went back, the last filters you used in the shop and, if you use the demonstration sign-in, the name, email address and phone number you typed there. It is cleared when you close the tab.","You can remove all of this at any time by clearing the site data for this website in your browser."]},{"heading":"What this website does not do","body":["It has no real customer accounts (the sign-in and account pages are a demonstration), no analytics or advertising trackers and no payment processing. Details typed into the demonstration checkout are held in memory until you reload or leave the site and are never sent or stored.","This website has no form that sends your details anywhere."]},{"heading":"Third parties","body":["The fonts are hosted with this website. Loading them does not make a request to Google Fonts."]}]'::jsonb where slug = 'privacy-policy' and sections = '[]'::jsonb;
-update public.policy_pages set published_sections = '[{"heading":"Stored in your browser","body":["Your bag, the item you chose with Buy now and your recent searches are kept in this browser using localStorage. They stay on your device and are not sent to OLDVERGE or to anyone else.","Your browser’s sessionStorage also remembers whether the opening animation has played, where you were on a page when you went back, the last filters you used in the shop and, if you use the demonstration sign-in, the name, email address and phone number you typed there. It is cleared when you close the tab.","You can remove all of this at any time by clearing the site data for this website in your browser."]},{"heading":"What this website does not do","body":["It has no real customer accounts (the sign-in and account pages are a demonstration), no analytics or advertising trackers and no payment processing. Details typed into the demonstration checkout are held in memory until you reload or leave the site and are never sent or stored.","This website has no form that sends your details anywhere."]},{"heading":"Third parties","body":["The Cormorant Garamond and Manrope fonts are loaded from Google Fonts (fonts.googleapis.com and fonts.gstatic.com). When a page loads, Google receives your IP address and browser details, as it does for any request to its servers."]}]'::jsonb, version = 1, published_at = now() where slug = 'privacy-policy' and published_at is null;
+update public.policy_pages set published_sections = '[{"heading":"Stored in your browser","body":["Your bag, the item you chose with Buy now and your recent searches are kept in this browser using localStorage. They stay on your device and are not sent to OLDVERGE or to anyone else.","Your browser’s sessionStorage also remembers whether the opening animation has played, where you were on a page when you went back, the last filters you used in the shop and, if you use the demonstration sign-in, the name, email address and phone number you typed there. It is cleared when you close the tab.","You can remove all of this at any time by clearing the site data for this website in your browser."]},{"heading":"What this website does not do","body":["It has no real customer accounts (the sign-in and account pages are a demonstration), no analytics or advertising trackers and no payment processing. Details typed into the demonstration checkout are held in memory until you reload or leave the site and are never sent or stored.","This website has no form that sends your details anywhere."]},{"heading":"Third parties","body":["The fonts are hosted with this website. Loading them does not make a request to Google Fonts."]}]'::jsonb, version = 1, published_at = now() where slug = 'privacy-policy' and published_at is null;
 update public.policy_drafts set sections = '[{"heading":"This website","body":["The OLDVERGE website currently shows products. It does not take orders or payments."]},{"heading":"Product information and prices","body":["Descriptions, colours, photographs and prices are shown for information. Displayed prices are samples and may change before ordering opens."]},{"heading":"Orders","body":["Terms for placing an order, payment, delivery and returns will be published before ordering opens. See the Shipping Policy and Returns & Refunds pages."]}]'::jsonb where slug = 'terms-and-conditions' and sections = '[]'::jsonb;
 update public.policy_pages set published_sections = '[{"heading":"This website","body":["The OLDVERGE website currently shows products. It does not take orders or payments."]},{"heading":"Product information and prices","body":["Descriptions, colours, photographs and prices are shown for information. Displayed prices are samples and may change before ordering opens."]},{"heading":"Orders","body":["Terms for placing an order, payment, delivery and returns will be published before ordering opens. See the Shipping Policy and Returns & Refunds pages."]}]'::jsonb, version = 1, published_at = now() where slug = 'terms-and-conditions' and published_at is null;
 

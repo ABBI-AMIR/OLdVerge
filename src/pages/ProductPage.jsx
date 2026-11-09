@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Maximize2, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Maximize2, PackageCheck, Ruler, X } from 'lucide-react';
 import { getProducts, productBySlug, useCatalog } from '../data/catalog.js';
 import { crumbsFor } from '../data/collections.js';
 import { imageSize } from '../data/imageSizes.js';
 import { galleryFor } from '../data/productImages.js';
 import { copyFor } from '../data/productCopy.js';
-import { FREE_SHIPPING_THRESHOLD, SHIPPING_OPTIONS, formatPrice } from '../lib/money.js';
+import { formatPrice } from '../lib/money.js';
 import { isBackend } from '../lib/config.js';
 import { orderingOpen, useSite } from '../data/site.js';
 import { needsSize, useStore, validateOptions, variantStatus } from '../store.js';
@@ -15,6 +15,26 @@ import { useDialogFocus } from '../lib/useDialogFocus.js';
 import { ProductCard } from '../components/Shell.jsx';
 import { Accordion, QuantityControl } from '../components/ui.jsx';
 import { NotFoundPage } from './NotFoundPage.jsx';
+
+const quarterZipMeasurements = [
+  ['S', 20.5, 17.5, 24.4, 9.1, 26],
+  ['M', 21.5, 18, 24.8, 9.4, 27],
+  ['L', 22.5, 18.5, 25.2, 9.8, 27.5],
+  ['XL', 23.5, 19, 25.6, 10, 28],
+];
+
+function QuarterZipSizeChart({ chartRef }) {
+  return <details ref={chartRef} className="ov-size-chart" id="quarter-zip-size-chart">
+    <summary><Ruler size={19} aria-hidden="true" /> Size chart</summary>
+    <table>
+      <caption>Size chart <small>Garment measurements in inches</small></caption>
+      <thead><tr>{['Size', 'Chest', 'Shoulder', 'Sleeve length', 'Armhole', 'Total length'].map(label => <th key={label} scope="col">{label}</th>)}</tr></thead>
+      <tbody>{quarterZipMeasurements.map(([size, ...values]) => <tr key={size}>
+        <th scope="row">{size}</th>{values.map((value, column) => <td key={column}>{value}</td>)}
+      </tr>)}</tbody>
+    </table>
+  </details>;
+}
 
 function Lightbox({ images, index, onIndex, onClose }) {
   useDialogFocus(true, onClose);
@@ -59,19 +79,6 @@ function Gallery({ product }) {
   </div>;
 }
 
-// Delivery information: the owner's configured methods (backend) or the labelled demo options.
-function ShippingInfo() {
-  const methods = useSite((state) => state.shippingMethods);
-  if (!isBackend) {
-    return <><p>Sample delivery options for this demo: {SHIPPING_OPTIONS.map((option) => `${option.label} (${formatPrice(option.price)})`).join(', ')}. Standard delivery is free from {formatPrice(FREE_SHIPPING_THRESHOLD)}.</p><p>Delivery times and return terms have not been confirmed. Read the <Link to="/pages/shipping">shipping</Link> and <Link to="/pages/returns">returns</Link> pages.</p></>;
-  }
-  const listed = methods.filter((method) => method.rates.length > 0);
-  return <>
-    {listed.length ? <ul>{listed.map((method) => <li key={method.code}><strong>{method.label}</strong>{method.estimate_text ? `: ${method.estimate_text}` : ''}</li>)}</ul> : <p>Delivery options have not been published yet.</p>}
-    <p>Read the <Link to="/shipping">shipping policy</Link> and the <Link to="/refund-policy">returns policy</Link>.</p>
-  </>;
-}
-
 export default function ProductPage() {
   const { slug } = useParams();
   const products = useCatalog(state => state.products);
@@ -98,6 +105,7 @@ function ProductContent() {
   const [error, setError] = useState('');
   const [stickyVisible, setStickyVisible] = useState(false);
   const actionsRef = useRef(null);
+  const chartRef = useRef(null);
   const addToCart = useStore((state) => state.addToCart);
   const buyNowProduct = useStore((state) => state.buyNowProduct);
   const announce = useStore((state) => state.announce);
@@ -129,7 +137,7 @@ function ProductContent() {
   const onAdd = () => { if (check()) addToCart(product, options); };
   const onBuyNow = () => { if (check() && buyNowProduct(product, options).ok) navigate('/checkout?mode=buy-now'); };
 
-  return <main id="main-content" className="ov-product-page">
+  return <main id="main-content" className={isZip ? 'ov-product-page ov-quarter-zip-page' : 'ov-product-page'}>
     <nav className="ov-crumbs" aria-label="Breadcrumb"><ol>{[...crumbsFor({ product }), { label: product.name }].map((crumb, index, trail) => <li key={`${crumb.label}-${index}`}>{crumb.to ? <Link to={crumb.to}>{crumb.label}</Link> : <span aria-current="page">{crumb.label}</span>}{index < trail.length - 1 && <span className="ov-crumb-sep" aria-hidden="true">/</span>}</li>)}</ol></nav>
     <div className="ov-product-layout">
       <Gallery product={product} />
@@ -143,7 +151,7 @@ function ProductContent() {
           <div className="ov-detail-sizes" id="ov-size-group" tabIndex={-1} role="group" aria-labelledby="ov-size-label" aria-describedby={error ? 'ov-option-error' : undefined}>
             {product.sizes.map((item) => { const soldOut = variantStatus(product, item) === 'sold-out'; return <button type="button" key={item} disabled={soldOut} className={size === item ? 'is-selected' : ''} aria-pressed={size === item} onClick={() => { setSize(item); setError(''); }}>{item}{soldOut && <span className="ov-sr-only"> (sold out)</span>}</button>; })}
           </div>
-          <p className="ov-detail-help">Garment measurements are not published yet. <Link to="/faq#sizing">Sizing information</Link></p>
+          {isZip ? <QuarterZipSizeChart key={product.id} chartRef={chartRef} /> : <p className="ov-detail-help"><Link to="/faq#sizing">Sizing information</Link></p>}
         </div>}
         {error && <p className="ov-form-error" id="ov-option-error" role="alert">{error}</p>}
         <div className="ov-qty-block"><span className="ov-qty-label" id="ov-qty-label">Quantity</span><QuantityControl value={quantity} label="Quantity" onChange={setQuantity} /></div>
@@ -154,15 +162,28 @@ function ProductContent() {
         {!isBackend && <p className="ov-note">Demo store: prices are samples and orders are not open yet.</p>}
         {isBackend && !orderingOpen() && <p className="ov-note">Orders are not open yet.</p>}
         <Accordion openFirst items={[
-          { title: 'Description', body: <>{copyFor(product).slice(1).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}{product.listingStatus && <p>{product.listingStatus}</p>}</> },
+          { title: 'Description', body: <>{copyFor(product).slice(1).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}{isZip && product.ownerUpload && <ul className="ov-garment-details">
+            <li><strong>Stand collar.</strong> Zip it up for a clean neckline or fold it open over a tee.</li>
+            <li><strong>Ribbed edges.</strong> Narrow ribs frame the cuffs and hem.</li>
+            <li><strong>How to wear it.</strong> Pair with dark denim for the weekend or pressed trousers for dinner.</li>
+          </ul>}{product.listingStatus && <p>{product.listingStatus}</p>}</> },
           { title: 'Specifications', body: <dl className="ov-spec">
             <div><dt>Brand</dt><dd>{product.brand}</dd></div><div><dt>Category</dt><dd>{isZip ? 'Quarter zip' : 'Watch'}</dd></div><div><dt>Style</dt><dd>{product.style}</dd></div><div><dt>Colour</dt><dd>{product.colors[0]}</dd></div>
             {isZip && <div><dt>Sizes</dt><dd>{product.sizes.join(', ')}</dd></div>}
             <div><dt>Materials</dt><dd>Not published yet</dd></div></dl> },
-          { title: 'Shipping and returns', body: <ShippingInfo /> },
         ]} />
       </div>
     </div>
+    {isZip && <>
+      <nav className="ov-garment-links" aria-label="Quarter-zip shopping information">
+        <Link to="/refund-policy"><PackageCheck aria-hidden="true" /><span><strong>Returns &amp; exchanges</strong><small>Read the returns policy</small></span></Link>
+        {needsSize(product) && <a href="#quarter-zip-size-chart" onClick={() => { if (chartRef.current) chartRef.current.open = true; }}><Ruler aria-hidden="true" /><span><strong>Size guidance</strong><small>View the size chart</small></span></a>}
+      </nav>
+      <div id="quarter-zip-banner" className="ov-garment-banner">
+        <img src="/images/quarter-zip-campaign.jpg" alt="Blue quarter-zip layered over a shirt and patterned tie" width="1800" height="1100" loading="lazy" decoding="async" />
+        <span>OLDVERGE</span>
+      </div>
+    </>}
     {related.length > 0 && <section className="ov-related" aria-labelledby="ov-related-title"><h2 id="ov-related-title">More like this</h2><div className="ov-product-grid">{related.map((item) => <ProductCard product={item} key={item.id} />)}</div></section>}
     <div className={`ov-sticky-buy ${stickyVisible ? 'is-visible' : ''}`} aria-hidden={!stickyVisible}>
       <div><strong>{product.name}</strong><span>{formatPrice(product.price)}</span></div>

@@ -18,9 +18,8 @@ const { copyFor } = await import(src('data/productCopy.js'));
 const { POLICIES } = await import(src('data/policies.js'));
 
 const q = (value) => (value === null || value === undefined ? 'null' : `'${String(value).replaceAll("'", "''")}'`);
-const FEATURED = ['quarter-zip-black', 'casio-mtp', 'quarter-zip-beige', 'seiko-5', 'quarter-zip-navy', 'timex-weekender', 'quarter-zip-olive', 'citizen-eco-drive', 'casio-a168', 'orient-bambino'];
+const FEATURED = ['quarter-zip-black', 'casio-mtp', 'quarter-zip-brown', 'seiko-5', 'quarter-zip-navy', 'timex-weekender', 'quarter-zip-burgundy', 'citizen-eco-drive', 'casio-a168', 'orient-bambino'];
 const REQUESTED_BRANDS = [['rolex', 'Rolex'], ['patek-philippe', 'Patek Philippe'], ['cartier', 'Cartier'], ['franck-muller', 'Franck Muller'], ['best-win', 'Best Win']];
-const SIZE_ORDER = ['S', 'M', 'L', 'XL', 'XXL'];
 const slugify = (value) => String(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
 // ---- provenance from docs/asset-sources.md (file -> photo page + credit)
@@ -63,7 +62,7 @@ products.forEach((product, index) => {
   push(`select ${q(product.slug)}, ${q(product.id)}, ${q(product.name)}, ${q(description)}, c.id, b.id, ${q(product.type)}, ${q(product.style)}, ${q(product.category === 'Quarter-Zips' ? 'quarter-zip' : null)}, ${(index + 1) * 10}`);
   push(`  from public.categories c left join public.brands b on b.slug = ${q(slugify(product.brand))} where c.slug = ${q(categorySlug)}`);
   push('on conflict (slug) do nothing;');
-  const sizes = product.type === 'watch' ? [null] : [...product.sizes].sort((a, b) => SIZE_ORDER.indexOf(a) - SIZE_ORDER.indexOf(b));
+  const sizes = product.type === 'watch' ? [null] : product.sizes;
   sizes.forEach((size, sizeIndex) => {
     const sku = `SMP-${slugify(product.slug).toUpperCase()}${size ? `-${size}` : '-OS'}`;
     push('insert into public.product_variants (product_id, sku, color_name, color_hex, size_label, price_pkr, sort_order)');
@@ -73,12 +72,14 @@ products.forEach((product, index) => {
   // images: the cut-out is the cover (card image); the original photograph is the second gallery image
   const cutout = product.image;
   const original = cutout.replace(/-cutout\.webp$/, '.jpg');
-  [[cutout, 'cutout', 0, true], [original, 'photo', 1, false]].forEach(([file, kind, order, cover]) => {
+  const ownerPhoto = cutout.startsWith('/images/products/');
+  const views = ownerPhoto ? [[cutout, 'photo', 0, true]] : [[cutout, 'cutout', 0, true], [original, 'photo', 1, false]];
+  views.forEach(([file, kind, order, cover]) => {
     const base = path.basename(file);
     const credit = provenance.get(path.basename(original));
     const dims = sizeOf(file);
     push('insert into public.product_images (product_id, bucket, path, kind, alt_text, width, height, sort_order, is_cover, source_name, source_url, licence, attribution, retrieved_on, approval_status, checksum_sha256)');
-    push(`select p.id, 'product-private', ${q(`products/${product.slug}/v1/${base}`)}, ${q(kind)}, ${q(`${product.name}, ${kind === 'cutout' ? 'product view' : 'original photograph'}`)}, ${dims.w}, ${dims.h}, ${order}, ${cover}, 'Unsplash (stand-in photo)', ${q(credit?.page || null)}, 'Unsplash License', ${q(credit?.credit || null)}, '2026-10-17', 'unverified', ${q(sha(file))}`);
+    push(`select p.id, 'product-private', ${q(`products/${product.slug}/v1/${base}`)}, ${q(kind)}, ${q(`${product.name}, ${kind === 'cutout' ? 'product view' : 'original photograph'}`)}, ${dims.w}, ${dims.h}, ${order}, ${cover}, ${q(ownerPhoto ? 'Owner upload' : 'Unsplash (stand-in photo)')}, ${q(credit?.page || null)}, ${q(ownerPhoto ? null : 'Unsplash License')}, ${q(credit?.credit || null)}, ${q(ownerPhoto ? null : '2026-10-17')}, 'unverified', ${q(sha(file))}`);
     push(`  from public.products p where p.slug = ${q(product.slug)} on conflict (bucket, path) do nothing;`);
   });
   push('');

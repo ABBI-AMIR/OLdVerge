@@ -18,6 +18,15 @@ const zipRow = {
 };
 
 describe('mapProductRow', () => {
+  it('shows the owner gallery and pending price while retaining the staging variant identity', () => {
+    const product = mapProductRow({ ...zipRow, ready_to_sell: false }, { storageBase: BASE });
+    expect(product.pricePending).toBe(true);
+    expect(product.price).toBeNull();
+    expect(product.image).toMatch(/^\/images\/products\/quarter-zips\//);
+    expect(product.images.length).toBeGreaterThan(1);
+    expect(product.variants.map(variant => variant.id)).toEqual(['v-s', 'v-m']);
+    expect(mapProductRow({ ...zipRow, ready_to_sell: true }, { storageBase: BASE }).price).toBe(8490);
+  });
   it('maps a clothing product into the shape the storefront components use', () => {
     const product = mapProductRow(zipRow, { storageBase: BASE });
     expect(product).toMatchObject({ id: 'quarter-zip-black', slug: 'quarter-zip-black', brand: 'OLDVERGE', category: 'Quarter-Zips', type: 'clothing', price: 8490, colors: ['Black'], artColor: '#262622', groupKey: 'quarter-zip' });

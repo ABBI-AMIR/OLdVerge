@@ -4,7 +4,7 @@ import { useCatalog } from './catalog.js';
 import { useSite } from './site.js';
 
 // Order alternates clothing and watches and keeps repeated watch photos apart (the curated demo order).
-export const DEMO_FEATURED = ['quarter-zip-black', 'cartier-tank-solo-black', 'quarter-zip-chocolate-brown', 'tissot-prx-green', 'quarter-zip-navy', 'rolex-datejust-ice-blue', 'quarter-zip-burgundy', 'audemars-piguet-royal-oak-silver', 'omega-seamaster-planet-ocean-white', 'patek-philippe-nautilus-white'];
+export const DEMO_FEATURED = ['quarter-zip-black', 'cartier-tank-solo-black', 'quarter-zip-brown', 'tissot-prx-green', 'quarter-zip-navy', 'rolex-datejust-ice-blue', 'quarter-zip-burgundy', 'audemars-piguet-royal-oak-silver', 'omega-seamaster-planet-ocean-white', 'patek-philippe-nautilus-white'];
 export const FEATURED_LIMIT = 10;
 
 /** Pure: which products the home carousel shows, in order. `slugs` is the curated list (setting home.featured). */

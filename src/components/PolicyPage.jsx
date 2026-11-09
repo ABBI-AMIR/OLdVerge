@@ -12,6 +12,7 @@ export default function PolicyPage({ policy }) {
         <h2>{section.heading}</h2>
         {section.body.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
       </section>)}
+      {policy.slug === 'refund-policy' && <p>For returns, contact us on <a href="https://wa.me/923442765766">WhatsApp at 03442765766</a> or email <a href="mailto:oldverge6@gmail.com">oldverge6@gmail.com</a>. Include your order number.</p>}
       {policy.updated && <p className="ov-policy-updated">Last updated {new Date(policy.updated).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
     </div>
   </main>;
