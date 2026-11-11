@@ -1,6 +1,6 @@
 import { finishIntro } from './introState.js';
 import { Suspense, lazy, useContext, useEffect } from 'react';
-import {PublicSnapshot} from './ssr/PublicSnapshot.jsx';
+import {PublicSnapshot,samePublicLocation} from './ssr/PublicSnapshot.jsx';
 import {PublicMain} from './ssr/PublicPage.jsx';
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { Footer, Header } from './components/Shell.jsx';
@@ -95,7 +95,7 @@ const gated = (element) => <BackendGate>{element}</BackendGate>;
 function PublicRoutePending() {
   const snapshot=useContext(PublicSnapshot);
   const location=useLocation();
-  return snapshot&&!snapshot.error&&snapshot.path===location.pathname&&(snapshot.search||'')===location.search
+  return samePublicLocation(snapshot,location)
     ? <PublicMain snapshot={snapshot}/>:<main className="ov-page" role="status">Loading…</main>;
 }
 function RouteContent() {

@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {initialBrowsePage} from './PublicSnapshot.jsx';
+import {initialBrowsePage,samePublicLocation} from './PublicSnapshot.jsx';
 import {createRenderer} from '../../server/entry.jsx';
 import {buildHeroImages} from '../data/homeHeroImages.js';
 
@@ -28,5 +28,12 @@ describe('stable public first paint',()=>{
     expect(images[0].src).toMatch(/ribbon-folded-burgundy-.*\.webp$/);
     expect(images[1].src).toMatch(/ribbon-four-colours-.*\.webp$/);
     expect(images.every(image=>image.width===960&&image.height>0)).toBe(true);
+  });
+  it('preserves the initial layout through route loading without reusing a different query',()=>{
+    const page={path:'/shop',search:'?brand=cartier&sort=price-asc'};
+    expect(samePublicLocation(page,{pathname:'/shop',search:'?sort=price-asc&brand=cartier&x-vercel-set-bypass-cookie=true'})).toBe(true);
+    expect(samePublicLocation(page,{pathname:'/shop',search:'?brand=tissot&sort=price-asc'})).toBe(false);
+    expect(samePublicLocation(page,{pathname:'/checkout',search:''})).toBe(false);
+    expect(samePublicLocation({...page,error:true},{pathname:'/shop',search:page.search})).toBe(false);
   });
 });

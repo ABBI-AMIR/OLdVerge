@@ -11,6 +11,7 @@ import FeaturedCarousel from './components/FeaturedCarousel.jsx';
 import ColorExplorer from './components/ColorExplorer.jsx';
 import CollectionPage from './components/CollectionPage.jsx';
 import Reveal from './components/Reveal.jsx';
+import heroVariants from './data/heroImageVariants.json';
 
 
 export function HomePage() {
@@ -27,7 +28,7 @@ export function HomePage() {
       <Reveal className="ov-section-heading"><div><h2>Two essentials.<br /><em>One point of view.</em></h2></div></Reveal>
       <Reveal className="ov-category-grid" delay={0.1}>
         <Link to="/shop/watches" className="ov-category-card ov-watch-card"><img src="/images/editorial-watch-collection.webp" width="1100" height="1350" alt="Dark-dial watches arranged in a velvet-lined case" loading="lazy" decoding="async" /><span className="ov-category-index">01 / WATCHES</span><div><h3>Time,<br />considered.</h3><span>Explore the collection <ArrowRight size={15} /></span></div></Link>
-        <Link to="/shop/quarter-zips" className="ov-category-card ov-zip-card"><img src="/images/ribbon-four-colours.jpg" width="1290" height="2106" alt="Folded Oldverge quarter-zips in Burgundy, Brown, Black and Navy on a wooden table" loading="lazy" decoding="async" /><span className="ov-category-index">02 / CLOTHES</span><div><h3>The layer<br />you reach for.</h3><span>Find your colour <ArrowRight size={15} /></span></div></Link>
+        <Link to="/shop/quarter-zips" className="ov-category-card ov-zip-card"><img {...heroVariants['/images/ribbon-four-colours.jpg']} alt="Folded Oldverge quarter-zips in Burgundy, Brown, Black and Navy on a wooden table" loading="lazy" decoding="async" /><span className="ov-category-index">02 / CLOTHES</span><div><h3>The layer<br />you reach for.</h3><span>Find your colour <ArrowRight size={15} /></span></div></Link>
       </Reveal>
     </section>
     <section className="ov-story" aria-label="Our story">

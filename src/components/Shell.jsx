@@ -144,16 +144,17 @@ export function Header() {
 function FooterNewsletter() {
   useSite((state) => state.settings);
   const news = useNewsletter('footer');
+  const [verificationActive,setVerificationActive]=useState(false);
   return <div className="ov-footer-news">
     <h3>Subscribe to our newsletter</h3>
     {news.status === 'done' ? <p className="ov-footer-news-done" role="status">{news.backend ? 'Thank you, your address has been saved pending email confirmation.' : 'Demo only: nothing was saved and no email will be sent.'}</p>
-      : <form onSubmit={news.submit} noValidate>
+      : <form onSubmit={news.submit} onFocusCapture={()=>setVerificationActive(true)} onSubmitCapture={()=>setVerificationActive(true)} noValidate>
         <label className="ov-sr-only" htmlFor="ov-footer-email">Email address</label>
         <input id="ov-footer-email" type="email" autoComplete="email" placeholder="Email" value={news.email} aria-invalid={news.error ? 'true' : undefined} aria-describedby={news.error ? 'ov-footer-email-error' : undefined} onChange={(event) => news.setEmail(event.target.value)} />
         {news.backend && <label className="ov-news-consent"><input type="checkbox" checked={news.consent} onChange={(event) => news.setConsent(event.target.checked)} /> <span>{NEWSLETTER_CONSENT}</span></label>}
         {news.error && <p className="ov-footer-news-error" id="ov-footer-email-error" role="alert">{news.error}</p>}
         <button type="submit" disabled={news.status === 'sending'}>{news.status === 'sending' ? 'Saving…' : 'Subscribe'}</button>
-      <BotCheck /></form>}
+      <BotCheck active={verificationActive}/></form>}
     {!news.backend && <p className="ov-footer-news-note">This form is a demo and is not connected to a mailing list.</p>}
   </div>;
 }
