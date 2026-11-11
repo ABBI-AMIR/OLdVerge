@@ -27,7 +27,9 @@ async function checkBot(deps, request, body) {
   }
   const response = typeof body.turnstile_token === 'string' ? body.turnstile_token : '';
   if (!response || response.length > 2048) throw new HttpError(400, { error: 'bot_check_failed' });
-  const form = new URLSearchParams({ secret, response, remoteip: clientIp(request) });
+  const form = new URLSearchParams({ secret, response });
+  const ip = clientIp(request);
+  if (ip !== 'unknown') form.set('remoteip', ip);
   const reply = await (deps.fetch || fetch)('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body: form, signal: AbortSignal.timeout(10000) });
   const result = await reply.json().catch(() => ({}));
   const hostnames = String(deps.env.get('ALLOWED_ORIGINS') || '').split(',').flatMap((origin) => { try { return [new URL(origin.trim()).hostname]; } catch { return []; } });

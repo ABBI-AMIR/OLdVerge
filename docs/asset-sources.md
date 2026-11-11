@@ -52,3 +52,10 @@ File name, source URL, photographer or supplier, licence name and URL, date retr
 The owner supplied the files under `public/images/products/`. They are mapped
 explicitly in `src/data/uploadedProductData.js` for the local visual catalogue.
 The Rolex galleries use the owner's replacement PNGs. The Burgundy idle turn uses AI-generated views based on the owner's photos. Prices and specifications await owner confirmation. See the product image guide for the unresolved Rolex model label.
+
+## Editorial watch photography
+
+- Watch collection card, photographed by SJ. [Original on Unsplash](https://unsplash.com/photos/Y-SmXnqF6AE)
+- Cartier Tank story photograph, photographed by Studio Crevettes. [Original on Unsplash](https://unsplash.com/photos/Ju-6TPKXdBs)
+
+Both photographs are served locally as WebP under the [Unsplash License](https://unsplash.com/license).

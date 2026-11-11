@@ -164,12 +164,12 @@ export default function LiveCheckoutPage() {
         </div>}
         <section aria-labelledby="co-contact"><h2 id="co-contact">Contact</h2>
           <Field label="Email" name="email" type="email" autoComplete="email" value={contact.email} error={errors.email} onChange={(event) => setContact({ ...contact, email: event.target.value })} />
-          <Field label="Phone" name="phone" type="tel" autoComplete="tel" value={contact.phone} error={errors.phone} onChange={(event) => setContact({ ...contact, phone: event.target.value })} />
+          <Field label="Phone number (required)" name="phone" type="tel" required autoComplete="tel" value={contact.phone} error={errors.phone} onChange={(event) => setContact({ ...contact, phone: event.target.value })} />
         </section>
         <section aria-labelledby="co-ship"><h2 id="co-ship">Shipping address</h2>
           <p className="ov-field-hint">Country: Pakistan</p>
           <div className="ov-field-row">{field('firstName', 'First name', { ac: 'given-name' })}{field('lastName', 'Last name', { ac: 'family-name' })}</div>
-          {field('line1', 'Address', { ac: 'address-line1' })}
+          {field('line1', 'Street address (required)', { ac: 'address-line1', input: { required: true } })}
           {field('line2', 'Apartment, suite or floor (optional)', { ac: 'address-line2' })}
           <div className="ov-field-row">{field('city', 'City', { ac: 'address-level2' })}
             <Field label="Province or territory" as="select" name="province" value={address.province} error={errors.province} onChange={(event) => { setAddress({ ...address, province: event.target.value }); setNeedsReconfirm(false); }} autoComplete="shipping address-level1"><option value="">Select</option>{PROVINCES.map((province) => <option key={province} value={province}>{province}</option>)}</Field>

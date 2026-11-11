@@ -71,31 +71,42 @@ describe('owner uploaded catalogue', () => {
       expect(html).toContain('width=');
     }
   });
+  it('lists every quarter-zip size at the confirmed unit price', () => {
+    for (const product of products.filter(p => p.category === 'Quarter-Zips')) {
+      expect(product.sizes).toEqual(['S', 'M', 'L', 'XL']);
+      expect(product.price).toBe(4199);
+      expect(product.pricePending).toBe(false);
+    }
+  });
+  it('applies all owner-confirmed watch prices including the TAG Heuer Carrera', () => {
+    expect(products.filter(p => p.type === 'watch').map(p => p.price)).toEqual([4199,3799,4299,4399,4399,4099,4099,4099,5399,3399,3399,3399,3399,3399,3699,4199,2699,3699,3699]);
+    expect(products.filter(p => p.pricePending).map(p => p.slug)).toEqual([]);
+  });
   it('does not invent prices or allow pending-price products through cart or direct checkout', () => {
     const previous=useCatalog.getState().products;
     const previousCart=useStore.getState().cart;
     const previousDirect=useStore.getState().directItem;
-    useCatalog.setState({products});
+    const pendingProduct = {...products[0], price: null, pricePending: true};
+    useCatalog.setState({products: [pendingProduct]});
     try {
-      for(const product of products) {
-        expect(product.price).toBeNull();
-        expect(formatPrice(product.price)).toBe('Price to be confirmed');
-        const options={size:product.sizes[0],color:product.colors[0],quantity:1};
-        expect(validateOptions(product,options)).toContain('price has not been confirmed');
-        expect(useStore.getState().addToCart(product,options).ok).toBe(false);
-        expect(useStore.getState().buyNowProduct(product,options).ok).toBe(false);
-        const lines=[{productId:product.id,...options}];
-        expect(sanitizeLines(lines)).toEqual([]);
-        expect(reconcileLines(lines).kept).toEqual([]);
-        expect(resolveLines(lines)).toEqual([]);
-      }
+      const product = pendingProduct;
+      expect(product.price).toBeNull();
+      expect(formatPrice(product.price)).toBe('Price to be confirmed');
+      const options={size:product.sizes[0],color:product.colors[0],quantity:1};
+      expect(validateOptions(product,options)).toContain('price has not been confirmed');
+      expect(useStore.getState().addToCart(product,options).ok).toBe(false);
+      expect(useStore.getState().buyNowProduct(product,options).ok).toBe(false);
+      const lines=[{productId:product.id,...options}];
+      expect(sanitizeLines(lines)).toEqual([]);
+      expect(reconcileLines(lines).kept).toEqual([]);
+      expect(resolveLines(lines)).toEqual([]);
     } finally {useCatalog.setState({products:previous});useStore.setState({cart:previousCart,directItem:previousDirect});}
   });
   it('keeps unknown prices out of price ranges and sorts them after confirmed prices', () => {
-    const items=[products[0],{...products[1],price:100},{...products[2],price:200}];
+    const items=[{...products[0],price:null,pricePending:true},{...products[1],price:100},{...products[2],price:200}];
     expect(sortProducts(items,'price-asc').map(p=>p.price)).toEqual([100,200,null]);
     expect(sortProducts(items,'price-desc').map(p=>p.price)).toEqual([200,100,null]);
-    expect(applyFilters(products,{...emptyFilters(),priceMax:5000})).toEqual([]);
+    expect(applyFilters(products,{...emptyFilters(),priceMax:5000})).toEqual(products.filter(p => p.price !== null && p.price <= 5000));
     expect(formatPrice(0)).toBe('PKR 0');
   });
 });

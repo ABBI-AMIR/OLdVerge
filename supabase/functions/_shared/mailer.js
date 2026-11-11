@@ -52,10 +52,11 @@ export function createOutboxMailer(deps) {
     const site = new URL(env.get('ORDER_EMAIL_SITE_URL'));
     const sender = email(env.get('MAILTRAP_LIVE_FROM'));
     const apiToken = env.get('MAILTRAP_LIVE_API_TOKEN');
-    if (site.protocol !== 'https:' || site.href !== site.origin + '/' || site.origin === STAGING_EMAIL.siteUrl
+    if (site.protocol !== 'https:' || site.href !== site.origin + '/'
       || sender.endsWith('@demomailtrap.co') || !apiToken || !/^[\x21-\x7e]{16,512}$/.test(apiToken)) return null;
     return buildMailer(deps, {live:true, siteUrl:site.origin, endpoint:'https://send.api.mailtrap.io/api/send',
-      from:{email:sender,name:'Oldverge'}, apiToken, adminTo:email(env.get('ORDER_EMAIL_ADMIN_TO'))});
+      from:{email:sender,name:'Oldverge'}, apiToken, adminTo:email(env.get('ORDER_EMAIL_ADMIN_TO')),
+      replyTo: env.get('ORDER_EMAIL_REPLY_TO') ? email(env.get('ORDER_EMAIL_REPLY_TO')) : null});
   } catch { return null; }
 }
 
@@ -86,15 +87,16 @@ function buildMailer({admin, fetch: request = fetch}, settings) {
         'Unsubscribe:',newsletterLink('unsubscribe',payload.unsubscribe_token),
       ]};
     }
-    if (kind === 'order_confirmation' || kind === 'admin_new_order') {
+    if (kind === 'order_confirmation' || kind === 'admin_new_order' || kind === 'order_cancelled') {
       const order = await read('orders','order_number,customer_email,customer_name,total_pkr,currency,payment_status,fulfilment_status,is_test',payload.order_id,signal);
       if (settings.live && order.is_test !== false) fail('email_recipient_blocked');
       if (!settings.live && order.is_test !== true) fail('email_non_test_order');
       // Validate the customer's allowlist even for admin notices; never capture unrelated customer data.
       const customer = recipient(order.customer_email);
       if (order.currency !== 'PKR' || !/^OV-\d{6}-[0-9A-F]{8}$/.test(order.order_number)) fail('email_invalid_payload');
-      const title = kind === 'order_confirmation' ? 'Order received' : (settings.live ? 'New order' : 'New test order');
-      return {to:kind === 'order_confirmation' ? customer : recipient(settings.adminTo),subject:`${title}: ${order.order_number}`,lines:[
+      const title = kind === 'order_cancelled' ? 'Order cancelled'
+        : kind === 'order_confirmation' ? 'Order received' : (settings.live ? 'New order' : 'New test order');
+      return {to:kind === 'admin_new_order' ? recipient(settings.adminTo) : customer,subject:`${title}: ${order.order_number}`,lines:[
         `${title}: ${order.order_number}`,`Customer: ${text(order.customer_name,160)}`,
         `Total: ${money(order.total_pkr)}`,`Payment status: ${text(order.payment_status,40)}`,
         `Fulfilment status: ${text(order.fulfilment_status,40)}`,
@@ -123,6 +125,7 @@ function buildMailer({admin, fetch: request = fetch}, settings) {
           method:'POST',redirect:'error',signal:controller.signal,
           headers:{'Content-Type':'application/json',...(settings.live ? {Authorization:`Bearer ${settings.apiToken}`} : {'Api-Token':settings.apiToken})},
           body:JSON.stringify({from:settings.from,to:[{email:message.to}],
+            ...(settings.replyTo ? {reply_to:{email:settings.replyTo,name:'Oldverge Customer Support'}} : {}),
             subject:settings.live ? message.subject : `[STAGING] ${message.subject}`,text:lines.join('\n'),
             html:`<!doctype html><html><body>${lines.map(line=>line.startsWith(`${STAGING_EMAIL.siteUrl}/`)
               ? `<p><a href="${escapeHtml(line)}">${escapeHtml(line)}</a></p>` : `<p>${escapeHtml(line)}</p>`).join('')}</body></html>`}),

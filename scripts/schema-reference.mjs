@@ -7,6 +7,7 @@ import path from 'node:path';
 import net from 'node:net';
 import { createHash } from 'node:crypto';
 import { readManifest } from './schema-manifest.mjs';
+import {stopDatabase} from '../supabase/tests/support/stop-database.js';
 
 const root = new URL('../', import.meta.url);
 const out = new URL('scripts/out/', root);
@@ -38,6 +39,6 @@ try {
   console.log(`Reference: ${names.length} migrations, ${manifest.length} schema/permission entries; disposable local DB only.`);
 } finally {
   await client?.end();
-  await server.stop();
+  await stopDatabase(server, directory);
   await fs.rm(directory,{recursive:true,force:true});
 }

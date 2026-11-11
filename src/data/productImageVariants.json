@@ -1,0 +1,886 @@
+{
+  "/images/products/quarter-zips/quarter-zip-black/IMG_7255-black.png": {
+    "checksum": "ae0017c011021f7152eaae5369775ca2a380e81019b41c03b49110771db5ea5c",
+    "variants": [
+      {
+        "src": "/images/optimized/quarter-zip-black-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/quarter-zip-black-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/quarter-zip-black-1-1254.webp",
+        "width": 1254
+      }
+    ]
+  },
+  "/images/products/quarter-zips/quarter-zip-black/IMG_7262-sand.png": {
+    "checksum": "c4c9bdd624aa7ddb23d0f0d9a48e19b25aa5bf374d7491896c5eb230717eb12f",
+    "variants": [
+      {
+        "src": "/images/optimized/quarter-zip-black-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/quarter-zip-black-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/quarter-zip-black-2-1086.webp",
+        "width": 1086
+      }
+    ]
+  },
+  "/images/products/quarter-zips/quarter-zip-black/IMG_7405-sand.png": {
+    "checksum": "e59e28c36433e91c95c90bc9bd115ed97e9ffa69ec1b766f0a24ae0f809828f5",
+    "variants": [
+      {
+        "src": "/images/optimized/quarter-zip-black-3-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/quarter-zip-black-3-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/quarter-zip-black-3-1086.webp",
+        "width": 1086
+      }
+    ]
+  },
+  "/images/products/quarter-zips/quarter-zip-beige/IMG_7303-brown.png": {
+    "checksum": "edbf941723b89b3d1de2fff12c8a62494c982ed05d44d6249cc5757c3695b836",
+    "variants": [
+      {
+        "src": "/images/optimized/quarter-zip-brown-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/quarter-zip-brown-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/quarter-zip-brown-1-1254.webp",
+        "width": 1254
+      }
+    ]
+  },
+  "/images/products/quarter-zips/quarter-zip-beige/IMG_7314-sand.png": {
+    "checksum": "cb9df2d9efff87f8a1498ddfbdc7e2a82f91404f055f41ae9262440827ad1170",
+    "variants": [
+      {
+        "src": "/images/optimized/quarter-zip-brown-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/quarter-zip-brown-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/quarter-zip-brown-2-1086.webp",
+        "width": 1086
+      }
+    ]
+  },
+  "/images/products/quarter-zips/quarter-zip-beige/IMG_7355-sand.png": {
+    "checksum": "93ab4a3b49f25884b75fd070675a965efe5238f519530120642fa4b36b51ad8f",
+    "variants": [
+      {
+        "src": "/images/optimized/quarter-zip-brown-3-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/quarter-zip-brown-3-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/quarter-zip-brown-3-1086.webp",
+        "width": 1086
+      }
+    ]
+  },
+  "/images/products/quarter-zips/quarter-zip-navy/IMG_7270-navy.png": {
+    "checksum": "72fa1698699a9ae6d98ffa4e2c805ba243377f198b1d7d8caefa7584f67d62c4",
+    "variants": [
+      {
+        "src": "/images/optimized/quarter-zip-navy-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/quarter-zip-navy-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/quarter-zip-navy-1-1254.webp",
+        "width": 1254
+      }
+    ]
+  },
+  "/images/products/quarter-zips/quarter-zip-navy/IMG_7278-sand.png": {
+    "checksum": "15d9e21c9bba9300577d7d5dd250d75efd81d786ceffce3ead8d51e850bb9e8a",
+    "variants": [
+      {
+        "src": "/images/optimized/quarter-zip-navy-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/quarter-zip-navy-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/quarter-zip-navy-2-1086.webp",
+        "width": 1086
+      }
+    ]
+  },
+  "/images/products/quarter-zips/quarter-zip-navy/IMG_7433-sand.png": {
+    "checksum": "5747c0fa91f4e9f188e5c432256565a2b7a66b574a846e95e0a9e0a474eb7cbc",
+    "variants": [
+      {
+        "src": "/images/optimized/quarter-zip-navy-3-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/quarter-zip-navy-3-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/quarter-zip-navy-3-1086.webp",
+        "width": 1086
+      }
+    ]
+  },
+  "/images/products/quarter-zips/quarter-zip-burgundy/IMG_7284-burgundy.png": {
+    "checksum": "25abf1926f41f045c4daa8ac78f1c30ea1155879e79644ba7c25a567182a360e",
+    "variants": [
+      {
+        "src": "/images/optimized/quarter-zip-burgundy-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/quarter-zip-burgundy-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/quarter-zip-burgundy-1-1254.webp",
+        "width": 1254
+      }
+    ]
+  },
+  "/images/products/quarter-zips/quarter-zip-burgundy/IMG_7327-sand.png": {
+    "checksum": "728d94e9f74f38d79276a39fa15d86b0b52091b2d9b8d16a1ff9bcd8417a93e8",
+    "variants": [
+      {
+        "src": "/images/optimized/quarter-zip-burgundy-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/quarter-zip-burgundy-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/quarter-zip-burgundy-2-1086.webp",
+        "width": 1086
+      }
+    ]
+  },
+  "/images/products/watches/audemars%20piguet/Audemars%20Piguet%20Royal%20Oak%20Automatic%20Silver%20Grand%20Tapisserie%20dial/IMG_1416_beige.png": {
+    "checksum": "13579ee468862810347ff9f91a04ba168864c02655886b25724dbdc886d340ac",
+    "variants": [
+      {
+        "src": "/images/optimized/audemars-piguet-royal-oak-silver-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/audemars-piguet-royal-oak-silver-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/audemars-piguet-royal-oak-silver-1-1056.webp",
+        "width": 1056
+      }
+    ]
+  },
+  "/images/products/watches/audemars%20piguet/Audemars%20Piguet%20Royal%20Oak%20Automatic%20Silver%20Grand%20Tapisserie%20dial/IMG_1418_beige.png": {
+    "checksum": "ca4301d5b339d2194fd55a31c870165c721191a8d4e58820fd6713bc0f0ff85e",
+    "variants": [
+      {
+        "src": "/images/optimized/audemars-piguet-royal-oak-silver-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/audemars-piguet-royal-oak-silver-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/audemars-piguet-royal-oak-silver-2-1086.webp",
+        "width": 1086
+      }
+    ]
+  },
+  "/images/products/watches/audemars%20piguet/Audemars%20Piguet%20Royal%20Oak%20Automatic%20Silver%20Grand%20Tapisserie%20dial/IMG_1419_beige.png": {
+    "checksum": "747f1f9a320d7398b96e934bfa4b4e607ed1897e9c1c8eaee6916a910b055329",
+    "variants": [
+      {
+        "src": "/images/optimized/audemars-piguet-royal-oak-silver-3-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/audemars-piguet-royal-oak-silver-3-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/audemars-piguet-royal-oak-silver-3-1086.webp",
+        "width": 1086
+      }
+    ]
+  },
+  "/images/products/watches/Cartier/Cartier%20Tank%20Solo%20Black/IMG_1256_beige.png": {
+    "checksum": "d601e4824d64b886377c9c0ad9fa6d0de84ac142ac206524a4c0d2f94de16e63",
+    "variants": [
+      {
+        "src": "/images/optimized/cartier-tank-solo-black-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/cartier-tank-solo-black-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/cartier-tank-solo-black-1-1027.webp",
+        "width": 1027
+      }
+    ]
+  },
+  "/images/products/watches/Cartier/Cartier%20Tank%20Solo%20Black/IMG_1257_beige.png": {
+    "checksum": "d25a33e9c311e4a9434bf8ad2f0b6063f9437f659e2ec3daa847815342d4b89c",
+    "variants": [
+      {
+        "src": "/images/optimized/cartier-tank-solo-black-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/cartier-tank-solo-black-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/cartier-tank-solo-black-2-1059.webp",
+        "width": 1059
+      }
+    ]
+  },
+  "/images/products/watches/Cartier/Cartier%20Tank%20Solo%20Rose%20Gold%20Quartz%20Brown%20Leather%20Strap/IMG_1361_beige.png": {
+    "checksum": "17d5ccfadb5acbf4e0a54aa73352c71b9cce52505853410be31f6202d5a8f08d",
+    "variants": [
+      {
+        "src": "/images/optimized/cartier-tank-solo-rose-gold-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/cartier-tank-solo-rose-gold-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/cartier-tank-solo-rose-gold-1-1075.webp",
+        "width": 1075
+      }
+    ]
+  },
+  "/images/products/watches/Cartier/Cartier%20Tank%20Solo%20Rose%20Gold%20Quartz%20Brown%20Leather%20Strap/IMG_1362_beige.png": {
+    "checksum": "917343a91b49979d438754260a540bcf0f8cb9a8a29704751881960f5967f205",
+    "variants": [
+      {
+        "src": "/images/optimized/cartier-tank-solo-rose-gold-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/cartier-tank-solo-rose-gold-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/cartier-tank-solo-rose-gold-2-1086.webp",
+        "width": 1086
+      }
+    ]
+  },
+  "/images/products/watches/franck%20muller/Franck%20Muller%20Vanguard%20Dark%20Grey%20,%20Black%20dial/IMG_1264_beige.png": {
+    "checksum": "2d9d7327a317d9b48e8ff906c1695faaaa5e83e8927898260bd100f03606de07",
+    "variants": [
+      {
+        "src": "/images/optimized/franck-muller-vanguard-dark-grey-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/franck-muller-vanguard-dark-grey-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/franck-muller-vanguard-dark-grey-1-1027.webp",
+        "width": 1027
+      }
+    ]
+  },
+  "/images/products/watches/franck%20muller/Franck%20Muller%20Vanguard%20Dark%20Grey%20,%20Black%20dial/IMG_1407_beige.png": {
+    "checksum": "6192d5f4e59b7288b406370268f0a4b4be5ba3df50f819d713f2d4066d941489",
+    "variants": [
+      {
+        "src": "/images/optimized/franck-muller-vanguard-dark-grey-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/franck-muller-vanguard-dark-grey-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/franck-muller-vanguard-dark-grey-2-1075.webp",
+        "width": 1075
+      }
+    ]
+  },
+  "/images/products/watches/franck%20muller/Franck%20Muller%20Vanguard%20Dark%20Grey%20,%20Black%20dial/IMG_1411_beige.png": {
+    "checksum": "c0183b4aeafc225f6ea8302efd6a205b22c8a53df1158ecfccec35641cdda635",
+    "variants": [
+      {
+        "src": "/images/optimized/franck-muller-vanguard-dark-grey-3-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/franck-muller-vanguard-dark-grey-3-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/franck-muller-vanguard-dark-grey-3-1086.webp",
+        "width": 1086
+      }
+    ]
+  },
+  "/images/products/watches/franck%20muller/Franck%20Muller%20Vanguard%20Yachting%20RoseGold%20Diamond%20Black%20Dial/IMG_1267_beige.png": {
+    "checksum": "da95b618799a67d9fdcbdddf3e0daae270735d750edde362e6987cb59390351d",
+    "variants": [
+      {
+        "src": "/images/optimized/franck-muller-vanguard-yachting-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/franck-muller-vanguard-yachting-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/franck-muller-vanguard-yachting-1-1027.webp",
+        "width": 1027
+      }
+    ]
+  },
+  "/images/products/watches/franck%20muller/Franck%20Muller%20Vanguard%20Yachting%20RoseGold%20Diamond%20Black%20Dial/IMG_1268_beige.png": {
+    "checksum": "5da72a59af27ee3da230f96c45ba6e9a6b47a3f5511b97576c534c1ea2587119",
+    "variants": [
+      {
+        "src": "/images/optimized/franck-muller-vanguard-yachting-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/franck-muller-vanguard-yachting-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/franck-muller-vanguard-yachting-2-992.webp",
+        "width": 992
+      }
+    ]
+  },
+  "/images/products/watches/Omega/Omega%20Seamaster%20Planet%20Ocean%20600M/IMG_1367_beige.png": {
+    "checksum": "3f2c59ed2187c83f68c8fe68b42f1867adc0774813bdb7f0cefa0ff92bf718f1",
+    "variants": [
+      {
+        "src": "/images/optimized/omega-seamaster-planet-ocean-black-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/omega-seamaster-planet-ocean-black-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/omega-seamaster-planet-ocean-black-1-1075.webp",
+        "width": 1075
+      }
+    ]
+  },
+  "/images/products/watches/Omega/Omega%20Seamaster%20Planet%20Ocean%20600M/IMG_1368_beige.png": {
+    "checksum": "08e0b2a9d067f3729de7ffd662b94db4af5bc843d6fb3202e58fd118d98b675e",
+    "variants": [
+      {
+        "src": "/images/optimized/omega-seamaster-planet-ocean-black-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/omega-seamaster-planet-ocean-black-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/omega-seamaster-planet-ocean-black-2-1086.webp",
+        "width": 1086
+      }
+    ]
+  },
+  "/images/products/watches/Omega/Omega%20Seamaster%20Planet%20Ocean%20600M%20White%20dial/IMG_1371_beige.png": {
+    "checksum": "92a4aa4b8f794faaa75f0d6103acd4e11007da8f7a64c3dffdc36e6d92d031ca",
+    "variants": [
+      {
+        "src": "/images/optimized/omega-seamaster-planet-ocean-white-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/omega-seamaster-planet-ocean-white-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/omega-seamaster-planet-ocean-white-1-1075.webp",
+        "width": 1075
+      }
+    ]
+  },
+  "/images/products/watches/Omega/Omega%20Seamaster%20Planet%20Ocean%20600M%20White%20dial/IMG_1368_beige.png": {
+    "checksum": "08e0b2a9d067f3729de7ffd662b94db4af5bc843d6fb3202e58fd118d98b675e",
+    "variants": [
+      {
+        "src": "/images/optimized/omega-seamaster-planet-ocean-white-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/omega-seamaster-planet-ocean-white-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/omega-seamaster-planet-ocean-white-2-1086.webp",
+        "width": 1086
+      }
+    ]
+  },
+  "/images/products/watches/patek%20philippe/Patek%20Philippe%20Nautilus%20White%20dial/IMG_1381_beige.png": {
+    "checksum": "69dd83548ef647e521cb0fbb4634ba9101588f94c8e65374651ecb57c148aecd",
+    "variants": [
+      {
+        "src": "/images/optimized/patek-philippe-nautilus-white-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/patek-philippe-nautilus-white-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/patek-philippe-nautilus-white-1-1075.webp",
+        "width": 1075
+      }
+    ]
+  },
+  "/images/products/watches/patek%20philippe/Patek%20Philippe%20Nautilus%20White%20dial/IMG_7262_beige.png": {
+    "checksum": "0fee2eae53393a24f498ae21f36ea6209f9b27c332acd487b394ce277607f306",
+    "variants": [
+      {
+        "src": "/images/optimized/patek-philippe-nautilus-white-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/patek-philippe-nautilus-white-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/patek-philippe-nautilus-white-2-1086.webp",
+        "width": 1086
+      }
+    ]
+  },
+  "/images/products/watches/richard%20mille/Richard%20Mille%20RM%2067-02%20Automatic%20Extra%20Flat/IMG_1233_beige.png": {
+    "checksum": "4e1c4ee3d6aaa5d4b0d9393abf7755f5047776ae30b8d0f196349a44656e3def",
+    "variants": [
+      {
+        "src": "/images/optimized/richard-mille-rm-67-02-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/richard-mille-rm-67-02-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/richard-mille-rm-67-02-1-981.webp",
+        "width": 981
+      }
+    ]
+  },
+  "/images/products/watches/richard%20mille/Richard%20Mille%20RM%2067-02%20Automatic%20Extra%20Flat/IMG_1234_beige.png": {
+    "checksum": "d78071767e375b622c18ec82c20b5fdf738dfa5ce7807eff4f673f065872c8a4",
+    "variants": [
+      {
+        "src": "/images/optimized/richard-mille-rm-67-02-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/richard-mille-rm-67-02-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/richard-mille-rm-67-02-2-1027.webp",
+        "width": 1027
+      }
+    ]
+  },
+  "/images/products/watches/Rolex/Rolex%20Datejust%2036%20Two-Tone%20(Rolesor),%20diamond%20bezel/IMG_1226_beige.png": {
+    "checksum": "f962aa81b53d5c8f2df6337afbefaeb601ee5e21409c9aae1dc6ef4df867b703",
+    "variants": [
+      {
+        "src": "/images/optimized/rolex-datejust-two-tone-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-two-tone-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-two-tone-1-1027.webp",
+        "width": 1027
+      }
+    ]
+  },
+  "/images/products/watches/Rolex/Rolex%20Datejust%2036%20Two-Tone%20(Rolesor),%20diamond%20bezel/IMG_1228_beige.png": {
+    "checksum": "072d30d445e8cd83af721e82feb51df383b6db192ec214e7079f722ff7583d8c",
+    "variants": [
+      {
+        "src": "/images/optimized/rolex-datejust-two-tone-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-two-tone-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-two-tone-2-1035.webp",
+        "width": 1035
+      }
+    ]
+  },
+  "/images/products/watches/Rolex/Rolex%20Datejust%2041%20green%20dial/IMG_1247_beige.png": {
+    "checksum": "c9e1c3f9586fcc712ada630fccfa30f6ecdd4d6a34f5bbb5b50e8b3eb711c539",
+    "variants": [
+      {
+        "src": "/images/optimized/rolex-datejust-green-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-green-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-green-1-1027.webp",
+        "width": 1027
+      }
+    ]
+  },
+  "/images/products/watches/Rolex/Rolex%20Datejust%2041%20green%20dial/IMG_1240_beige.png": {
+    "checksum": "4ea321a7e24b9cd07804d655eebf96775f7e88e30bb2fa59d60eabc357c2d2da",
+    "variants": [
+      {
+        "src": "/images/optimized/rolex-datejust-green-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-green-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-green-2-1020.webp",
+        "width": 1020
+      }
+    ]
+  },
+  "/images/products/watches/Rolex/Rolex%20Datejust%2041,%20ice%20blue%20dial/IMG_1243_beige.png": {
+    "checksum": "632dea8b9d547bedfad14df3d63f52dcd97267895d01cf5f2c75773ec6f69646",
+    "variants": [
+      {
+        "src": "/images/optimized/rolex-datejust-ice-blue-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-ice-blue-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-ice-blue-1-1017.webp",
+        "width": 1017
+      }
+    ]
+  },
+  "/images/products/watches/Rolex/Rolex%20Datejust%2041,%20ice%20blue%20dial/IMG_1240_beige.png": {
+    "checksum": "4ea321a7e24b9cd07804d655eebf96775f7e88e30bb2fa59d60eabc357c2d2da",
+    "variants": [
+      {
+        "src": "/images/optimized/rolex-datejust-ice-blue-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-ice-blue-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-ice-blue-2-1020.webp",
+        "width": 1020
+      }
+    ]
+  },
+  "/images/products/watches/Rolex/Rolex%20Datejust%2041,%20navy%20blue%20dial/IMG_1249_beige.png": {
+    "checksum": "a0565f3ce1168af29b7567852165c44a53d287a78948d2318baba6e456417fd3",
+    "variants": [
+      {
+        "src": "/images/optimized/rolex-datejust-navy-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-navy-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-navy-1-1027.webp",
+        "width": 1027
+      }
+    ]
+  },
+  "/images/products/watches/Rolex/Rolex%20Datejust%2041,%20navy%20blue%20dial/IMG_1240_beige.png": {
+    "checksum": "4ea321a7e24b9cd07804d655eebf96775f7e88e30bb2fa59d60eabc357c2d2da",
+    "variants": [
+      {
+        "src": "/images/optimized/rolex-datejust-navy-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-navy-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-navy-2-1020.webp",
+        "width": 1020
+      }
+    ]
+  },
+  "/images/products/watches/Rolex/Rolex%20Datejust%2041,%20silver%20dial,%20Jubilee%20bracelet/IMG_1238_beige.png": {
+    "checksum": "e24dc171ef2616eb8f67686892ceb17b32ed7137d46e32556218774c23ca92d5",
+    "variants": [
+      {
+        "src": "/images/optimized/rolex-datejust-silver-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-silver-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-silver-1-1026.webp",
+        "width": 1026
+      }
+    ]
+  },
+  "/images/products/watches/Rolex/Rolex%20Datejust%2041,%20silver%20dial,%20Jubilee%20bracelet/IMG_1240_beige.png": {
+    "checksum": "4ea321a7e24b9cd07804d655eebf96775f7e88e30bb2fa59d60eabc357c2d2da",
+    "variants": [
+      {
+        "src": "/images/optimized/rolex-datejust-silver-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-silver-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/rolex-datejust-silver-2-1020.webp",
+        "width": 1020
+      }
+    ]
+  },
+  "/images/products/watches/Rolex/Rolex%20Explorer%20II%2042mm%20Polar/rrrr_beige.png": {
+    "checksum": "32151b16d08c1819f7456d726eff919ee6ade404eda319e18032d3e3d749c961",
+    "variants": [
+      {
+        "src": "/images/optimized/rolex-explorer-ii-polar-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/rolex-explorer-ii-polar-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/rolex-explorer-ii-polar-1-1075.webp",
+        "width": 1075
+      }
+    ]
+  },
+  "/images/products/watches/Rolex/Rolex%20Explorer%20II%2042mm%20Polar/IMG_1389_beige.png": {
+    "checksum": "ed42c8b6f4e363315552fc65c1555851d5505727e8f1be185c601e92f02592c6",
+    "variants": [
+      {
+        "src": "/images/optimized/rolex-explorer-ii-polar-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/rolex-explorer-ii-polar-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/rolex-explorer-ii-polar-2-1086.webp",
+        "width": 1086
+      }
+    ]
+  },
+  "/images/products/watches/Rolex/Rolex%20Yacht-Master%2040/IMG_1235_beige.png": {
+    "checksum": "c614de74115cc61e03b21c326c12ee3ce1c8152736836cbf971eeffc505ec676",
+    "variants": [
+      {
+        "src": "/images/optimized/rolex-black-dial-model-pending-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/rolex-black-dial-model-pending-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/rolex-black-dial-model-pending-1-1027.webp",
+        "width": 1027
+      }
+    ]
+  },
+  "/images/products/watches/Rolex/Rolex%20Yacht-Master%2040/IMG_1259_beige.png": {
+    "checksum": "9c81511f09686c398f36657cf9502bd71fb21dbba07f546e12b948623000da2c",
+    "variants": [
+      {
+        "src": "/images/optimized/rolex-black-dial-model-pending-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/rolex-black-dial-model-pending-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/rolex-black-dial-model-pending-2-1020.webp",
+        "width": 1020
+      }
+    ]
+  },
+  "/images/products/watches/Rolex/Rolex%20Yacht-Master%2040/IMG_1261_beige.png": {
+    "checksum": "6fb7112ec0c03cb98929603ab50df4751047fc26c0eb3cf0deda596d4c78ed7d",
+    "variants": [
+      {
+        "src": "/images/optimized/rolex-black-dial-model-pending-3-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/rolex-black-dial-model-pending-3-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/rolex-black-dial-model-pending-3-1029.webp",
+        "width": 1029
+      }
+    ]
+  },
+  "/images/products/watches/tag%20heuer/TAG%20Heuer%20Carrera%20Automatic%20Day-Date%20Brown/IMG_1404_beige.png": {
+    "checksum": "896b851c3b18a7b29f02e7cfc24e98f16fe4aea91e271555961ff6f18599ba63",
+    "variants": [
+      {
+        "src": "/images/optimized/tag-heuer-carrera-brown-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/tag-heuer-carrera-brown-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/tag-heuer-carrera-brown-1-1075.webp",
+        "width": 1075
+      }
+    ]
+  },
+  "/images/products/watches/tag%20heuer/TAG%20Heuer%20Carrera%20Automatic%20Day-Date%20Brown/IMG_1405_beige.png": {
+    "checksum": "8aa9948b42acbfde3d727313787383a356e3452b3c78c760b63169425a58b8a9",
+    "variants": [
+      {
+        "src": "/images/optimized/tag-heuer-carrera-brown-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/tag-heuer-carrera-brown-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/tag-heuer-carrera-brown-2-1086.webp",
+        "width": 1086
+      }
+    ]
+  },
+  "/images/products/watches/tissot/Tissot%20PRX%20Powermatic%2080%20green%20Dial/IMG_1399_beige.png": {
+    "checksum": "165b383c36c334660082df34fc6e96cd5e9ddc4b65195f80e2d6ffdb175ba05a",
+    "variants": [
+      {
+        "src": "/images/optimized/tissot-prx-green-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/tissot-prx-green-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/tissot-prx-green-1-1075.webp",
+        "width": 1075
+      }
+    ]
+  },
+  "/images/products/watches/tissot/Tissot%20PRX%20Powermatic%2080%20green%20Dial/IMG_1395_beige.png": {
+    "checksum": "161ec6569ceb515e04af17d6925164ecf311e0c72b381314b2f397d2e8472d07",
+    "variants": [
+      {
+        "src": "/images/optimized/tissot-prx-green-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/tissot-prx-green-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/tissot-prx-green-2-1086.webp",
+        "width": 1086
+      }
+    ]
+  },
+  "/images/products/watches/tissot/Tissot%20PRX%20Powermatic%2080%20Ice%20blue%20Dial/IMG_1398_beige.png": {
+    "checksum": "d379409a30f57fea478debdb4f7f85dfd1d2de76ce35941051dea9983fc67aae",
+    "variants": [
+      {
+        "src": "/images/optimized/tissot-prx-ice-blue-1-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/tissot-prx-ice-blue-1-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/tissot-prx-ice-blue-1-1075.webp",
+        "width": 1075
+      }
+    ]
+  },
+  "/images/products/watches/tissot/Tissot%20PRX%20Powermatic%2080%20Ice%20blue%20Dial/IMG_1395_beige.png": {
+    "checksum": "161ec6569ceb515e04af17d6925164ecf311e0c72b381314b2f397d2e8472d07",
+    "variants": [
+      {
+        "src": "/images/optimized/tissot-prx-ice-blue-2-480.webp",
+        "width": 480
+      },
+      {
+        "src": "/images/optimized/tissot-prx-ice-blue-2-960.webp",
+        "width": 960
+      },
+      {
+        "src": "/images/optimized/tissot-prx-ice-blue-2-1086.webp",
+        "width": 1086
+      }
+    ]
+  }
+}

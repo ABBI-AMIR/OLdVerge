@@ -8,21 +8,21 @@ import { siteImage, useSite } from '../data/site.js';
 // photograph in public/images). `position` keeps the subject inside the 4:5 crop (object-position).
 const HERO_SLOTS = [
   { key: 'ribbon-watch-stone', fallback: 'oldverge-watch-editorial', position: '50% 50%' },
-  { key: 'ribbon-navy-collar', fallback: 'quarter-zip-beige', position: '50% 32%' },
+  { key: 'ribbon-navy-collar', position: '50% 32%' },
   { key: 'ribbon-watch-wrist', fallback: 'watch-hero-wrist', position: '50% 50%' },
-  { key: 'ribbon-brown-knit', fallback: 'oldverge-hero-model', position: '50% 52%' },
+  { key: 'ribbon-brown-knit', position: '50% 52%' },
   { key: 'oldverge-hero-watch-detail', position: '50% 55%' },
-  { key: 'quarter-zip-neutral', position: '50% 42%' },
+  { src: '/images/ribbon-folded-burgundy.jpg', position: '50% 50%' },
   { key: 'ribbon-seiko', position: '50% 50%' },
   { key: 'ribbon-black-collar', position: '50% 50%' },
   { key: 'ribbon-swiss', position: '50% 50%' },
   { key: 'ribbon-burgundy', position: '50% 50%' },
-  { key: 'quarter-zip-campaign', position: '60% 50%' },
+  { src: '/images/ribbon-four-colours.jpg', position: '50% 68%' },
 ];
 
 /** The hero ribbon images that are actually available right now (unapproved or missing images are skipped). */
 export const heroImages = () => HERO_SLOTS
-  .map((slot) => { const image = siteImage(slot.key) || (slot.fallback && siteImage(slot.fallback)); return image ? { src: image.src, position: slot.position } : null; })
+  .map((slot) => { const image = slot.src ? slot : siteImage(slot.key) || (slot.fallback && siteImage(slot.fallback)); return image ? { src: image.src, position: slot.position } : null; })
   .filter(Boolean);
 
 function useMediaQuery(query) {

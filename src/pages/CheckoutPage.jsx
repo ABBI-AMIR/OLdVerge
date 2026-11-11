@@ -24,7 +24,7 @@ function AddressFields({ prefix, values, errors, onChange, autocompleteSection }
   const field = (key, label, props = {}) => <Field key={key} label={label} name={`${prefix}${key}`} value={values[key]} error={errors[`${prefix}${key}`]} onChange={(event) => onChange(key, event.target.value)} autoComplete={`${autocompleteSection} ${props.ac}`} {...props.input} />;
   return <>
     <div className="ov-field-row">{field('firstName', 'First name', { ac: 'given-name' })}{field('lastName', 'Last name', { ac: 'family-name' })}</div>
-    {field('line1', 'Address', { ac: 'address-line1' })}
+    {field('line1', 'Street address (required)', { ac: 'address-line1', input: { required: true } })}
     {field('line2', 'Apartment, suite or floor (optional)', { ac: 'address-line2' })}
     <div className="ov-field-row">{field('city', 'City', { ac: 'address-level2' })}
       <Field label="Province or territory" as="select" name={`${prefix}province`} value={values.province} error={errors[`${prefix}province`]} onChange={(event) => onChange('province', event.target.value)} autoComplete={`${autocompleteSection} address-level1`}><option value="">Select</option>{PROVINCES.map((province) => <option key={province} value={province}>{province}</option>)}</Field>
@@ -98,19 +98,16 @@ export default function CheckoutPage() {
         {errorList.length > 0 && <div className="ov-error-summary" role="alert" tabIndex={-1} ref={summaryRef}><h2>Please fix {errorList.length === 1 ? 'one thing' : `${errorList.length} things`} to continue</h2><ul>{errorList.map(([key, message]) => <li key={key}>{message}</li>)}</ul></div>}
         <section aria-labelledby="co-contact"><h2 id="co-contact">Contact</h2>
           <Field label="Email" name="email" type="email" autoComplete="email" value={contact.email} error={errors.email} onChange={(event) => setContact({ ...contact, email: event.target.value })} />
-          <Field label="Phone" name="phone" type="tel" autoComplete="tel" value={contact.phone} error={errors.phone} onChange={(event) => setContact({ ...contact, phone: event.target.value })} />
+          <Field label="Phone number (required)" name="phone" type="tel" required autoComplete="tel" value={contact.phone} error={errors.phone} onChange={(event) => setContact({ ...contact, phone: event.target.value })} />
         </section>
         <section aria-labelledby="co-ship"><h2 id="co-ship">Shipping address</h2>
           <p className="ov-field-hint">Country: Pakistan</p>
           <AddressFields prefix="ship_" autocompleteSection="shipping" values={shipTo} errors={errors} onChange={(key, value) => setShipTo({ ...shipTo, [key]: value })} />
         </section>
         <fieldset className="ov-radio-group"><legend>Delivery method</legend>
-          {SHIPPING_OPTIONS.map((option) => { const price = shippingCost(option.id, totals.subtotal); return <label key={option.id} className={`ov-radio ${shippingId === option.id ? 'is-checked' : ''}`}>
+          {SHIPPING_OPTIONS.filter(option => option.id === 'standard').map((option) => { const price = shippingCost(option.id, totals.subtotal); return <label key={option.id} className={`ov-radio ${shippingId === option.id ? 'is-checked' : ''}`}>
             <input type="radio" name="shipping" value={option.id} checked={shippingId === option.id} onChange={() => setShippingId(option.id)} />
             <span><strong>{option.label}</strong><small>{option.estimate}</small></span><b>{price === 0 ? 'Free' : formatPrice(price)}</b></label>; })}
-        </fieldset>
-        <fieldset className="ov-radio-group"><legend>Payment</legend>
-          <label className="ov-radio is-checked"><input type="radio" name="payment" checked readOnly /><span><strong>Demo payment</strong><small>No card details are collected and nothing is charged.</small></span><b>PKR 0</b></label>
         </fieldset>
         <section aria-labelledby="co-bill"><h2 id="co-bill">Billing address</h2>
           <label className="ov-check"><input type="checkbox" checked={sameBilling} onChange={(event) => setSameBilling(event.target.checked)} /> Same as shipping address</label>

@@ -1,12 +1,24 @@
 import { describe, expect, it, vi } from 'vitest';
 import { publicDefines } from './publicEnv.js';
-import { readBoundedBody, readJson } from '../../supabase/functions/_shared/http.js';
+import { readBoundedBody, readJson, clientIp } from '../../supabase/functions/_shared/http.js';
 import { inspectImage } from '../../supabase/functions/_shared/images.js';
 import { createGateway } from '../admin/api.js';
 import { createOrder, submitContact } from '../../supabase/functions/_shared/handlers.js';
 
 const publicEnv = { VITE_SUPABASE_URL: 'https://project.supabase.co', VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_test01234567890123' };
 describe('security regression checks', () => {
+  it('uses the ingress client IP and ignores client-prepended XFF entries and X-Real-IP', () => {
+    const request = new Request('https://shop.test', {headers:{
+      'cf-connecting-ip':'203.0.113.1','x-real-ip':'203.0.113.2',
+      'x-forwarded-for':'203.0.113.3, 192.0.2.10'}});
+    expect(clientIp(request)).toBe('203.0.113.1');
+    expect(clientIp(new Request('https://shop.test',{headers:{'x-forwarded-for':'203.0.113.3, 192.0.2.10'}}))).toBe('192.0.2.10');
+    expect(clientIp(new Request('https://shop.test',{headers:{'x-real-ip':'203.0.113.1'}}))).toBe('unknown');
+    expect(clientIp(new Request('https://shop.test',{headers:{'cf-connecting-ip':'invalid'}}))).toBe('unknown');
+  });
+  it('refuses demo storefronts on a hosted deployment', () => {
+    expect(() => publicDefines({VERCEL_ENV:'production',VITE_STORE_MODE:'demo'},{production:true})).toThrow('Supabase');
+  });
   it('requires preview builds to use an explicitly isolated staging backend', () => {
     const env = { ...publicEnv, VERCEL_ENV:'preview', OLDVERGE_DEPLOYMENT_TIER:'staging', STAGING_SUPABASE_URL:publicEnv.VITE_SUPABASE_URL, PRODUCTION_SUPABASE_URL:'https://production.supabase.co' };
     expect(()=>publicDefines(env,{production:true})).not.toThrow();

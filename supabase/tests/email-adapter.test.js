@@ -1,5 +1,5 @@
 import {afterAll,beforeAll,describe,expect,it,vi} from 'vitest';
-import {createTestDatabase,newUuid,sha256} from './support/db.js';
+import {createTestDatabase,newUuid,sha256,asUser} from './support/db.js';
 import {jsonRequest,makeDeps} from './support/function-deps.js';
 import {newsletterConfirm,newsletterSubscribe,newsletterUnsubscribe,processOutbox} from '../functions/_shared/handlers.js';
 import {createOutboxMailer,createStagingMailer,STAGING_EMAIL} from '../functions/_shared/mailer.js';
@@ -22,8 +22,8 @@ it('sends a checkout owner alert and retries only the rejected customer confirma
     await openOrdering(db);
     const order=await placeOrder(db.main,{lines:[{variant_id:ids.zipM,quantity:1}],expectedTotal:8740});
     const deps=makeDeps(db,{env:{ORDER_TEST_MODE:'false',ORDER_EMAIL_PROVIDER:'mailtrap_live',
-      ORDER_EMAIL_SITE_URL:'https://store.example.test',MAILTRAP_LIVE_FROM:'orders@example.test',
-      ORDER_EMAIL_ADMIN_TO:'owner@example.test',MAILTRAP_LIVE_API_TOKEN:'local-only-test-credential'}});
+      ORDER_EMAIL_SITE_URL:STAGING_EMAIL.siteUrl,MAILTRAP_LIVE_FROM:'orders@example.test',
+      ORDER_EMAIL_ADMIN_TO:'owner@example.test',ORDER_EMAIL_REPLY_TO:'support@example.test',MAILTRAP_LIVE_API_TOKEN:'local-only-test-credential'}});
     deps.admin.from=table=>{
       expect(table).toBe('orders');
       return {select:()=>({eq:(_,id)=>({abortSignal:()=>({maybeSingle:async()=>({
@@ -35,6 +35,7 @@ it('sends a checkout owner alert and retries only the rejected customer confirma
       expect(url).toBe('https://send.api.mailtrap.io/api/send');
       const message=JSON.parse(request.body);
       expect(message.subject).toContain(order.order_number);
+      expect(message.reply_to).toEqual({email:'support@example.test',name:'Oldverge Customer Support'});
       const recipient=message.to[0].email;
       deliveries.push(recipient);
       if (recipient==='customer@example.test' && deliveries.filter(v=>v===recipient).length===1)
@@ -49,6 +50,21 @@ it('sends a checkout owner alert and retries only the rejected customer confirma
     expect((await run()).body).toMatchObject({sent:1,failed:0});
     expect(deliveries.sort()).toEqual(['customer@example.test','customer@example.test','owner@example.test']);
     expect((await db.main.query("select count(*)::int as n from public.notification_outbox where status='sent'")).rows[0].n).toBe(2);
+    await asUser(db.main, ids.owner, c => c.query('select public.admin_cancel_order($1,$2)',[order.order_id,'local cancellation test']));
+    const cancelled = (await db.main.query("select * from public.notification_outbox where kind='order_cancelled'")).rows;
+    expect(cancelled).toHaveLength(1);
+    const cancellation = cancelled[0];
+    expect(cancellation.payload.order_id).toBe(order.order_id);
+    deps.fetch = async (_url, request) => {
+      const message = JSON.parse(request.body);
+      expect(message.subject).toBe('Order cancelled: ' + order.order_number);
+      expect(message.to[0].email).toBe('customer@example.test');
+      return Response.json({success:true,message_ids:['cancel-ack']});
+    };
+    deps.mailer = createOutboxMailer(deps);
+    expect((await run()).body).toMatchObject({sent:1,failed:0});
+    await db.main.query("update public.orders set cancel_reason='updated reason' where id=$1",[order.order_id]);
+    expect((await db.main.query("select count(*)::int as n from public.notification_outbox where kind='order_cancelled'")).rows[0].n).toBe(1);
   } finally { await db.close(); }
 });
 

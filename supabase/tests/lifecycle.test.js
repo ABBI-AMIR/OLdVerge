@@ -302,6 +302,7 @@ describe('order lifecycle, stock semantics and payment events', () => {
     });
 
     it('claims outbox rows once, retries with back-off and never sends twice', async () => {
+      await db.main.query('delete from public.notification_outbox');
       await codOrder();
       const claimed = (await asService(db.main, (c) => c.query('select * from public.claim_outbox(50)'))).rows;
       expect(claimed.length).toBeGreaterThan(0);

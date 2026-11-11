@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import net from 'node:net';
+import {stopDatabase} from './stop-database.js';
 import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -47,7 +48,7 @@ export async function setup(project) {
   project.provide('pgPort', port);
   project.provide('migrationFiles', files);
   return async () => {
-    await server.stop();
+    await stopDatabase(server, dir);
     fs.rmSync(dir, { recursive: true, force: true });
   };
 }

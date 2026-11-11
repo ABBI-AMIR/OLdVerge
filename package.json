@@ -22,7 +22,9 @@
     "start": "node server/local.mjs",
     "test:load:local": "node scripts/load-local.mjs",
     "test:ssr:uncached": "node scripts/profile-ssr-local.mjs",
-    "test:load": "node scripts/load-test.mjs"
+    "test:load": "node scripts/load-test.mjs",
+    "images:optimize": "node scripts/optimize-product-images.mjs",
+    "prebuild": "npm run images:optimize"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
@@ -45,6 +47,7 @@
     "globals": "^17.13.0",
     "pg": "^8.23.1",
     "postcss": "^8.5.3",
+    "sharp": "^0.35.5",
     "tailwindcss": "^3.4.17",
     "vitest": "^5.0.5"
   },
@@ -52,5 +55,8 @@
     "node": "^22.13.0 || >=24.0.0"
   },
   "license": "UNLICENSED",
-  "description": "OLDVERGE storefront (front-end store preview)"
+  "description": "OLDVERGE storefront (front-end store preview)",
+  "overrides": {
+    "minimatch": "^11.0.1"
+  }
 }

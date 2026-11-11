@@ -27,6 +27,15 @@ describe('mapProductRow', () => {
     expect(product.variants.map(variant => variant.id)).toEqual(['v-s', 'v-m']);
     expect(mapProductRow({ ...zipRow, ready_to_sell: true }, { storageBase: BASE }).price).toBe(8490);
   });
+  it('shows approved prices after every active variant matches without opening sales', () => {
+    const row = {...zipRow, ready_to_sell: false, product_variants: zipRow.product_variants.map(v => ({...v, price_pkr: 4199}))};
+    const product = mapProductRow(row, {storageBase: BASE});
+    expect(product.price).toBe(4199);
+    expect(product.pricePending).toBe(false);
+    expect(product.image).toMatch(/^\/images\/products\/quarter-zips\//);
+    row.product_variants[0].price_pkr = 8490;
+    expect(mapProductRow(row, {storageBase: BASE}).pricePending).toBe(true);
+  });
   it('maps a clothing product into the shape the storefront components use', () => {
     const product = mapProductRow(zipRow, { storageBase: BASE });
     expect(product).toMatchObject({ id: 'quarter-zip-black', slug: 'quarter-zip-black', brand: 'OLDVERGE', category: 'Quarter-Zips', type: 'clothing', price: 8490, colors: ['Black'], artColor: '#262622', groupKey: 'quarter-zip' });

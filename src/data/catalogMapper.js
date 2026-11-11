@@ -1,3 +1,4 @@
+import {responsiveImageProps} from './responsiveImages.js';
 import { QUARTER_ZIP_SIZES } from './quarterZipSizes.js';
 import { uploadedProducts } from './uploadedProducts.js';
 
@@ -22,7 +23,7 @@ export const PRODUCT_SELECT = `
   category:categories ( slug, name ),
   brand:brands ( slug, name ),
   product_variants ( id, sku, color_name, color_hex, size_label, price_pkr, active, sort_order ),
-  product_images ( bucket, path, kind, alt_text, width, height, sort_order, is_cover, approval_status )
+  product_images ( bucket, path, kind, alt_text, width, height, sort_order, is_cover, approval_status, checksum_sha256 )
 `;
 
 /** availability: { [variantId]: { in_stock: boolean, low_stock: boolean } } (may be empty if unknown). */
@@ -43,20 +44,29 @@ export function mapProductRow(row, { storageBase, availability = {} }) {
     }));
 
   const ownerListing = ownerGallery.get(row.slug);
-  const pending = Boolean(ownerListing && row.ready_to_sell === false);
+  const confirmedPrice = ownerListing?.price;
+  const priceMatchesApproval = Number.isInteger(confirmedPrice) && variants.length > 0
+    && variants.every(variant => variant.price === confirmedPrice);
+  const pending = Boolean(ownerListing && row.ready_to_sell === false && !priceMatchesApproval);
   const storedImages = (row.product_images || [])
     .filter((image) => image.bucket === 'product-public' && image.approval_status === 'approved')
     .sort((a, b) => (b.is_cover - a.is_cover) || (a.sort_order - b.sort_order))
     .map((image) => ({
-      src: storagePublicUrl(storageBase, image.bucket, image.path),
+      ...responsiveImageProps(storagePublicUrl(storageBase, image.bucket, image.path), image.checksum_sha256),
       alt: image.alt_text || row.name,
       width: image.width || undefined,
       height: image.height || undefined,
       kind: image.kind,
     }));
 
-  const images = ownerListing && (pending || !storedImages.length) && typeof row.ready_to_sell === 'boolean'
+  const images = ownerListing && (row.ready_to_sell === false || !storedImages.length) && typeof row.ready_to_sell === 'boolean'
     ? ownerListing.images : storedImages;
+  // The cover upload registers the main view in Storage. Keep the owner's
+  // remaining product views until a full gallery is registered there.
+  if (ownerListing && row.ready_to_sell && images === storedImages && storedImages.length === 1
+      && row.product_images.some(image => image.is_cover && image.path === `owner-cover-${row.slug}.png`)) {
+    images.push(...ownerListing.images.slice(1));
+  }
   const colors = [...new Set(variants.map((variant) => variant.color).filter(Boolean))];
   const sizes = [...new Set(variants.map((variant) => variant.size))];
   const unavailableSizes = sizes.filter((size) => {

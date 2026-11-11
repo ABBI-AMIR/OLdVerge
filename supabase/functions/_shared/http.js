@@ -53,13 +53,13 @@ export function bearerToken(request) {
 }
 
 export const clientIp = (request) => {
-  // cf-connecting-ip is set by the platform's edge and cannot be supplied by the client. The first
-  // X-Forwarded-For entry can, so only the last hop (appended by the nearest trusted proxy) is used as a fallback.
-  const cf = request.headers.get('cf-connecting-ip');
-  if (cf) return cf.trim();
+  // Hosted ingress must overwrite CF-Connecting-IP or append its own XFF hop.
+  // This deployment assumption requires a gateway check; header names alone
+  // cannot establish trust. Never accept the client-prepended XFF entry.
+  const cf = request.headers.get('cf-connecting-ip')?.trim();
   const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) return forwarded.split(',').pop().trim();
-  return request.headers.get('x-real-ip') || 'unknown';
+  const address = cf || forwarded?.split(',').pop().trim();
+  return address && /^[0-9a-f:.]{3,64}$/i.test(address) ? address : 'unknown';
 };
 
 export const requestId = () => crypto.randomUUID();

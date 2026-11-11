@@ -18,6 +18,7 @@ export function publicRoute(input) {
   if (typeof input !== 'string' || !input.startsWith('/') || input.startsWith('//') || input.length > 2048) return { kind:'missing', path:'/' };
   let url; try { url=new URL(input,'https://local.invalid'); } catch { return {kind:'missing',path:'/'}; }
   const path=url.pathname.replace(/\/$/,'')||'/';
+  if (path === '/sitemap.xml') return {kind:'sitemap', path, query:new URLSearchParams()};
   const aliases={'/index.html':'/','/collections':'/shop','/collections/all':'/shop','/pages/about':'/about','/pages/faq':'/faq','/pages/contact':'/contact','/shipping-policy':'/shipping','/returns':'/refund-policy','/returns-and-refunds':'/refund-policy','/privacy':'/privacy-policy','/terms':'/terms-and-conditions','/policies/privacy-policy':'/privacy-policy','/policies/terms-of-service':'/terms-and-conditions','/policies/refund-policy':'/refund-policy','/wishlist':'/shop','/size-guide':'/faq#sizing'};
   const destination=aliases[path] || (/^\/collections\/(watches|quarter-zips)$/.test(path)?path.replace('/collections/','/shop/'):null) || (/^\/products\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(path)?path.replace('/products/','/product/'):null);
   if(destination) return {kind:'redirect',path:destination};
@@ -103,6 +104,20 @@ export function createPublicData({config,fetch:fetcher=fetch,timeoutMs=4000}) {
     return slugs.map(slug=>bySlug.get(slug)).filter(Boolean);
   }
   return async (route,{onTiming=()=>{},signal=AbortSignal.timeout(timeoutMs)}={})=>{
+    if (route.kind === 'sitemap') {
+      if (config.mode === 'demo') return {paths: demoProducts.map(product => '/product/' + product.slug)};
+      const paths = [];
+      let offset = 0;
+      while (true) {
+        const rows = await api(`products?select=slug&status=eq.published&order=slug&limit=1000&offset=${offset}`, {signal,onTiming});
+        paths.push(...rows.map(row => '/product/' + row.slug));
+        if (rows.length < 1000) break;
+        offset += 1000;
+      }
+      const policies = await api('policy_pages?select=slug&published_at=not.is.null', {signal,onTiming});
+      paths.push(...policies.map(policy => '/' + policy.slug));
+      return {paths};
+    }
     const details=phase=>(name,duration)=>onTiming(phase+'_'+name,duration);
     const phase=async(name,work)=>{const start=performance.now();try{return await work();}finally{onTiming(name,performance.now()-start);}};
     if(config.mode==='demo') {

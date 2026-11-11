@@ -1,8 +1,9 @@
 // Reviewed owner uploads. Original paths are preserved; first photo is the cover.
-// Prices remain unset in uploadedProducts.js until supplied by the owner.
+// Prices are owner-confirmed PKR per piece. An omitted price remains pending.
 export const uploadedProductData = [
   {
     "slug": "quarter-zip-black",
+    "price": 4199,
     "name": "Essential Quarter-Zip — Black",
     "brand": "OLDVERGE",
     "model": "",
@@ -32,6 +33,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "quarter-zip-brown",
+    "price": 4199,
     "name": "Essential Quarter-Zip — Brown",
     "brand": "OLDVERGE",
     "model": "",
@@ -61,6 +63,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "quarter-zip-navy",
+    "price": 4199,
     "name": "Essential Quarter-Zip — Navy",
     "brand": "OLDVERGE",
     "model": "",
@@ -90,6 +93,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "quarter-zip-burgundy",
+    "price": 4199,
     "name": "Essential Quarter-Zip — Burgundy",
     "brand": "OLDVERGE",
     "model": "",
@@ -114,6 +118,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "audemars-piguet-royal-oak-silver",
+    "price": 4199,
     "name": "Audemars Piguet Royal Oak — Silver Dial",
     "brand": "Audemars Piguet",
     "model": "Royal Oak — Silver Dial",
@@ -142,6 +147,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "cartier-tank-solo-black",
+    "price": 3799,
     "name": "Cartier Tank Solo — Black Strap",
     "brand": "Cartier",
     "model": "Tank Solo — Black Strap",
@@ -165,6 +171,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "cartier-tank-solo-rose-gold",
+    "price": 4299,
     "name": "Cartier Tank Solo — Rose-Gold Tone",
     "brand": "Cartier",
     "model": "Tank Solo — Rose-Gold Tone",
@@ -188,6 +195,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "franck-muller-vanguard-dark-grey",
+    "price": 4399,
     "name": "Franck Muller Vanguard — Dark Grey",
     "brand": "Franck Muller",
     "model": "Vanguard — Dark Grey",
@@ -216,6 +224,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "franck-muller-vanguard-yachting",
+    "price": 4399,
     "name": "Franck Muller Vanguard Yachting — Rose-Gold Tone",
     "brand": "Franck Muller",
     "model": "Vanguard Yachting — Rose-Gold Tone",
@@ -239,6 +248,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "omega-seamaster-planet-ocean-black",
+    "price": 4099,
     "name": "Omega Seamaster Planet Ocean — Black Dial",
     "brand": "Omega",
     "model": "Seamaster Planet Ocean — Black Dial",
@@ -262,6 +272,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "omega-seamaster-planet-ocean-white",
+    "price": 4099,
     "name": "Omega Seamaster Planet Ocean — White Dial",
     "brand": "Omega",
     "model": "Seamaster Planet Ocean — White Dial",
@@ -285,6 +296,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "patek-philippe-nautilus-white",
+    "price": 4099,
     "name": "Patek Philippe Nautilus — White Dial",
     "brand": "Patek Philippe",
     "model": "Nautilus — White Dial",
@@ -308,6 +320,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "richard-mille-rm-67-02",
+    "price": 5399,
     "name": "Richard Mille RM 67-02",
     "brand": "Richard Mille",
     "model": "RM 67-02",
@@ -331,6 +344,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "rolex-datejust-two-tone",
+    "price": 3399,
     "name": "Rolex Datejust — Two-Tone",
     "brand": "Rolex",
     "model": "Datejust — Two-Tone",
@@ -354,6 +368,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "rolex-datejust-green",
+    "price": 3399,
     "name": "Rolex Datejust — Green Dial",
     "brand": "Rolex",
     "model": "Datejust — Green Dial",
@@ -377,6 +392,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "rolex-datejust-ice-blue",
+    "price": 3399,
     "name": "Rolex Datejust — Ice Blue Dial",
     "brand": "Rolex",
     "model": "Datejust — Ice Blue Dial",
@@ -400,6 +416,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "rolex-datejust-navy",
+    "price": 3399,
     "name": "Rolex Datejust — Navy Blue Dial",
     "brand": "Rolex",
     "model": "Datejust — Navy Blue Dial",
@@ -423,6 +440,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "rolex-datejust-silver",
+    "price": 3399,
     "name": "Rolex Datejust — Silver Dial",
     "brand": "Rolex",
     "model": "Datejust — Silver Dial",
@@ -446,6 +464,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "rolex-explorer-ii-polar",
+    "price": 3699,
     "name": "Rolex Explorer II — Polar Dial",
     "brand": "Rolex",
     "model": "Explorer II — Polar Dial",
@@ -469,6 +488,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "rolex-black-dial-model-pending",
+    "price": 4199,
     "name": "Rolex Black Dial — Model to Confirm",
     "brand": "Rolex",
     "model": "Black Dial — Model to Confirm",
@@ -497,6 +517,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "tag-heuer-carrera-brown",
+    "price": 2699,
     "name": "TAG Heuer Carrera Day-Date — Brown Strap",
     "brand": "TAG Heuer",
     "model": "Carrera Day-Date — Brown Strap",
@@ -520,6 +541,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "tissot-prx-green",
+    "price": 3699,
     "name": "Tissot PRX — Green Dial",
     "brand": "Tissot",
     "model": "PRX — Green Dial",
@@ -543,6 +565,7 @@ export const uploadedProductData = [
   },
   {
     "slug": "tissot-prx-ice-blue",
+    "price": 3699,
     "name": "Tissot PRX — Ice Blue Dial",
     "brand": "Tissot",
     "model": "PRX — Ice Blue Dial",

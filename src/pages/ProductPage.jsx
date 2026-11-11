@@ -1,3 +1,4 @@
+import {responsiveImageProps} from '../data/responsiveImages.js';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Maximize2, PackageCheck, Ruler, X } from 'lucide-react';
@@ -49,7 +50,7 @@ function Lightbox({ images, index, onIndex, onClose }) {
   return <div className="overlay ov-lightbox" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
     <div role="dialog" aria-modal="true" aria-label="Enlarged product image" className="ov-lightbox-panel">
       <button type="button" className="ov-icon-close" aria-label="Close enlarged image" onClick={onClose}><X size={22} aria-hidden="true" /></button>
-      <img src={image.src} alt={image.alt} {...imageSize(image.src)} loading="eager" decoding="async" />
+      <img src={image.src} {...responsiveImageProps(image.src)} alt={image.alt} {...imageSize(image.src)} loading="eager" decoding="async" />
       {images.length > 1 && <div className="ov-lightbox-nav">
         <button type="button" aria-label="Previous image" onClick={() => step(-1)}><ChevronLeft aria-hidden="true" /></button>
         <span aria-live="polite">{index + 1} / {images.length}</span>
@@ -69,7 +70,7 @@ function Gallery({ product }) {
   if (!current) return <div className="ov-gallery"><div className="ov-gallery-main is-empty" role="img" aria-label={`${product.name}, no photograph yet`} /></div>;
   return <div className="ov-gallery">
     <div className="ov-gallery-main ov-product-figure">
-      <img src={current.src} alt={current.alt} {...imageSize(current.src)} loading="eager" decoding="async" fetchPriority="high" />
+      <img src={current.src} {...responsiveImageProps(current.src)} alt={current.alt} {...imageSize(current.src)} loading="eager" decoding="async" fetchPriority="high" />
       <button type="button" ref={zoomButton} className="ov-zoom" aria-label="Enlarge image" aria-haspopup="dialog" onClick={() => setZoom(true)}><Maximize2 size={18} aria-hidden="true" /></button>
     </div>
     {images.length > 1 && <ul className="ov-thumbs" aria-label="Product images">{images.map((image, index) => <li key={image.src}>

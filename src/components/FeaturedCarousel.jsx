@@ -1,3 +1,4 @@
+import {responsiveImageProps} from '../data/responsiveImages.js';
 import { imageSize } from '../data/imageSizes.js';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -37,8 +38,8 @@ function Card({ product, hidden, index, twinFocus }) {
     <li className={`ov-fp-item ${twinFocus ? 'is-twin-focus' : ''}`} data-i={index} aria-hidden={hidden || undefined}>
       <Link to={`/product/${product.slug}`} className="ov-fp-card" draggable={false} tabIndex={hidden ? -1 : undefined}>
         <span className={`ov-fp-media ${product.type === 'watch' ? 'is-watch' : 'is-zip'}`}>
-          <img src={product.photo || originalPhoto(product.image)} {...imageSize(product.photo || originalPhoto(product.image))} decoding="async" alt={hidden ? '' : `${product.name}`} loading="lazy" draggable={false} />
-          {hover && <img className="ov-fp-hover" src={hover} {...imageSize(hover)} decoding="async" alt="" loading="lazy" draggable={false} />}
+          <img src={product.photo || originalPhoto(product.image)} {...responsiveImageProps(product.photo || originalPhoto(product.image))} {...imageSize(product.photo || originalPhoto(product.image))} decoding="async" alt={hidden ? '' : `${product.name}`} loading="lazy" draggable={false} />
+          {hover && <img className="ov-fp-hover" src={hover} {...responsiveImageProps(hover)} {...imageSize(hover)} decoding="async" alt="" loading="lazy" draggable={false} />}
         </span>
         <span className="ov-fp-info">
           <span className="ov-fp-top"><span className="ov-fp-name">{product.name}</span><span className="ov-fp-label">{label}</span></span>
@@ -215,7 +216,7 @@ export default function FeaturedCarousel() {
   return (
     <section className="ov-fp" aria-labelledby="ov-fp-title">
       <Reveal className="ov-fp-head">
-        <h2 id="ov-fp-title">Featured Products</h2>
+        <h2 id="ov-fp-title">Featured Section</h2>
         <div className="ov-fp-controls" role="group" aria-label="Carousel controls">
           <button type="button" className="ov-fp-btn" onClick={() => step(-1)} aria-label="Previous products"><ArrowLeft size={16} aria-hidden="true" /></button>
           {!reduced && <button type="button" className="ov-fp-btn" onClick={() => setUserPaused((value) => !value)} aria-pressed={userPaused} aria-label={userPaused ? 'Play automatic scrolling' : 'Pause automatic scrolling'}>{userPaused ? <Play size={16} aria-hidden="true" /> : <Pause size={16} aria-hidden="true" />}</button>}

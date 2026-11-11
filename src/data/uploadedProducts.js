@@ -2,10 +2,10 @@ import { QUARTER_ZIP_SIZES } from './quarterZipSizes.js';
 import { uploadedProductData } from './uploadedProductData.js';
 import { registerImageSize } from './imageSizes.js';
 
-// Owner-supplied photos and folder labels. Prices and technical specifications
+// Owner-supplied photos and folder labels. Unlisted prices and technical specifications
 // await owner confirmation. This local catalogue never publishes database rows.
 export const uploadedProducts = uploadedProductData.map(entry => {
-  const { photos, color, ...details } = entry;
+  const { photos, color, price = null, ...details } = entry;
   const images = photos.map(([file, width, height], index) => {
     // Preserve URI path punctuation such as commas: the static server uses
     // decodeURI, which intentionally leaves escaped reserved punctuation alone.
@@ -16,9 +16,9 @@ export const uploadedProducts = uploadedProductData.map(entry => {
   return {
     ...details, id: entry.slug, colors: [color], images,
     image: images[0].src, photo: images[0].src,
-    price: null, pricePending: true, ownerUpload: true,
+    price, pricePending: price === null, ownerUpload: true,
     sizes: entry.type === 'watch' ? ['One size'] : QUARTER_ZIP_SIZES,
     material: 'Composition and specifications to be confirmed', badge: '',
-    listingStatus: 'Price, specifications and availability await owner confirmation.',
+    listingStatus: price === null ? 'Price, specifications and availability await owner confirmation.' : 'Specifications and availability await owner confirmation.',
   };
 });

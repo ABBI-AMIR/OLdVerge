@@ -19,7 +19,7 @@
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 3px solid var(--ov-focus); outline-offset: 3px; }
 html { scroll-behavior: auto; scroll-padding-top: 84px; }
 body { font-size: 16px; }
-.app-shell:has(.ov-collection), .app-shell[data-ssr="public"] { background: var(--ov-ivory); }
+.app-shell:has(.ov-collection, .ov-about, .ov-auth, .ov-checkout), .app-shell[data-ssr="public"] { background: var(--ov-ivory); }
 
 /* ---------- Readable type ---------- */
 .ov-page, .ov-product-page, .ov-cart, .ov-checkout { font-family: 'Manrope', sans-serif; font-size: 16px; line-height: 1.6; color: var(--ov-espresso); }
