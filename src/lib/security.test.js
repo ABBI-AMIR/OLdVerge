@@ -7,14 +7,20 @@ import { createOrder, submitContact } from '../../supabase/functions/_shared/han
 
 const publicEnv = { VITE_SUPABASE_URL: 'https://project.supabase.co', VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_test01234567890123' };
 describe('security regression checks', () => {
-  it('uses the ingress client IP and ignores client-prepended XFF entries and X-Real-IP', () => {
+  it('uses only the verified ingress IP and never trusts forwarded aliases', () => {
     const request = new Request('https://shop.test', {headers:{
       'cf-connecting-ip':'203.0.113.1','x-real-ip':'203.0.113.2',
       'x-forwarded-for':'203.0.113.3, 192.0.2.10'}});
     expect(clientIp(request)).toBe('203.0.113.1');
-    expect(clientIp(new Request('https://shop.test',{headers:{'x-forwarded-for':'203.0.113.3, 192.0.2.10'}}))).toBe('192.0.2.10');
+    expect(clientIp(new Request('https://shop.test',{headers:{'x-forwarded-for':'203.0.113.3, 192.0.2.10'}}))).toBe('unknown');
     expect(clientIp(new Request('https://shop.test',{headers:{'x-real-ip':'203.0.113.1'}}))).toBe('unknown');
     expect(clientIp(new Request('https://shop.test',{headers:{'cf-connecting-ip':'invalid'}}))).toBe('unknown');
+  });
+  it('validates and normalizes ingress IPv4/IPv6 without alternate-header fallback', () => {
+    const ip=value=>clientIp(new Request('https://shop.test',{headers:{'cf-connecting-ip':value,'x-forwarded-for':'192.0.2.10'}}));
+    expect(ip('203.000.113.001')).toBe('203.0.113.1');
+    expect(ip('2001:0DB8:0000:0000:0000:0000:0000:0001')).toBe('2001:db8::1');
+    for(const value of ['bad','999.1.1.1','2001:::1','192.0.2.1, 192.0.2.2','[::1]','fe80::1%eth0','::1]/path'])expect(ip(value)).toBe('unknown');
   });
   it('refuses demo storefronts on a hosted deployment', () => {
     expect(() => publicDefines({VERCEL_ENV:'production',VITE_STORE_MODE:'demo'},{production:true})).toThrow('Supabase');

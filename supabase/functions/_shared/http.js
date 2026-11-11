@@ -53,13 +53,20 @@ export function bearerToken(request) {
 }
 
 export const clientIp = (request) => {
-  // Hosted ingress must overwrite CF-Connecting-IP or append its own XFF hop.
-  // This deployment assumption requires a gateway check; header names alone
-  // cannot establish trust. Never accept the client-prepended XFF entry.
-  const cf = request.headers.get('cf-connecting-ip')?.trim();
-  const forwarded = request.headers.get('x-forwarded-for');
-  const address = cf || forwarded?.split(',').pop().trim();
-  return address && /^[0-9a-f:.]{3,64}$/i.test(address) ? address : 'unknown';
+  // Verified against hosted Supabase ingress: forged CF-Connecting-IP is
+  // rejected, while caller-supplied XFF entries survive, including the tail.
+  // Missing/invalid ingress identity shares a conservative limiter bucket;
+  // never fall back to attacker-controlled XFF or X-Real-IP.
+  const address = request.headers.get('cf-connecting-ip')?.trim();
+  if (!address || address.length > 64) return 'unknown';
+  if (address.includes(':')) {
+    if (!/^[0-9a-f:.]+$/i.test(address)) return 'unknown';
+    try { return new URL(`http://[${address}]/`).hostname.slice(1, -1); }
+    catch { return 'unknown'; }
+  }
+  const parts = address.split('.');
+  return parts.length === 4 && parts.every(part => /^\d{1,3}$/.test(part) && Number(part) <= 255)
+    ? parts.map(Number).join('.') : 'unknown';
 };
 
 export const requestId = () => crypto.randomUUID();

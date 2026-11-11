@@ -18,7 +18,7 @@
 .ov-skip-link:focus { top: 10px; }
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 3px solid var(--ov-focus); outline-offset: 3px; }
 html { scroll-behavior: auto; scroll-padding-top: 84px; }
-body { font-size: 16px; }
+body { font-size: 16px; min-width: 0; }
 .app-shell:has(.ov-collection, .ov-about, .ov-auth, .ov-checkout), .app-shell[data-ssr="public"] { background: var(--ov-ivory); }
 
 /* ---------- Readable type ---------- */
@@ -107,7 +107,7 @@ body { font-size: 16px; }
 .ov-lightbox-panel > .ov-icon-close { position: absolute; top: -8px; right: -8px; z-index: 2; background: var(--ov-paper); }
 .ov-lightbox-nav { display: flex; align-items: center; gap: 16px; color: #fff; font-size: 15px; }
 .ov-lightbox-nav button { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid rgba(255, 255, 255, .5); border-radius: 50%; background: transparent; color: #fff; cursor: pointer; }
-.ov-product-page .ov-product-copy { position: static; display: flex; flex-direction: column; gap: 22px; }
+.ov-product-page .ov-product-copy { position: static; display: flex; flex-direction: column; gap: 22px; min-width: 0; }
 .ov-product-page .ov-product-title h1 { font: 500 clamp(30px, 3.2vw, 44px)/1.1 'Cormorant Garamond', Georgia, serif; }
 .ov-product-page .ov-price { font: 700 22px/1.2 'Manrope', sans-serif; }
 .ov-product-lede { margin: 0; max-width: 56ch; color: var(--ov-stone); font-size: 17px; line-height: 1.65; }
@@ -138,7 +138,7 @@ body { font-size: 16px; }
 .ov-related h2 { margin: 0 0 24px; font: 500 clamp(26px, 3vw, 34px)/1.1 'Cormorant Garamond', Georgia, serif; }
 .ov-sticky-buy { display: none; }
 @media (max-width: 860px) {
-  .ov-product-page .ov-product-layout { grid-template-columns: 1fr; }
+  .ov-product-page .ov-product-layout { grid-template-columns: minmax(0, 1fr); }
   .ov-gallery { position: static; }
   .ov-gallery-main { max-height: none; }
   .ov-sticky-buy { position: fixed; left: 0; right: 0; bottom: 64px; z-index: 28; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; background: var(--ov-paper); border-top: 1px solid var(--ov-rule); box-shadow: 0 -8px 20px rgba(48, 37, 31, .1); transform: translateY(140%); transition: transform .25s ease; }

@@ -50,7 +50,7 @@ Admin changes to catalogue, settings, shipping/payment, policies, messages and r
 
 ## Independent review (2026-10-18)
 A separate read-only agent reviewed migrations, functions and frontend. Fixed (migration `20261019001000_security_review_fixes.sql`, `_shared/http.js`, `_shared/handlers.js`, `_shared/errors.js`; covered by DB tests):
-- Rate-limit key used the client-controlled first `X-Forwarded-For` entry: now `cf-connecting-ip`, else the last hop.
+- Rate-limit identity uses validated `CF-Connecting-IP` only. Hosted verification on 11 November 2026 rejected forged Cloudflare headers but preserved caller-supplied XFF values. Missing/invalid ingress identity shares the `unknown` limiter bucket; XFF and X-Real-IP are never fallbacks. Reverify before changing hosting/gateway infrastructure.
 - Added a per-contact limit on `create-order` (8 per hour per email/phone hash) against fake COD orders that tie up stock.
 - `admin_approve_image` / `admin_reject_image` reported success on 0 rows (PERFORM resets FOUND): now `ROW_COUNT`; approval also requires the validated public object to exist.
 - Admin clients can no longer write to or list `product-public`; only the service role (after byte validation) writes there. Nobody can list it through the API.
