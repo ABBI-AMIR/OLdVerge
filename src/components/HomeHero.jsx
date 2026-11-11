@@ -3,27 +3,14 @@ import { Link } from 'react-router-dom';
 import TiltedGridHero from './TiltedGridHero.jsx';
 import { useIntroDone } from '../introState.js';
 import { siteImage, useSite } from '../data/site.js';
+import { buildHeroImages } from '../data/homeHeroImages.js';
+import HeroCopy from './HeroCopy.jsx';
 
 // Mixed clothing, watches and editorial. Each entry names a site image (approved in Supabase Storage, or the demo
 // photograph in public/images). `position` keeps the subject inside the 4:5 crop (object-position).
-const HERO_SLOTS = [
-  { key: 'ribbon-watch-stone', fallback: 'oldverge-watch-editorial', position: '50% 50%' },
-  { key: 'ribbon-navy-collar', position: '50% 32%' },
-  { key: 'ribbon-watch-wrist', fallback: 'watch-hero-wrist', position: '50% 50%' },
-  { key: 'ribbon-brown-knit', position: '50% 52%' },
-  { key: 'oldverge-hero-watch-detail', position: '50% 55%' },
-  { src: '/images/ribbon-folded-burgundy.jpg', position: '50% 50%' },
-  { key: 'ribbon-seiko', position: '50% 50%' },
-  { key: 'ribbon-black-collar', position: '50% 50%' },
-  { key: 'ribbon-swiss', position: '50% 50%' },
-  { key: 'ribbon-burgundy', position: '50% 50%' },
-  { src: '/images/ribbon-four-colours.jpg', position: '50% 68%' },
-];
 
 /** The hero ribbon images that are actually available right now (unapproved or missing images are skipped). */
-export const heroImages = () => HERO_SLOTS
-  .map((slot) => { const image = slot.src ? slot : siteImage(slot.key) || (slot.fallback && siteImage(slot.fallback)); return image ? { src: image.src, position: slot.position } : null; })
-  .filter(Boolean);
+export const heroImages = () => buildHeroImages(siteImage);
 
 function useMediaQuery(query) {
   const [matches, setMatches] = useState(() => typeof window !== 'undefined' && window.matchMedia(query).matches);
@@ -59,11 +46,7 @@ export default function HomeHero() {
   const layout = compact ? LAYOUTS.compact : medium ? LAYOUTS.medium : LAYOUTS.wide;
   return (
     <section className={`ov-hero2 ${entered ? 'is-entered' : 'is-waiting'}`} aria-labelledby="ov-hero-title">
-      <div className="ov-hero2-copy">
-        <h1 id="ov-hero-title" className="ov-rise" style={{ '--d': '0ms' }}>Timeless Elegance</h1>
-        <p className="ov-rise" style={{ '--d': '120ms' }}>Considered clothing. Distinctive watches. Your everyday signature.</p>
-        <div className="ov-hero2-actions ov-rise" style={{ '--d': '220ms' }}><Link to="/shop" className="ov-button ov-button-dark">Shop all</Link><Link to="/shop/watches" className="ov-button ov-button-light">Shop watches</Link></div>
-      </div>
+      <HeroCopy Link={Link} />
       {images.length >= 3 && <TiltedGridHero className="ov-hero2-ribbon" images={images} aspectRatio={4 / 5} {...layout} />}
     </section>
   );

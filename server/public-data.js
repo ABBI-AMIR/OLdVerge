@@ -1,4 +1,5 @@
-import { PRODUCT_SELECT, mapProductRow } from '../src/data/catalogMapper.js';
+import { PRODUCT_SELECT, mapProductRow, mapSiteImages } from '../src/data/catalogMapper.js';
+import {buildHeroImages} from '../src/data/homeHeroImages.js';
 import { products as demoProducts } from '../src/data/localProductImages.js';
 import { readBoundedBody } from '../supabase/functions/_shared/http.js';
 
@@ -124,7 +125,7 @@ export function createPublicData({config,fetch:fetcher=fetch,timeoutMs=4000}) {
       let list=route.kind==='product'?demoProducts.filter(p=>p.slug===route.path.slice(9)):demoProducts.filter(p=>!route.category||p.type===(route.category==='watches'?'watch':'clothing'));
       if(route.kind!=='product'&&route.path!=='/'&&!route.path.startsWith('/shop')&&route.path!=='/search') list=[];
       if(route.q) list=list.filter(p=>`${p.name} ${p.description}`.toLowerCase().includes(route.q.toLowerCase()));
-      return {products:list.slice((route.page-1)*24,route.page*24),total:list.length,policies:[]};
+      return {products:list.slice((route.page-1)*24,route.page*24),total:list.length,policies:[],heroImages:route.path==='/'?buildHeroImages(()=>null):[]};
     }
     if(!config.configured) throw new Error('public_backend_unavailable');
     // PublicPage does not consume store settings. Commerce readiness continues
@@ -136,8 +137,10 @@ export function createPublicData({config,fetch:fetcher=fetch,timeoutMs=4000}) {
     }
     let list;
     if(route.kind==='product') list=phase('products',()=>products([route.path.slice(9)],signal,details('products'))).then(products=>({products,total:products.length}));
-    else if(route.path==='/'||route.path.startsWith('/shop')||route.path==='/search') list=phase('catalog',()=>api('rpc/catalog_page',{signal,onTiming:details('catalog'),body:{p_category:route.category,p_query:route.q,p_filters:route.filters,p_sort:route.sort,p_page:route.page,p_size:24}})).then(async page=>({products:await phase('products',()=>products(page.slugs,signal,details('products'))),total:page.total}));
+    else if(route.path==='/'||route.path.startsWith('/shop')||route.path==='/search') list=phase('catalog',()=>api('rpc/catalog_page',{signal,onTiming:details('catalog'),body:{p_category:route.category,p_query:route.q,p_filters:route.filters,p_sort:route.sort,p_page:route.page,p_size:24}})).then(async page=>({products:await phase('products',()=>products(page.slugs,signal,details('products'))),total:page.total,facets:page.facets,price:page.price}));
     else list=Promise.resolve({products:[],total:0});
-    return {...await list,policies:[]};
+    const hero=route.path==='/'?api('site_images?select=key,bucket,path,alt_text,width,height,approval_status&bucket=eq.product-public&approval_status=eq.approved',{signal}).then(rows=>{const images=mapSiteImages(rows,config.url);return buildHeroImages(key=>images[key]);}):Promise.resolve([]);
+    const [page,heroImages]=await Promise.all([list,hero]);
+    return {...page,policies:[],heroImages};
   };
 }

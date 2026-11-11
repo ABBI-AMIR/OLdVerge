@@ -52,7 +52,7 @@ export function TiltedGridHero({
   const bend = (Math.min(85, Math.max(5, curve)) * Math.PI) / 180;
 
   // Null until the observer has measured the hero. The band stays hidden until then.
-  const [layout, setLayout] = React.useState(null);
+  const [layout, setLayout] = React.useState(()=>measure(1200, 560, tileHeight, aspectRatio, gap, bend));
   // The image each tile shows, as a position in the run of images. Held with the column count it
   // belongs to, so a re-keyed set of tiles never inherits another set's picks.
   const [picked, setPicked] = React.useState({ columns: 0, map: {} });
@@ -133,6 +133,10 @@ export function TiltedGridHero({
               {img && <img
                 src={img.src}
                 {...imageSize(img.src)}
+                width={img.width || imageSize(img.src).width}
+                height={img.height || imageSize(img.src).height}
+                loading="eager"
+                fetchPriority={t < 3 ? 'high' : 'auto'}
                 decoding="async"
                 alt=""
                 draggable={false}

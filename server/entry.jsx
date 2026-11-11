@@ -34,8 +34,9 @@ export function createRenderer({config,template,fetch:fetcher,origin=null,now=Da
     if(route.path==='/search'&&route.q) title='Search: '+route.q;
     if(status===503) { title='Store temporarily unavailable'; description='Please try again later.'; }
     const pageUrl=number=>{const query=new URLSearchParams(route.query);if(number>1) query.set('page',number);else query.delete('page');return route.path+(query.size?'?'+query:'');};
-    const snapshot={version:1,mode:config.mode,path:route.path,kind:route.kind,title,description,products:data.products||[],total:data.total||0,
-      sections:policy?.published_sections||demoPolicy?.sections||[],error:status>=500,
+    const snapshot={version:1,mode:config.mode,path:route.path,search:route.query.size?'?'+route.query:'',kind:route.kind,title,description,products:data.products||[],total:data.total||0,
+      sections:policy?.published_sections||demoPolicy?.sections||[],error:status>=500,heroImages:data.heroImages||[],facets:data.facets,price:data.price,
+      browseOptions:route.path.startsWith('/shop')||route.path==='/search'?{category:route.category,q:route.q,filters:route.filters,sort:route.sort,page:route.page,size:24}:null,
       previous:route.page>1?pageUrl(route.page-1):null,next:route.page*24<data.total?pageUrl(route.page+1):null};
     const markup=renderToString(<PublicPage snapshot={snapshot} />);
     let html=template.replace('<div id="root"></div>',()=>`<div id="root">${markup}</div><script type="application/json" id="ov-ssr-state">${serialize(snapshot)}</script>`);

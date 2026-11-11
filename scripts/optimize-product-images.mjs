@@ -30,3 +30,14 @@ for (const product of uploadedProductData) {
 }
 await fs.writeFile('src/data/productImageVariants.json', JSON.stringify(manifest,null,2)+'\n');
 console.log(`Product photos: ${originalBytes} original bytes, ${optimizedBytes} bytes for the largest optimized variants.`);
+const heroVariants={};
+for(const source of ['/images/ribbon-folded-burgundy.jpg','/images/ribbon-four-colours.jpg']) {
+  const bytes=await fs.readFile(path.join('public',source));
+  const checksum=createHash('sha256').update(bytes).digest('hex');
+  const output=await sharp(bytes).resize({width:960,withoutEnlargement:true}).webp({quality:84}).toBuffer();
+  const metadata=await sharp(output).metadata();
+  const src=`/images/optimized/${path.basename(source,'.jpg')}-${checksum.slice(0,12)}.webp`;
+  await fs.writeFile(path.join('public',src),output);
+  heroVariants[source]={src,width:metadata.width,height:metadata.height};
+}
+await fs.writeFile('src/data/heroImageVariants.json',JSON.stringify(heroVariants,null,2)+'\n');

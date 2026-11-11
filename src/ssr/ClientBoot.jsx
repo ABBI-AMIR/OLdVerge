@@ -6,6 +6,7 @@ import { isBackend } from '../lib/config.js';
 import { useCatalog } from '../data/catalog.js';
 import { useSite } from '../data/site.js';
 import { useStore } from '../store.js';
+import { PublicSnapshot } from './PublicSnapshot.jsx';
 
 export default function ClientBoot({ snapshot }) {
   const [interactive,setInteractive]=useState(!snapshot);
@@ -24,5 +25,5 @@ export default function ClientBoot({ snapshot }) {
     prepare().catch(()=>{ /* BackendGate displays the unavailable state on failure. */ }).finally(()=>{if(!cancelled)setInteractive(true);});
     return ()=>{cancelled=true;};
   },[snapshot]);
-  return interactive?<BrowserRouter><App /></BrowserRouter>:<PublicPage snapshot={snapshot} />;
+  return interactive?<PublicSnapshot.Provider value={snapshot}><BrowserRouter><App /></BrowserRouter></PublicSnapshot.Provider>:<PublicPage snapshot={snapshot} />;
 }

@@ -1,5 +1,7 @@
 import { finishIntro } from './introState.js';
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, lazy, useContext, useEffect } from 'react';
+import {PublicSnapshot} from './ssr/PublicSnapshot.jsx';
+import {PublicMain} from './ssr/PublicPage.jsx';
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { Footer, Header } from './components/Shell.jsx';
 import BackendGate, { useBackendBootstrap } from './components/BackendGate.jsx';
@@ -90,6 +92,12 @@ const Checkout = isBackend ? LiveCheckoutPage : CheckoutPage;
 const Confirmation = isBackend ? LiveConfirmationPage : ConfirmationPage;
 const gated = (element) => <BackendGate>{element}</BackendGate>;
 
+function PublicRoutePending() {
+  const snapshot=useContext(PublicSnapshot);
+  const location=useLocation();
+  return snapshot&&!snapshot.error&&snapshot.path===location.pathname&&(snapshot.search||'')===location.search
+    ? <PublicMain snapshot={snapshot}/>:<main className="ov-page" role="status">Loading…</main>;
+}
 function RouteContent() {
   const location = useLocation();
   const policies = useSite((state) => state.policies);
@@ -132,7 +140,7 @@ function RouteContent() {
     }
   }, [location.pathname, location.search, policies, products]);
   // Keyed by path only: changing filters or sort (query string) updates the same page in place.
-  return <div key={location.pathname} className="ov-page-enter"><Suspense fallback={<main className="ov-page" role="status">Loading…</main>}><Routes location={location}>
+  return <div key={location.pathname} className="ov-page-enter"><Suspense fallback={<PublicRoutePending/>}><Routes location={location}>
     <Route path="/" element={gated(<HomePage />)} />
     <Route path="/shop" element={gated(<ShopPage />)} /><Route path="/shop/:category" element={gated(<ShopPage />)} />
     <Route path="/collections" element={<Redirect to="/shop" />} /><Route path="/collections/:handle" element={<CollectionRedirect />} />
