@@ -1,9 +1,24 @@
+import { uploadedProductData } from '../data/uploadedProductData.js';
+import { responsiveImageProps } from '../data/responsiveImages.js';
+
 export const RETURN_TO_IDLE_MS = 300;
+
+// Presentation assets are separate from a mutable catalogue/CDN cover URL.
+// The existing turntable was made from these owner studio photographs.
+const studioFronts = new Map(uploadedProductData.filter(product => product.category === 'Quarter-Zips')
+  .map(product => [product.slug, product.photos[0]]));
 
 // The catalogue supplies names, swatches and approved image paths together.
 export const quarterZipColors = products => products
   .filter(product => product.category === 'Quarter-Zips' && product.image)
-  .map(product => ({slug: product.slug, name: product.colors[0], hex: product.artColor || '#8A8175', image: product.image}));
+  .map(product => {
+    const studio = studioFronts.get(product.slug);
+    const imageProps = responsiveImageProps(studio?.[0] || product.image);
+    return {slug: product.slug, name: product.colors[0], hex: product.artColor || '#8A8175',
+      image: imageProps.src, imageProps, studioFront: Boolean(studio),
+      turntable: Boolean(studio && product.slug === 'quarter-zip-burgundy'),
+      ...(studio ? {width: studio[1], height: studio[2]} : {})};
+  });
 
 export function colorNames(colors) {
   const names = colors.map(color => color.name.toLowerCase());

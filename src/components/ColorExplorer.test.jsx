@@ -29,6 +29,18 @@ describe('quarter-zip showcase', () => {
     expect(shownColor(reduce(state, 'expire'))).toBeNull();
     expect(shownColor(reduce(state, 'hover', 'black'))).toBe('black');
   });
+  it('keeps owner studio photos and the idle turntable when catalogue covers use CDN or optimized URLs', () => {
+    const hosted = uploadedProducts.map(product => ({...product, image: `https://example.supabase.co/storage/v1/object/public/product-public/${product.slug}.webp`}));
+    const studio = quarterZipColors(hosted);
+    expect(studio.map(color => color.image)).toEqual(colors.map(color => color.image));
+    expect(studio.every(color => color.studioFront && color.imageProps.srcSet)).toBe(true);
+    expect(studio.filter(color => color.turntable).map(color => color.slug)).toEqual(['quarter-zip-burgundy']);
+    const html=renderToStaticMarkup(<MemoryRouter><ColorExplorer colors={studio}/></MemoryRouter>);
+    expect(html).toContain('class="ov-cx-turn"');
+    expect(html).toContain('data-matte="true"');
+    expect(html).not.toContain('example.supabase.co');
+    expect(html).toContain('srcSet=');
+  });
   it('previews keyboard focus and clears it on blur without pinning a mouse selection', () => {
     const state = reduce(idleShowcase, 'focus', 'burgundy');
     expect(shownColor(state)).toBe('burgundy');

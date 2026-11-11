@@ -6,8 +6,6 @@ import { colorNames, colorWays, idleShowcase, RETURN_TO_IDLE_MS, showcaseReducer
 import Reveal from './Reveal.jsx';
 import GarmentTurn from './GarmentTurn.jsx';
 
-const studioFront = src => /\/IMG_(7255-black|7303-brown|7270-navy|7284-burgundy)\.png$/.test(src);
-
 export default function ColorExplorer({ colors }) {
   const [state, dispatch] = useReducer(showcaseReducer, idleShowcase);
   const active = colors.find(color => color.slug === shownColor(state)) || null;
@@ -16,7 +14,7 @@ export default function ColorExplorer({ colors }) {
   const holdTimer = useRef(0);
   const tiltFrame = useRef(0);
   const [frame, setFrame] = useState(0);
-  const studioIndex = colors.findIndex(color => color.slug === 'quarter-zip-burgundy' && studioFront(color.image));
+  const studioIndex = colors.findIndex(color => color.turntable);
   const [paused, setPaused] = useState(false);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -120,12 +118,12 @@ export default function ColorExplorer({ colors }) {
                 const slot = (index - (frame + Math.max(0, studioIndex)) % colors.length + colors.length) % colors.length;
                 const role = ['lead', 'partner'][slot] || 'waiting';
                 // These four studio fronts share a light sand backdrop and dark fabric.
-                const sandMatte = studioFront(color.image);
+                const sandMatte = color.studioFront;
                 return <figure key={color.slug} className={`ov-cx-garment ${role}`} data-matte={sandMatte}
                   onAnimationIteration={event => {
                     if (role === 'lead' && event.animationName === 'ov-cx-lead') setFrame(value => value + 1);
                   }}>
-                  <img className="ov-cx-photo" src={color.image} {...imageSize(color.image)} alt={`Oldverge quarter-zip in ${color.name}`} loading="eager" decoding="async" draggable="false" />
+                  <img className="ov-cx-photo" src={color.image} {...imageSize(color.image)} {...color.imageProps} width={color.width} height={color.height} alt={`Oldverge quarter-zip in ${color.name}`} loading="eager" decoding="async" draggable="false" />
                   {!active && role === 'lead' && index === studioIndex && <GarmentTurn running={visible && !paused} />}
                 </figure>;
               })}
@@ -133,7 +131,7 @@ export default function ColorExplorer({ colors }) {
           </div>
           <div className="ov-cx-singles">
             {colors.map(color => <figure key={color.slug} className={`ov-cx-single${active?.slug === color.slug ? ' is-active' : ''}`} aria-hidden={active?.slug !== color.slug}>
-              <img className="ov-cx-photo" src={color.image} {...imageSize(color.image)} alt={`Oldverge quarter-zip in ${color.name}`} loading="eager" decoding="async" draggable="false" />
+              <img className="ov-cx-photo" src={color.image} {...imageSize(color.image)} {...color.imageProps} width={color.width} height={color.height} alt={`Oldverge quarter-zip in ${color.name}`} loading="eager" decoding="async" draggable="false" />
             </figure>)}
           </div>
         </div>
