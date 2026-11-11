@@ -38,7 +38,7 @@ export function createRenderer({config,template,fetch:fetcher,origin=null,now=Da
       sections:policy?.published_sections||demoPolicy?.sections||[],error:status>=500,heroImages:data.heroImages||[],facets:data.facets,price:data.price,
       browseOptions:route.path.startsWith('/shop')||route.path==='/search'?{category:route.category,q:route.q,filters:route.filters,sort:route.sort,page:route.page,size:24}:null,
       previous:route.page>1?pageUrl(route.page-1):null,next:route.page*24<data.total?pageUrl(route.page+1):null};
-    const markup=renderToString(<PublicPage snapshot={snapshot} />);
+    const markup=renderToString(<><PublicPage snapshot={snapshot} />{null}</>);
     let html=template.replace('<div id="root"></div>',()=>`<div id="root">${markup}</div><script type="application/json" id="ov-ssr-state">${serialize(snapshot)}</script>`);
     html=html.replace(/<title>[\s\S]*?<\/title>/,()=>`<title>${escapeHtml(title)} | OLDVERGE</title>`)
       .replace(/<meta name="description"[^>]*>/,()=>`<meta name="description" content="${escapeHtml(description)}" />`)

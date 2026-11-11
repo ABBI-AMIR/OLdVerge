@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import App from '../App.jsx';
 import PublicPage from './PublicPage.jsx';
@@ -7,9 +7,13 @@ import { useCatalog } from '../data/catalog.js';
 import { useSite } from '../data/site.js';
 import { useStore } from '../store.js';
 import { PublicSnapshot } from './PublicSnapshot.jsx';
+const BootIntro=lazy(()=>import('../components/BrandLoader.jsx'));
 
 export default function ClientBoot({ snapshot }) {
   const [interactive,setInteractive]=useState(!snapshot);
+  const [hydrated,setHydrated]=useState(false);
+  const ownsIntro=snapshot?.path==='/'&&!snapshot.error;
+  useEffect(()=>{setHydrated(true);},[]);
   useEffect(()=>{
     if(!snapshot) return undefined;
     let cancelled=false;
@@ -25,5 +29,6 @@ export default function ClientBoot({ snapshot }) {
     prepare().catch(()=>{ /* BackendGate displays the unavailable state on failure. */ }).finally(()=>{if(!cancelled)setInteractive(true);});
     return ()=>{cancelled=true;};
   },[snapshot]);
-  return interactive?<PublicSnapshot.Provider value={snapshot}><BrowserRouter><App /></BrowserRouter></PublicSnapshot.Provider>:<PublicPage snapshot={snapshot} />;
+  return <>{interactive?<PublicSnapshot.Provider value={snapshot}><BrowserRouter><App /></BrowserRouter></PublicSnapshot.Provider>:<PublicPage snapshot={snapshot} />}
+    {hydrated&&ownsIntro?<Suspense fallback={null}><BootIntro readyImages={(snapshot.heroImages||[]).slice(0,3).map(image=>image.src)} contentVersion={interactive?1:0}/></Suspense>:null}</>;
 }

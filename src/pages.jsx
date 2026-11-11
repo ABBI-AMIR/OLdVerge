@@ -1,5 +1,6 @@
 import BrandLoader from './components/BrandLoader.jsx';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
+import {PublicSnapshot} from './ssr/PublicSnapshot.jsx';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useCatalog } from './data/catalog.js';
@@ -15,12 +16,14 @@ import heroVariants from './data/heroImageVariants.json';
 
 
 export function HomePage() {
+  const snapshot=useContext(PublicSnapshot);
+  const bootOwnsIntro=snapshot?.path==='/'&&!snapshot.error;
   const products = useCatalog(state => state.products);
   // Quarter-zip colour links use the colour values already defined on the
   // quarter-zip products, and the product routes that already exist.
   const colors = useMemo(() => quarterZipColors(products), [products]);
   return <main id="main-content" className="ov-home">
-    <BrandLoader readyImages={heroImages().slice(0, 3).map(image => image.src)} />
+    {!bootOwnsIntro&&<BrandLoader readyImages={heroImages().slice(0, 3).map(image => image.src)} />}
     <HomeHero />
     <FeaturedCarousel />
     {colors.length > 0 && <ColorExplorer colors={colors} />}

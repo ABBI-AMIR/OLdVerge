@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import {PublicSnapshot} from '../ssr/PublicSnapshot.jsx';
 import { Link } from 'react-router-dom';
 import TiltedGridHero from './TiltedGridHero.jsx';
 import { useIntroDone } from '../introState.js';
@@ -41,11 +42,13 @@ export default function HomeHero() {
   useSite((state) => state.siteImages);         // re-render when the site images load
   const images = heroImages();
   const entered = useIntroDone();
+  const snapshot=useContext(PublicSnapshot);
+  const alreadyVisible=snapshot?.path==='/'&&!snapshot.error;
   const compact = useMediaQuery('(max-width: 650px)');
   const medium = useMediaQuery('(max-width: 1000px)');
   const layout = compact ? LAYOUTS.compact : medium ? LAYOUTS.medium : LAYOUTS.wide;
   return (
-    <section className={`ov-hero2 ${entered ? 'is-entered' : 'is-waiting'}`} aria-labelledby="ov-hero-title">
+    <section className={`ov-hero2 ${entered||alreadyVisible ? 'is-entered' : 'is-waiting'}`} aria-labelledby="ov-hero-title">
       <HeroCopy Link={Link} />
       {images.length >= 3 && <TiltedGridHero className="ov-hero2-ribbon" images={images} aspectRatio={4 / 5} {...layout} />}
     </section>
