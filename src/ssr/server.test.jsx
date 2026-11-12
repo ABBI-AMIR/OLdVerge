@@ -119,9 +119,10 @@ describe('SSR backend latency and deployment regressions',()=>{
    expect(miss).toMatchObject({catalog:expect.any(Number),products:expect.any(Number),data:expect.any(Number),cache:'MISS'});
    const hit=readServerTiming((await render('/shop')).headers['Server-Timing']);expect(hit.catalog).toBeUndefined();expect(hit.products).toBeUndefined();
  });
- it('places SSR beside the existing Tokyo staging database without changing routes or protection headers',()=>{
+ it('leaves the SSR region to each Vercel project (staging Tokyo, production Mumbai) without changing routes or protection headers',()=>{
    const deployment=JSON.parse(fs.readFileSync(new URL('../../vercel.json',import.meta.url),'utf8'));
-   expect(deployment.regions).toEqual(['hnd1']);
+   // A shared regions entry would override both projects; see docs/hosting-and-staging.md.
+   expect(deployment.regions).toBeUndefined();
    expect(deployment.functions['api/render.js'].maxDuration).toBe(15);
    expect(deployment.routes).toContainEqual({src:'/',dest:'/api/render?route=/'});
  });
