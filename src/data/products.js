@@ -9,9 +9,9 @@ export const products = [
   watch('citizen-eco-drive', 'Citizen', 'Eco-Drive', 89900, 'Blue', '/images/watch-citizen-eco-cutout.webp', 'A clean, everyday watch.', 'Everyday'),
   watch('orient-bambino', 'Orient', 'Bambino', 109000, 'Cream', '/images/watch-orient-bambino-cutout.webp', 'A refined dress watch.', 'Dress'),
   quarterZip('quarter-zip-black', 'Black', '/images/quarter-zip-black-cutout.webp', '#262622'),
-  quarterZip('quarter-zip-beige', 'Beige', '/images/quarter-zip-beige-cutout.webp', '#C7B99F'),
+  quarterZip('quarter-zip-brown', 'Brown', '/images/products/quarter-zips/quarter-zip-beige/IMG_7303-brown.png', '#63372D'),
   quarterZip('quarter-zip-navy', 'Navy', '/images/quarter-zip-navy-cutout.webp', '#273447'),
-  quarterZip('quarter-zip-olive', 'Olive', '/images/quarter-zip-olive-cutout.webp', '#656A4B'),
+  quarterZip('quarter-zip-burgundy', 'Burgundy', '/images/products/quarter-zips/quarter-zip-burgundy/IMG_7284-burgundy.png', '#651F31'),
   ...demoListings,
 ];
 

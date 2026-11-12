@@ -17,8 +17,11 @@ const SORT_ALIASES = { 'price-low': 'price-asc', 'price-high': 'price-desc' };
 
 /** Returns a sorted copy for 'price-asc' / 'price-desc'; any other value keeps the featured order. */
 export function sortProducts(items, sort) {
-  if (sort === 'price-asc') return [...items].sort((a, b) => a.price - b.price);
-  if (sort === 'price-desc') return [...items].sort((a, b) => b.price - a.price);
+  if (sort === 'price-asc' || sort === 'price-desc') return [...items].sort((a, b) => {
+    if (a.price == null) return b.price == null ? 0 : 1;
+    if (b.price == null) return -1;
+    return sort === 'price-asc' ? a.price - b.price : b.price - a.price;
+  });
   return items;
 }
 
@@ -44,7 +47,7 @@ const countBy = (items, pick) => {
  */
 export function getFacets(collection) {
   const scoped = collectionProducts(collection);
-  const prices = scoped.map((product) => product.price);
+  const prices = scoped.map((product) => product.price).filter(Number.isFinite);
   const min = prices.length ? Math.min(...prices) : 0;
   const max = prices.length ? Math.max(...prices) : 0;
   const facets = { price: min < max ? { min, max } : null, brand: null, style: null, colour: null, size: null };
@@ -108,8 +111,8 @@ export function applyFilters(scoped, filters) {
     && (!filters.style.length || filters.style.includes(slugify(product.style)))
     && (!filters.colour.length || product.colors.some((colour) => filters.colour.includes(slugify(colour))))
     && (!filters.size.length || product.sizes.some((size) => filters.size.includes(slugify(size))))
-    && (filters.priceMin == null || product.price >= filters.priceMin)
-    && (filters.priceMax == null || product.price <= filters.priceMax)
+    && (filters.priceMin == null || (product.price != null && product.price >= filters.priceMin))
+    && (filters.priceMax == null || (product.price != null && product.price <= filters.priceMax))
     && matchesQuery(product, filters.q));
   items = sortProducts(items, filters.sort);
   return items;

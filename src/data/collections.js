@@ -19,6 +19,11 @@ export const NAV_WATCH_BRANDS = [
   { id: 'cartier', name: 'Cartier' },
   { id: 'franck-muller', name: 'Franck Muller' },
   { id: 'best-win', name: 'Best Win' },
+  { id: 'audemars-piguet', name: 'Audemars Piguet' },
+  { id: 'omega', name: 'Omega' },
+  { id: 'richard-mille', name: 'Richard Mille' },
+  { id: 'tag-heuer', name: 'TAG Heuer' },
+  { id: 'tissot', name: 'Tissot' },
 ];
 
 export const brandId = (product) => slugify(product.brand);

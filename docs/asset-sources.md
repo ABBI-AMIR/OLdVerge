@@ -4,13 +4,15 @@ Provenance of the photographs in `public/images/`. This file is internal; nothin
 
 ## Status
 
+The November 2026 homepage ribbon pairs Oldverge's navy collar and folded chocolate brown quarter-zip photos with watch editorials from [The Glorious Studio](https://www.pexels.com/photo/13273982/) and [Huy Phan](https://www.pexels.com/photo/35806970/). The website serves local copies.
+
 On 2026-10-17 every photograph in `public/images/` was replaced with a freely licensed photo from Unsplash (the Unsplash License allows free commercial use, no attribution required, but crediting is good practice). The previous photos had no recorded source or licence, and several showed third-party brands (Fossil, Omega) or did not match the product they were attached to.
 
 Photographer names below were read from Unsplash search or photo pages at download time. Re-check them on the linked page before publishing credits. Files were downloaded at 1200 px wide (`w=1200&q=78`) from `images.unsplash.com`.
 
 ## These are stand-ins, not product photos
 
-The photos show similar-looking items, not the exact products in `src/data/products.js`. Small brand names may be legible on some watch dials. The only close match is `watch-casio-a168.jpg` (a Casio F-91W/A168-style digital watch). Replace the rest with real product photography when available (see `quarterZipVariants.js` for the colour swap-in).
+The photos show similar-looking items, not the exact products in `src/data/products.js`. Small brand names may be legible on some watch dials. The only close match is `watch-casio-a168.jpg` (a Casio F-91W/A168-style digital watch). Replace the rest with real product photography when available (see the current product image guide).
 
 ## Photographs
 
@@ -44,3 +46,16 @@ The product tiles use background-removed versions of ten of the photos above so 
 ## To record when a photo is added
 
 File name, source URL, photographer or supplier, licence name and URL, date retrieved, whether attribution is required, and exactly what the photo shows (brand and model only if legible and verified). Add the pixel size to `src/data/imageSizes.js`.
+
+## Owner product uploads — 2026-11-08
+
+The owner supplied the files under `public/images/products/`. They are mapped
+explicitly in `src/data/uploadedProductData.js` for the local visual catalogue.
+The Rolex galleries use the owner's replacement PNGs. The Burgundy idle turn uses AI-generated views based on the owner's photos. Prices and specifications await owner confirmation. See the product image guide for the unresolved Rolex model label.
+
+## Editorial watch photography
+
+- Watch collection card, photographed by SJ. [Original on Unsplash](https://unsplash.com/photos/Y-SmXnqF6AE)
+- Cartier Tank story photograph, photographed by Studio Crevettes. [Original on Unsplash](https://unsplash.com/photos/Ju-6TPKXdBs)
+
+Both photographs are served locally as WebP under the [Unsplash License](https://unsplash.com/license).

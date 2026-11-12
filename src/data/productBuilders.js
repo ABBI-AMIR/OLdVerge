@@ -1,3 +1,5 @@
+import { QUARTER_ZIP_SIZES } from './quarterZipSizes.js';
+import { productImageFiles } from './productImages.js';
 // Shared constructors for catalogue entries. Kept apart from products.js so
 // demoListings.js can build entries without a circular import.
 
@@ -14,6 +16,7 @@ export const watch = (id, brand, model, price, color, image, description, style)
   sizes: ['One size'],
   material: 'See manufacturer specifications',
   image,
+  imageFiles: productImageFiles('watches', id),
   style,
   badge: '',
   description,
@@ -29,12 +32,13 @@ export const quarterZip = (id, color, image, artColor) => ({
   type: 'clothing',
   price: 8490,
   colors: [color],
-  sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+  sizes: QUARTER_ZIP_SIZES,
   material: 'Fabric composition to be confirmed',
   image,
+  imageFiles: productImageFiles('quarter-zips', id),
   artColor,
   style: 'Everyday',
   badge: '',
-  description: `The OLDVERGE quarter-zip in ${color.toLowerCase()}. A considered layer for cool mornings, late evenings, and everything between.`,
+  description: `A clean stand collar and a short zip in ${color.toLowerCase()}.`,
   listingStatus: 'Sample listing — confirm final price, fabric composition, size measurements and stock before purchase.',
 });

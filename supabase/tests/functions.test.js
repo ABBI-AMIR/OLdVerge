@@ -136,12 +136,12 @@ describe('Edge Function handlers against the real database', () => {
       const statuses = [];
       for (let i = 0; i < 12; i += 1) {
         await db.main.query("delete from private.rate_limits where bucket_key like 'create-order-contact:%'");   // isolate the per-IP limit
-        statuses.push((await call(handler, orderBody(ids.zipM, 1, { expected_total_pkr: 1 }), { headers: { 'x-forwarded-for': '203.0.113.50' } })).status);
+        statuses.push((await call(handler, orderBody(ids.zipM, 1, { expected_total_pkr: 1 }), { headers: { 'cf-connecting-ip': '203.0.113.50' } })).status);
       }
       expect(statuses.slice(0, 10).every((s) => s === 409)).toBe(true);
       expect(statuses.slice(10)).toEqual([429, 429]);
       const broken = { ...deps, admin: { ...deps.admin, rpc: async () => ({ data: null, error: { message: 'db down' } }) } };
-      expect((await call(createOrder(broken), orderBody(ids.zipM, 1), { headers: { 'x-forwarded-for': '198.51.100.9' } })).status).toBe(429);
+      expect((await call(createOrder(broken), orderBody(ids.zipM, 1), { headers: { 'cf-connecting-ip': '198.51.100.9' } })).status).toBe(429);
     });
 
     it('cannot be bypassed by a spoofed X-Forwarded-For, and limits orders per contact', async () => {
@@ -158,6 +158,21 @@ describe('Edge Function handlers against the real database', () => {
       }
       expect(perContact.slice(0, 8).every((s) => s === 409)).toBe(true);
       expect(perContact[8]).toBe(429);
+    });
+
+    it('does not permit forwarded aliases to rotate the limiter when ingress identity is missing', async () => {
+      await db.main.query("delete from private.rate_limits where bucket_key like 'create-order:%'");
+      const handler = createOrder(deps);
+      const statuses = [];
+      for (let i = 0; i < 11; i++) {
+        await db.main.query("delete from private.rate_limits where bucket_key like 'create-order-contact:%'");
+        const request = new Request(`${URL_BASE}x`, {method:'POST',headers:{
+          'content-type':'application/json','x-forwarded-for':`198.51.100.${i}`,'x-real-ip':`192.0.2.${i}`},
+          body:JSON.stringify(orderBody(ids.zipM, 1, {expected_total_pkr:1}))});
+        statuses.push((await handler(request)).status);
+      }
+      expect(statuses.slice(0,10)).toEqual(Array(10).fill(409));
+      expect(statuses[10]).toBe(429);
     });
 
     it('binds a signed-in customer to the order and rejects an invalid session instead of treating it as a guest', async () => {
@@ -218,7 +233,7 @@ describe('Edge Function handlers against the real database', () => {
 
     it('rate limits contact submissions per client', async () => {
       const statuses = [];
-      for (let i = 0; i < 7; i += 1) statuses.push((await call(submitContact(deps), contact({ first_name: `N${i}` }), { headers: { 'x-forwarded-for': '203.0.113.77' } })).status);
+      for (let i = 0; i < 7; i += 1) statuses.push((await call(submitContact(deps), contact({ first_name: `N${i}` }), { headers: { 'cf-connecting-ip': '203.0.113.77' } })).status);
       expect(statuses.filter((s) => s === 429).length).toBeGreaterThanOrEqual(2);
     });
 
@@ -239,7 +254,7 @@ describe('Edge Function handlers against the real database', () => {
   });
 
   describe('scheduled, provider and admin-only endpoints', () => {
-    const post = (handler, headers = {}) => handler(new Request(`${URL_BASE}x`, { method: 'POST', headers: { 'x-forwarded-for': `10.1.1.${Math.floor(Math.random() * 250)}`, ...headers } })).then(async (r) => ({ status: r.status, body: await r.json() }));
+    const post = (handler, headers = {}) => handler(new Request(`${URL_BASE}x`, { method: 'POST', headers: { 'cf-connecting-ip': `10.1.1.${Math.floor(Math.random() * 250)}`, ...headers } })).then(async (r) => ({ status: r.status, body: await r.json() }));
 
     it('runs maintenance only for the scheduler secret or an admin', async () => {
       expect((await post(maintenance(deps))).status).toBe(401);

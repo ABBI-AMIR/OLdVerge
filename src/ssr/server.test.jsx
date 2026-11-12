@@ -180,3 +180,24 @@ describe('SSR backend latency and deployment regressions',()=>{
    expect(a.products[0].name).toBe('First project');expect(b.products[0].name).toBe('Second project');
  });
 });
+
+describe('production search metadata', () => {
+  it('serves a sitemap with published product links and no private routes', async () => {
+    const renderer = createRenderer({config,template,fetch:backend(),origin:'https://store.example.test'});
+    const result = await renderer('/sitemap.xml');
+    expect(result.status).toBe(200);
+    expect(result.headers['Content-Type']).toContain('application/xml');
+    expect(result.html).toContain('https://store.example.test/product/public-watch');
+    expect(result.html).not.toContain('/checkout');
+    expect(result.html).not.toContain('/admin');
+  });
+  it('serializes product and organization data with the server price', async () => {
+    const renderer = createRenderer({config,template,fetch:backend(),origin:'https://store.example.test'});
+    const result = await renderer('/product/public-watch');
+    const match = result.html.match(/type="application\/ld\+json">(.*?)<\/script>/);
+    const data = JSON.parse(match[1]);
+    expect(data[0]['@type']).toBe('Organization');
+    expect(data[1].offers).toMatchObject({price:500,priceCurrency:'PKR',url:'https://store.example.test/product/public-watch'});
+    expect(data[1].offers.availability).toBeUndefined();
+  });
+});

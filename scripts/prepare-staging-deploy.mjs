@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto';
 // local reports, conversation files, database data, or unrelated working files.
 const source = process.cwd();
 const destination = path.resolve(source, 'scripts/out/staging-deploy');
-const files = ['package.json','package-lock.json','vite.config.js','vercel.json','index.html','postcss.config.js','tailwind.config.js','supabase/functions/_shared/http.js'];
+const files = ['package.json','package-lock.json','vite.config.js','vercel.json','index.html','postcss.config.js','tailwind.config.js','scripts/optimize-product-images.mjs','supabase/functions/_shared/http.js'];
 async function walk(directory) {
   for (const entry of await fs.readdir(path.join(source,directory),{withFileTypes:true})) {
     if (entry.isSymbolicLink()) throw new Error('Deployment source must not contain symlinks');

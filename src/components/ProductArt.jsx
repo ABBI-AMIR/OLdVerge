@@ -1,3 +1,4 @@
+import {responsiveImageProps} from '../data/responsiveImages.js';
 import { imageSize } from '../data/imageSizes.js';
 
 const colors = {
@@ -21,7 +22,7 @@ export default function ProductArt({ product, large = false, style }) {
   };
   return (
     <div className={`product-art ${product.type === 'watch' ? 'is-watch' : 'is-clothing'} ${product.image ? 'is-photo' : ''} ${large ? 'art-large' : ''}`} style={{ '--art-a': palette[0], '--art-b': palette[1], ...style }} aria-label={`${product.name} product image`} role="img" onPointerMove={handlePointerMove} onPointerLeave={resetTilt}>
-      {product.image && <img className="product-photo" src={product.image} alt={product.name} {...imageSize(product.image)} loading="eager" decoding="async" onError={(event) => { event.currentTarget.style.display = 'none'; }} />}
+      {product.image && <img className="product-photo" src={product.image} {...responsiveImageProps(product.image)} alt={product.name} {...imageSize(product.image)} loading={large ? 'eager' : 'lazy'} decoding="async" onError={(event) => { event.currentTarget.style.display = 'none'; }} />}
       {product.type === 'watch' ? (
         <div className="watch-object" aria-hidden="true">
           <div className="watch-strap" /><div className="watch-case"><div className="watch-face"><span className="watch-mark mark-top" /><span className="watch-mark mark-left" /><span className="watch-mark mark-right" /><span className="watch-mark mark-bottom" /><i className="watch-hand hand-hour" /><i className="watch-hand hand-minute" /><b className="watch-center" /></div></div>

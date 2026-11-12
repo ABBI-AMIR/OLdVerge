@@ -34,6 +34,7 @@ export function useNewsletter(source) {
     setError('');
     if (!isBackend) { setStatus('done'); return; }
     const turnstileToken = formBotToken(event.currentTarget);
+    if (!turnstileToken) { setError('Complete the verification before subscribing.'); return; }
     setStatus('sending');
     const result = await callFunction('newsletter-subscribe', { email: email.trim(), consent: true, consent_text: NEWSLETTER_CONSENT, source, website: '', turnstile_token: turnstileToken });
     if (result.ok) { setStatus('done'); setEmail(''); setConsent(false); return; }

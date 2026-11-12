@@ -25,10 +25,10 @@ describe('migrations', () => {
     expect(withoutRls).toEqual([]);
   });
 
-  it('seeds ordering as closed and cash on delivery as a disabled method', async () => {
+  it('seeds ordering as closed and both payment methods disabled', async () => {
     const setting = await db.main.query("select value from public.store_settings where key = 'ordering_enabled'");
     expect(setting.rows[0].value).toBe(false);
-    const methods = await db.main.query('select code, enabled from public.payment_methods');
-    expect(methods.rows).toEqual([{ code: 'cod', enabled: false }]);
+    const methods = await db.main.query('select code, enabled from public.payment_methods order by code');
+    expect(methods.rows).toEqual([{ code: 'allied_bank', enabled: false }, { code: 'cod', enabled: false }]);
   });
 });

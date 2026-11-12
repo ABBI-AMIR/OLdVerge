@@ -28,26 +28,12 @@ export const PRODUCT_COPY = {
   ],
 };
 
-const ZIP_COLOUR_NOTES = {
-  Black: 'Black is the easiest one to live in. It sits with everything and works from morning to night.',
-  Beige: 'Beige is the soft, light option. It pairs well with darker trousers and warm neutrals.',
-  Navy: 'Navy is a quieter alternative to black, a little softer and just as easy to wear.',
-  Olive: 'Olive adds a calm, earthy note. It looks good with denim, stone and brown.',
-};
-
 export const copyFor = (product) => {
   // Backend products: the owner's own description (paragraphs separated by a blank line).
-  if (product.dbId) {
+  if (product.dbId || product.ownerUpload) {
     const paragraphs = String(product.description || '').split(/\n{2,}/).map((part) => part.trim()).filter(Boolean);
     return paragraphs.length ? paragraphs : [''];
   }
   if (PRODUCT_COPY[product.slug]) return PRODUCT_COPY[product.slug];
-  if (product.category === 'Quarter-Zips') {
-    const colour = product.colors[0];
-    return [
-      `The Essential Quarter-Zip in ${colour.toLowerCase()}: a familiar silhouette with a cleaner point of view. A short zip at the collar, a relaxed everyday shape, and nothing you have to think about.`,
-      ZIP_COLOUR_NOTES[colour] || 'A considered layer for cool mornings, late evenings, and everything between.',
-    ];
-  }
   return [product.description];
 };

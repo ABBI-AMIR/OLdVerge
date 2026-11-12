@@ -1,3 +1,9 @@
+import {responsiveImageProps} from './responsiveImages.js';
+import { QUARTER_ZIP_SIZES } from './quarterZipSizes.js';
+import { uploadedProducts } from './uploadedProducts.js';
+
+const ownerGallery = new Map(uploadedProducts.map(product => [product.slug, product]));
+
 // Pure mapping from Supabase rows to the product shape the storefront components already use.
 // Keeping it free of React, Supabase and browser APIs makes it unit-testable.
 
@@ -13,17 +19,18 @@ const sizeRank = (label) => {
 };
 
 export const PRODUCT_SELECT = `
-  id, slug, legacy_id, name, description, kind, style, group_key, sort_order,
+  id, slug, legacy_id, name, description, kind, style, group_key, sort_order, ready_to_sell,
   category:categories ( slug, name ),
   brand:brands ( slug, name ),
   product_variants ( id, sku, color_name, color_hex, size_label, price_pkr, active, sort_order ),
-  product_images ( bucket, path, kind, alt_text, width, height, sort_order, is_cover, approval_status )
+  product_images ( bucket, path, kind, alt_text, width, height, sort_order, is_cover, approval_status, checksum_sha256 )
 `;
 
 /** availability: { [variantId]: { in_stock: boolean, low_stock: boolean } } (may be empty if unknown). */
 export function mapProductRow(row, { storageBase, availability = {} }) {
   const variants = (row.product_variants || [])
     .filter((variant) => variant.active !== false)
+    .filter((variant) => row.category?.slug !== 'quarter-zips' || QUARTER_ZIP_SIZES.includes(variant.size_label))
     .sort((a, b) => (a.sort_order - b.sort_order) || (sizeRank(a.size_label) - sizeRank(b.size_label)) || String(a.sku).localeCompare(String(b.sku)))
     .map((variant) => ({
       id: variant.id,
@@ -36,17 +43,30 @@ export function mapProductRow(row, { storageBase, availability = {} }) {
       lowStock: availability[variant.id] ? availability[variant.id].low_stock === true : false,
     }));
 
-  const images = (row.product_images || [])
+  const ownerListing = ownerGallery.get(row.slug);
+  const confirmedPrice = ownerListing?.price;
+  const priceMatchesApproval = Number.isInteger(confirmedPrice) && variants.length > 0
+    && variants.every(variant => variant.price === confirmedPrice);
+  const pending = Boolean(ownerListing && row.ready_to_sell === false && !priceMatchesApproval);
+  const storedImages = (row.product_images || [])
     .filter((image) => image.bucket === 'product-public' && image.approval_status === 'approved')
     .sort((a, b) => (b.is_cover - a.is_cover) || (a.sort_order - b.sort_order))
     .map((image) => ({
-      src: storagePublicUrl(storageBase, image.bucket, image.path),
+      ...responsiveImageProps(storagePublicUrl(storageBase, image.bucket, image.path), image.checksum_sha256),
       alt: image.alt_text || row.name,
       width: image.width || undefined,
       height: image.height || undefined,
       kind: image.kind,
     }));
 
+  const images = ownerListing && (row.ready_to_sell === false || !storedImages.length) && typeof row.ready_to_sell === 'boolean'
+    ? ownerListing.images : storedImages;
+  // The cover upload registers the main view in Storage. Keep the owner's
+  // remaining product views until a full gallery is registered there.
+  if (ownerListing && row.ready_to_sell && images === storedImages && storedImages.length === 1
+      && row.product_images.some(image => image.is_cover && image.path === `owner-cover-${row.slug}.png`)) {
+    images.push(...ownerListing.images.slice(1));
+  }
   const colors = [...new Set(variants.map((variant) => variant.color).filter(Boolean))];
   const sizes = [...new Set(variants.map((variant) => variant.size))];
   const unavailableSizes = sizes.filter((size) => {
@@ -66,9 +86,10 @@ export function mapProductRow(row, { storageBase, availability = {} }) {
     brand: row.brand?.name || 'OLDVERGE',
     category: CATEGORY_LABELS[categorySlug] || row.category?.name || 'Collection',
     type: row.kind,
-    price: variants.length ? Math.min(...variants.map((variant) => variant.price)) : 0,
+    price: pending ? null : variants.length ? Math.min(...variants.map((variant) => variant.price)) : 0,
+    pricePending: pending,
     colors: colors.length ? colors : ['Standard'],
-    sizes: sizes.length ? sizes : ['One size'],
+    sizes: sizes.length || categorySlug === 'quarter-zips' ? sizes : ['One size'],
     material: '',
     image: cover?.src || '',
     photo: photo?.src || cover?.src || '',

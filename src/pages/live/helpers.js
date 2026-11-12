@@ -133,6 +133,7 @@ export function toProjection(row) {
     tax_status: row.tax_status,
     total_pkr: row.total_pkr,
     payment_method: row.payment_method_label,
+    payment_method_code: row.payment_method_code,
     payment_status: row.payment_status,
     fulfilment_status: row.fulfilment_status,
     shipping_method: row.shipping_method_label,

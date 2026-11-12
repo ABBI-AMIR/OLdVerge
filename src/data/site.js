@@ -14,7 +14,7 @@ const DEMO_NOTICE = 'Displayed prices are samples. Orders are not open yet.';
 
 const demoState = {
   status: 'ready', error: null,
-  settings: { ordering_enabled: false, max_quantity_per_line: 9, tax_mode: 'not_calculated', 'notice.footer': DEMO_NOTICE },
+  settings: { 'contact.email': 'oldverge6@gmail.com', 'contact.whatsapp': '+923442765766', 'contact.phone': '03442765766', ordering_enabled: false, max_quantity_per_line: 9, tax_mode: 'not_calculated', 'notice.footer': DEMO_NOTICE },
   siteImages: {},
   policies: DEMO_POLICIES,
   paymentMethods: [],
@@ -26,7 +26,7 @@ export async function fetchSite() {
     supabase.from('store_settings').select('key, value'),
     supabase.from('site_images').select('key, bucket, path, alt_text, width, height, approval_status'),
     supabase.from('policy_pages').select('slug, title, published_sections, version, published_at').not('published_at', 'is', null),
-    supabase.from('payment_methods').select('code, label, description, kind').order('sort_order'),
+    supabase.from('payment_methods').select('code, label, description, kind').eq('enabled', true).order('sort_order'),
     supabase.from('shipping_methods').select('code, label, description, estimate_text').order('sort_order'),
     supabase.from('shipping_rates').select('method_code, zone_code, price_pkr, free_over_pkr'),
     supabase.from('shipping_zones').select('code, name, provinces'),
@@ -82,6 +82,15 @@ export function contactInfo() {
 
 /** Demo mode: the original files in /public/images. Backend mode: only approved images from Storage, else null. */
 export const DEMO_SITE_IMAGES = {
+  'ribbon-seiko': { src: '/images/ribbon-seiko.webp', alt: 'Close-up of a Seiko automatic watch' },
+  'ribbon-black-collar': { src: '/images/ribbon-black-collar.jpg', alt: 'Folded black Oldverge quarter-zip' },
+  'ribbon-swiss': { src: '/images/ribbon-swiss.webp', alt: 'Swiss wristwatch in a studio flat lay' },
+  'ribbon-burgundy': { src: '/images/ribbon-burgundy.jpg', alt: 'Burgundy Oldverge quarter-zip' },
+  'quarter-zip-campaign': { src: '/images/quarter-zip-campaign.jpg', alt: 'Blue quarter-zip layered over a shirt and tie' },
+  'ribbon-watch-stone': { src: '/images/ribbon-watch-stone.jpg', alt: 'Leather-strap wristwatch on stone' },
+  'ribbon-navy-collar': { src: '/images/ribbon-navy-collar.webp', alt: 'Navy Oldverge quarter-zip collar detail' },
+  'ribbon-watch-wrist': { src: '/images/ribbon-watch-wrist.jpg', alt: 'Classic wristwatch with a brown leather strap' },
+  'ribbon-brown-knit': { src: '/images/ribbon-brown-knit.webp', alt: 'Folded brown Oldverge quarter-zip' },
   'quarter-zip-beige': { src: '/images/quarter-zip-beige.jpg', alt: 'Man in a beige quarter-zip' },
   'watch-seiko-sports': { src: '/images/watch-seiko-sports.jpg', alt: 'A sports watch on a white surface' },
   'oldverge-hero-model': { src: '/images/oldverge-hero-model.jpg', alt: 'Man wearing a grey-green quarter-zip, smiling' },

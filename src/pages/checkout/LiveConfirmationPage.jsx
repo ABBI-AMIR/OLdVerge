@@ -42,7 +42,7 @@ export default function LiveConfirmationPage() {
   };
   return <main id="main-content" className="ov-page ov-confirmation">
     <header className="ov-page-head"><p className="ov-eyebrow-dark">Order received</p><h1>Thank you. We have your order.</h1>
-      <p className="ov-page-intro">Order number <strong>{state.order.order_number}</strong>. No confirmation email is sent automatically, so keep this page.</p></header>
+      <p className="ov-page-intro">Order number <strong>{state.order.order_number}</strong>. Keep this page to check your order status and payment instructions.</p></header>
     <section className="ov-note" aria-labelledby="oc-save">
       <h2 id="oc-save">Keep this link</h2>
       <p>This link is the key to your order. Anyone who has it can view the order, so do not share it publicly. You can also use your order number and the access code from the link on the Track an order page.</p>

@@ -1,5 +1,6 @@
-import { PRODUCT_SELECT, mapProductRow } from '../src/data/catalogMapper.js';
-import { products as demoProducts } from '../src/data/products.js';
+import { PRODUCT_SELECT, mapProductRow, mapSiteImages } from '../src/data/catalogMapper.js';
+import {buildHeroImages} from '../src/data/homeHeroImages.js';
+import { products as demoProducts } from '../src/data/localProductImages.js';
 import { readBoundedBody } from '../supabase/functions/_shared/http.js';
 
 const publicPaths = new Set(['/', '/shop', '/shop/watches', '/shop/quarter-zips', '/search', '/about', '/faq', '/contact', '/shipping', '/refund-policy', '/privacy-policy', '/terms-and-conditions']);
@@ -18,6 +19,7 @@ export function publicRoute(input) {
   if (typeof input !== 'string' || !input.startsWith('/') || input.startsWith('//') || input.length > 2048) return { kind:'missing', path:'/' };
   let url; try { url=new URL(input,'https://local.invalid'); } catch { return {kind:'missing',path:'/'}; }
   const path=url.pathname.replace(/\/$/,'')||'/';
+  if (path === '/sitemap.xml') return {kind:'sitemap', path, query:new URLSearchParams()};
   const aliases={'/index.html':'/','/collections':'/shop','/collections/all':'/shop','/pages/about':'/about','/pages/faq':'/faq','/pages/contact':'/contact','/shipping-policy':'/shipping','/returns':'/refund-policy','/returns-and-refunds':'/refund-policy','/privacy':'/privacy-policy','/terms':'/terms-and-conditions','/policies/privacy-policy':'/privacy-policy','/policies/terms-of-service':'/terms-and-conditions','/policies/refund-policy':'/refund-policy','/wishlist':'/shop','/size-guide':'/faq#sizing'};
   const destination=aliases[path] || (/^\/collections\/(watches|quarter-zips)$/.test(path)?path.replace('/collections/','/shop/'):null) || (/^\/products\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(path)?path.replace('/products/','/product/'):null);
   if(destination) return {kind:'redirect',path:destination};
@@ -103,13 +105,27 @@ export function createPublicData({config,fetch:fetcher=fetch,timeoutMs=4000}) {
     return slugs.map(slug=>bySlug.get(slug)).filter(Boolean);
   }
   return async (route,{onTiming=()=>{},signal=AbortSignal.timeout(timeoutMs)}={})=>{
+    if (route.kind === 'sitemap') {
+      if (config.mode === 'demo') return {paths: demoProducts.map(product => '/product/' + product.slug)};
+      const paths = [];
+      let offset = 0;
+      while (true) {
+        const rows = await api(`products?select=slug&status=eq.published&order=slug&limit=1000&offset=${offset}`, {signal,onTiming});
+        paths.push(...rows.map(row => '/product/' + row.slug));
+        if (rows.length < 1000) break;
+        offset += 1000;
+      }
+      const policies = await api('policy_pages?select=slug&published_at=not.is.null', {signal,onTiming});
+      paths.push(...policies.map(policy => '/' + policy.slug));
+      return {paths};
+    }
     const details=phase=>(name,duration)=>onTiming(phase+'_'+name,duration);
     const phase=async(name,work)=>{const start=performance.now();try{return await work();}finally{onTiming(name,performance.now()-start);}};
     if(config.mode==='demo') {
       let list=route.kind==='product'?demoProducts.filter(p=>p.slug===route.path.slice(9)):demoProducts.filter(p=>!route.category||p.type===(route.category==='watches'?'watch':'clothing'));
       if(route.kind!=='product'&&route.path!=='/'&&!route.path.startsWith('/shop')&&route.path!=='/search') list=[];
       if(route.q) list=list.filter(p=>`${p.name} ${p.description}`.toLowerCase().includes(route.q.toLowerCase()));
-      return {products:list.slice((route.page-1)*24,route.page*24),total:list.length,policies:[]};
+      return {products:list.slice((route.page-1)*24,route.page*24),total:list.length,policies:[],heroImages:route.path==='/'?buildHeroImages(()=>null):[]};
     }
     if(!config.configured) throw new Error('public_backend_unavailable');
     // PublicPage does not consume store settings. Commerce readiness continues
@@ -121,8 +137,10 @@ export function createPublicData({config,fetch:fetcher=fetch,timeoutMs=4000}) {
     }
     let list;
     if(route.kind==='product') list=phase('products',()=>products([route.path.slice(9)],signal,details('products'))).then(products=>({products,total:products.length}));
-    else if(route.path==='/'||route.path.startsWith('/shop')||route.path==='/search') list=phase('catalog',()=>api('rpc/catalog_page',{signal,onTiming:details('catalog'),body:{p_category:route.category,p_query:route.q,p_filters:route.filters,p_sort:route.sort,p_page:route.page,p_size:24}})).then(async page=>({products:await phase('products',()=>products(page.slugs,signal,details('products'))),total:page.total}));
+    else if(route.path==='/'||route.path.startsWith('/shop')||route.path==='/search') list=phase('catalog',()=>api('rpc/catalog_page',{signal,onTiming:details('catalog'),body:{p_category:route.category,p_query:route.q,p_filters:route.filters,p_sort:route.sort,p_page:route.page,p_size:24}})).then(async page=>({products:await phase('products',()=>products(page.slugs,signal,details('products'))),total:page.total,facets:page.facets,price:page.price}));
     else list=Promise.resolve({products:[],total:0});
-    return {...await list,policies:[]};
+    const hero=route.path==='/'?api('site_images?select=key,bucket,path,alt_text,width,height,approval_status&bucket=eq.product-public&approval_status=eq.approved',{signal}).then(rows=>{const images=mapSiteImages(rows,config.url);return buildHeroImages(key=>images[key]);}):Promise.resolve([]);
+    const [page,heroImages]=await Promise.all([list,hero]);
+    return {...page,policies:[],heroImages};
   };
 }

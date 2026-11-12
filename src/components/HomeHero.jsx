@@ -1,28 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import {PublicSnapshot} from '../ssr/PublicSnapshot.jsx';
 import { Link } from 'react-router-dom';
 import TiltedGridHero from './TiltedGridHero.jsx';
 import { useIntroDone } from '../introState.js';
 import { siteImage, useSite } from '../data/site.js';
+import { buildHeroImages } from '../data/homeHeroImages.js';
+import HeroCopy from './HeroCopy.jsx';
 
 // Mixed clothing, watches and editorial. Each entry names a site image (approved in Supabase Storage, or the demo
 // photograph in public/images). `position` keeps the subject inside the 4:5 crop (object-position).
-const HERO_SLOTS = [
-  { key: 'quarter-zip-beige', position: '50% 28%' },
-  { key: 'watch-seiko-sports', position: '56% 50%' },
-  { key: 'oldverge-hero-model', position: '50% 30%' },
-  { key: 'watch-timex-weekender', position: '50% 62%' },
-  { key: 'quarter-zip-neutral', position: '50% 42%' },
-  { key: 'oldverge-watch-editorial', position: '50% 50%' },
-  { key: 'watch-hero-wrist', position: '50% 38%' },
-  { key: 'watch-casio-mtp', position: '52% 50%' },
-  { key: 'oldverge-hero-watch-detail', position: '50% 55%' },
-  { key: 'quarter-zip-soft-knit', position: '50% 40%' },
-];
 
 /** The hero ribbon images that are actually available right now (unapproved or missing images are skipped). */
-export const heroImages = () => HERO_SLOTS
-  .map((slot) => { const image = siteImage(slot.key); return image ? { src: image.src, position: slot.position } : null; })
-  .filter(Boolean);
+export const heroImages = () => buildHeroImages(siteImage);
 
 function useMediaQuery(query) {
   const [matches, setMatches] = useState(() => typeof window !== 'undefined' && window.matchMedia(query).matches);
@@ -53,16 +42,14 @@ export default function HomeHero() {
   useSite((state) => state.siteImages);         // re-render when the site images load
   const images = heroImages();
   const entered = useIntroDone();
+  const snapshot=useContext(PublicSnapshot);
+  const alreadyVisible=snapshot?.path==='/'&&!snapshot.error;
   const compact = useMediaQuery('(max-width: 650px)');
   const medium = useMediaQuery('(max-width: 1000px)');
   const layout = compact ? LAYOUTS.compact : medium ? LAYOUTS.medium : LAYOUTS.wide;
   return (
-    <section className={`ov-hero2 ${entered ? 'is-entered' : 'is-waiting'}`} aria-labelledby="ov-hero-title">
-      <div className="ov-hero2-copy">
-        <h1 id="ov-hero-title" className="ov-rise" style={{ '--d': '0ms' }}>Timeless Elegance</h1>
-        <p className="ov-rise" style={{ '--d': '120ms' }}>Considered clothing. Distinctive watches. Your everyday signature.</p>
-        <div className="ov-hero2-actions ov-rise" style={{ '--d': '220ms' }}><Link to="/shop" className="ov-button ov-button-dark">Shop all</Link><Link to="/shop/watches" className="ov-button ov-button-light">Shop watches</Link></div>
-      </div>
+    <section className={`ov-hero2 ${entered||alreadyVisible ? 'is-entered' : 'is-waiting'}`} aria-labelledby="ov-hero-title">
+      <HeroCopy Link={Link} />
       {images.length >= 3 && <TiltedGridHero className="ov-hero2-ribbon" images={images} aspectRatio={4 / 5} {...layout} />}
     </section>
   );

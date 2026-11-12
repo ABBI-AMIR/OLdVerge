@@ -20,8 +20,6 @@
   --ov-champagne: #D7C6A6;
   --ov-stone: #655E54;
   --ov-cocoa: #514034;
-  --tgh-placeholder: var(--ov-sand);
-  --tgh-radius: 0px;
 }
 
 /* ---------- Homepage typography: Quattrocento + Helvetica Bold / Light ----------
@@ -50,11 +48,8 @@
 
 .tgh-root { position: relative; overflow: hidden; }
 .tgh-band { position: absolute; inset: 0; pointer-events: none; transition: opacity .5s; }
-.tgh-tile { position: absolute; }
-.tgh-strip { position: absolute; top: 0; overflow: hidden; background: var(--tgh-placeholder); }
-.tgh-strip-first { border-radius: var(--tgh-radius) 0 0 var(--tgh-radius); }
-.tgh-strip-last { border-radius: 0 var(--tgh-radius) var(--tgh-radius) 0; }
-.tgh-img { position: absolute; top: 0; max-width: none; display: block; object-fit: cover; user-select: none; }
+.tgh-tile { position: absolute; backface-visibility: hidden; }
+.tgh-img { display: block; width: 100%; height: 100%; object-fit: cover; user-select: none; }
 
 /* The band waits (still and invisible) until the loader has left, then fades in and starts moving. */
 .ov-hero2.is-waiting .tgh-band { opacity: 0 !important; }
@@ -272,23 +267,56 @@ html { scroll-padding-top: 74px; }
 .ov-home .ov-cx-reset:disabled { opacity: .4; cursor: default; }
 .ov-home .ov-cx-reset:focus-visible { outline: 2px solid var(--ov-gold); outline-offset: 3px; }
 
-.ov-home .ov-cx-visual { background: var(--ov-sand); }
-.ov-cx-base { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 24%; }
-.ov-cx-over { position: absolute; inset: 0; z-index: 1; background: var(--ov-paper); perspective: 1400px; opacity: 0; pointer-events: none; transition: opacity .38s ease; }
-.ov-cx-over.is-on { opacity: 1; }
-.ov-cx-tile { position: absolute; inset: 0; margin: 0; display: grid; place-items: center; padding: 9% 12% 17%; opacity: 0; transform: perspective(1400px) translate3d(0, 14px, -50px) rotateY(-5deg) scale(.96); transition: opacity .38s ease, transform .45s cubic-bezier(.2, .7, .2, 1); will-change: transform, opacity; }
-.ov-cx-tile.is-active { opacity: 1; transform: perspective(1400px) translate3d(0, 0, 0) rotateY(0) scale(1); }
-.ov-cx-garment, .ov-cx-photo { display: block; width: 100%; height: 100%; object-fit: contain; }
-.ov-cx-name { position: absolute; left: clamp(20px, 3vw, 40px); top: clamp(18px, 2.6vw, 34px); color: var(--ov-espresso); font: 400 clamp(26px, 3vw, 42px)/1 var(--ov-display); letter-spacing: -.01em; }
-.ov-cx-note { position: absolute; left: clamp(20px, 3vw, 40px); bottom: clamp(20px, 2.4vw, 30px); color: var(--ov-stone); font: 700 10px/1 var(--ov-sans); letter-spacing: .14em; text-transform: uppercase; }
-.ov-home .ov-cx-link { z-index: 3; }
-
-@media (max-width: 520px) {
-  .ov-home .ov-cx-btn { min-height: 56px; }
+/* Keep the showcase independent of the broad editorial image rules above. */
+.ov-home .ov-cx { min-height: 0; align-items: center; }
+.ov-home .ov-cx .ov-cx-visual { width: 100%; max-width: 600px; min-height: 0; aspect-ratio: 4 / 5; align-self: center; justify-self: center; background: var(--ov-sand); isolation: isolate; overflow: hidden; }
+.ov-cx-display { position: absolute; inset: 0; padding: 9%; perspective: 1100px; }
+.ov-cx-stage { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transform: rotateX(var(--cx-tilt-x, 0deg)) rotateY(var(--cx-tilt-y, 0deg)); transition: transform .25s ease-out; }
+.ov-cx-idle, .ov-cx-singles { position: absolute; inset: 0; }
+.ov-cx-idle { opacity: 1; transition: opacity .45s ease-out, transform .45s ease-out; }
+.ov-cx-display.is-single .ov-cx-idle { opacity: 0; transform: scale(.95) rotateY(-3deg); pointer-events: none; }
+.ov-cx-sequence { position: relative; height: 100%; perspective: 850px; }
+.ov-cx-garment { position: absolute; inset: 0; margin: 0; pointer-events: none; filter: drop-shadow(0 12px 8px rgba(48,37,31,.14)); }
+.ov-cx-garment[data-matte="true"] img { filter: url(#ov-cx-sand-matte); }
+.ov-cx-garment.lead { z-index: 2; animation: ov-cx-lead 9s ease-in-out infinite; }
+.ov-cx-garment.partner { animation: ov-cx-partner 9s ease-in-out infinite; }
+.ov-cx-display.is-single .ov-cx-stage { transform: none; }
+.ov-cx-idle::before { content: ''; position: absolute; inset: -8%; background: radial-gradient(ellipse at 50% 38%, rgba(255,251,242,.7), transparent 68%); }
+.ov-cx-sequence::before { content: ''; position: absolute; left: 24%; right: 24%; bottom: 9%; height: 5%; background: radial-gradient(ellipse, rgba(67,44,28,.16), transparent 70%); filter: blur(5px); }
+.ov-cx-turn { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) {
+  figure:has(> .ov-cx-turn[data-ready="true"]) > .ov-cx-photo { opacity: 0; }
 }
+@media (prefers-reduced-motion: reduce) { .ov-cx-turn { display: none; } }
+.ov-cx-garment.lead, .ov-cx-garment.partner { animation-delay: -.65s; }
+.ov-cx-garment.waiting { visibility: hidden; }
+.ov-cx-sequence[data-paused="true"] .ov-cx-garment { animation-play-state: paused; }
+.ov-cx-playback { position: absolute; z-index: 3; right: 12px; top: 12px; width: 44px; height: 44px; display: grid; place-items: center; color: var(--ov-espresso); background: var(--ov-paper); border: 0; border-radius: 50%; cursor: pointer; }
+@keyframes ov-cx-lead {
+  0%, 100% { opacity: 0; transform: translate(-12%,3%) rotateY(8deg) scale(.85); }
+  7%, 34% { opacity: 1; transform: translate(-15%,2%) rotateY(6deg) scale(.88); }
+  53% { opacity: 1; transform: translateY(-1%) rotateY(-2deg) scale(1.04); }
+  76%, 92% { opacity: 1; transform: translateY(0) rotateY(2deg) scale(1.04); }
+}
+@keyframes ov-cx-partner {
+  0%, 100% { opacity: 0; transform: translate(14%,-4%) rotateY(-12deg) scale(.8); }
+  7%, 34% { opacity: 1; transform: translate(18%,-4%) rotateY(-8deg) scale(.84); }
+  52%, 99% { opacity: 0; transform: translate(24%,-3%) rotateY(-22deg) scale(.74); }
+}
+.ov-home .ov-cx-visual .ov-cx-photo { position: static; inset: auto; display: block; width: 100%; height: 100%; min-width: 0; min-height: 0; object-fit: contain; object-position: center; border-radius: 12px; }
+.ov-cx-single { position: absolute; inset: 0; margin: 0; opacity: 0; transform: translate3d(0, 8px, -18px) rotateY(-4deg) scale(.96); transition: opacity .45s ease-out, transform .45s ease-out; pointer-events: none; }
+.ov-cx-single.is-active { opacity: 1; transform: translate3d(0, 0, 0) rotateY(0) scale(1); }
+.ov-cx-single::after { content: ''; position: absolute; left: 19%; right: 19%; bottom: 5%; height: 4%; border-radius: 50%; background: rgba(48, 37, 31, .12); filter: blur(12px); z-index: -1; }
+.ov-home .ov-cx-btn { font-weight: 400; }
+.ov-home .ov-cx-btn.is-active { font-weight: 700; }
+.ov-home .ov-cx-link { z-index: 3; }
+@media (max-width: 520px) { .ov-home .ov-cx-btn { min-height: 56px; } }
 @media (prefers-reduced-motion: reduce) {
-  .ov-cx-over, .ov-cx-tile { transition: opacity .15s linear; }
-  .ov-cx-tile, .ov-cx-tile.is-active { transform: none; }
+  .ov-cx-sequence { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 4%; align-items: center; }
+  .ov-cx-playback { display: none; } .ov-cx-sequence .ov-cx-garment { animation: none; visibility: visible; position: static; width: 100%; height: 100%; min-height: 0; min-width: 0; transform: none; }
+  .ov-cx-stage, .ov-cx-single, .ov-cx-single.is-active, .ov-cx-display.is-single .ov-cx-idle { transform: none; }
+  .ov-cx-stage { transition: none; }
+  .ov-cx-idle, .ov-cx-single { transition: opacity .15s linear; }
   .ov-home .ov-cx-btn::after { transition: none; }
 }
 
@@ -680,3 +708,18 @@ html { scroll-padding-top: 74px; }
 .ov-spec dt { color: var(--ov-stone); }
 .ov-spec dd { margin: 0; color: var(--ov-espresso); font-weight: 600; text-align: right; }
 .ov-product-page .ov-product-layout { grid-template-columns: minmax(0, 1fr) minmax(320px, 1fr); align-items: start; }
+
+/* Manual product photos keep their proportions inside the existing 4:5 tiles. */
+.ov-pc-media img[src^="/images/products/"],
+.ov-fp-media img[src^="/images/products/"],
+.ov-product-page .ov-product-figure img[src^="/images/products/"],
+.ov-thumbs img[src^="/images/products/"] { object-fit: contain; }
+
+/* Fill the portrait garment tiles; the lightbox displays the complete photo. */
+.ov-pc-media .is-clothing img[src^="/images/products/"],
+.ov-fp-media.is-zip img[src^="/images/products/"],
+.ov-quarter-zip-page .ov-product-figure img[src^="/images/products/"],
+.ov-quarter-zip-page .ov-thumbs img[src^="/images/products/"] {
+  object-fit: cover;
+  object-position: center;
+}

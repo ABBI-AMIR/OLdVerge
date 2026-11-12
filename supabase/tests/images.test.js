@@ -82,7 +82,7 @@ describe('admin image endpoints', () => {
   afterAll(async () => { await db.close(); });
 
   const upload = (path, bytes, type, headers = {}) => adminUploadImage(deps)(new Request(`https://f.test/admin-upload-image?path=${encodeURIComponent(path)}`, {
-    method: 'POST', headers: { 'content-type': type, 'x-forwarded-for': `10.2.2.${Math.floor(Math.random() * 250)}`, ...headers }, body: bytes,
+    method: 'POST', headers: { 'content-type': type, 'cf-connecting-ip': `10.2.2.${Math.floor(Math.random() * 250)}`, ...headers }, body: bytes,
   })).then(async (r) => ({ status: r.status, body: await r.json() }));
 
   it('requires a signed-in admin: anonymous, customers and staff-less users are refused', async () => {
@@ -108,7 +108,7 @@ describe('admin image endpoints', () => {
     await db.main.query("insert into public.product_images (product_id, bucket, path, source_name) values ($1, 'product-private', $2, 'Test supplier')", [ids.watchProduct, path]);
     const imageId = (await db.main.query('select id from public.product_images where path = $1', [path])).rows[0].id;
     const approve = (headers) => adminApproveImage(deps)(new Request('https://f.test/admin-approve-image', {
-      method: 'POST', headers: { 'content-type': 'application/json', 'x-forwarded-for': `10.3.3.${Math.floor(Math.random() * 250)}`, ...headers }, body: JSON.stringify({ image_id: imageId }),
+      method: 'POST', headers: { 'content-type': 'application/json', 'cf-connecting-ip': `10.3.3.${Math.floor(Math.random() * 250)}`, ...headers }, body: JSON.stringify({ image_id: imageId }),
     })).then(async (r) => ({ status: r.status, body: await r.json() }));
     // No licence recorded: the database refuses, and the public copy is removed again.
     const refused = await approve({ authorization: `Bearer ${tokenFor(ids.staff)}` });

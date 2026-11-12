@@ -7,6 +7,16 @@ updated: 2026-10-18
 
 Newest first. Each entry: what changed, files, verified / not verified. Add an entry after every piece of work ([[How to Use This Brain]]). Template: `Templates/Session Entry`.
 
+## 2026-10-21: Live Supabase Backend Connected & Verified
+- **Status**: Backend is now 100% active and connected to hosted Supabase cloud (`qeczhyiwgvglilwqbveh`). No longer in demo mode.
+- **Configured**: `.env.local` set with live `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
+- **Verified**:
+  - `npm run test:connection`: Successfully connected to live hosted PostgreSQL, retrieved published products (`casio-a168`, `casio-mtp`, `timex-weekender`, `seiko-5`, `citizen-eco-drive`) and active categories.
+  - `npm test`: All 15 suites (209 unit tests) passed.
+  - `npm run test:db`: All 10 suites (103 database tests) passed on PostgreSQL 17.
+  - `npm run lint`: ESLint flat config passed with 0 errors.
+  - `npm run build`: Production Vite build succeeded.
+
 ## 2026-10-20: Customer Cart Persistence & Production Backend Integration
 - **Asked**: Fully integrate existing storefront with production-ready Supabase backend, database migrations, RLS policies, customer cart persistence, multi-device sync, seed data, and testing.
 - **Done**:

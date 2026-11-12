@@ -3,6 +3,9 @@ import { checkProjectUrl, resolveBackend } from './config.js';
 // Only these values may be serialized into browser code, regardless of env prefixes.
 export function publicDefines(env, { production = false } = {}) {
   const resolved = resolveBackend(env, { dev: !production });
+  if (production && env.VERCEL_ENV && !resolved.configured) {
+    throw new Error('Hosted storefronts require a configured Supabase backend.');
+  }
   if (production && (env.OLDVERGE_DEPLOYMENT_TIER === 'staging' || env.VERCEL_ENV === 'preview')) {
     const staging = resolveBackend({ VITE_SUPABASE_URL: env.STAGING_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY: resolved.key });
     const production = checkProjectUrl(env.PRODUCTION_SUPABASE_URL);

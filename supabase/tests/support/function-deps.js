@@ -107,7 +107,7 @@ export function makeDeps(db, { env = {}, mailer = null } = {}) {
 
 export const jsonRequest = (url, body, { headers = {}, method = 'POST' } = {}) => new Request(url, {
   method,
-  headers: { 'content-type': 'application/json', origin: 'https://oldverge-storefront.vercel.app', 'x-forwarded-for': headers['x-forwarded-for'] ?? `10.0.0.${Math.floor(Math.random() * 250) + 1}`, ...headers },
+  headers: { 'content-type': 'application/json', origin: 'https://oldverge-storefront.vercel.app', 'cf-connecting-ip': headers['cf-connecting-ip'] ?? `10.0.0.${Math.floor(Math.random() * 250) + 1}`, ...headers },
   body: method === 'POST' ? JSON.stringify(body) : undefined,
 });
 

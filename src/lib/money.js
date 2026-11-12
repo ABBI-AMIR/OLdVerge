@@ -1,5 +1,6 @@
 // All amounts are whole PKR (integers), so sums never pick up floating-point error.
 export const formatPrice = (price) => {
+  if (price == null) return 'Price to be confirmed';
   // Store amounts are non-negative whole PKR. Grouping those integers needs no
   // ICU/locale initialization on the first SSR render. Preserve the existing
   // Intl behavior for decimals, negative zero, negatives and non-number input.

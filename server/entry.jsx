@@ -16,6 +16,13 @@ export function createRenderer({config,template,fetch:fetcher,origin=null,now=Da
     const phases=[];
     try { data=await load(route,{onTiming:(name,duration)=>phases.push(`${name};dur=${duration.toFixed(2)}`)}); } catch { status=503; data={products:[],total:0,policies:[]}; }
     const loaded=performance.now();
+    if (route.kind === 'sitemap') {
+      if (!origin || status !== 200) return {status:503,html:'Sitemap temporarily unavailable',headers:{'Cache-Control':'no-store'}};
+      const paths = [...new Set(['/', '/shop', '/shop/watches', '/shop/quarter-zips', '/about', '/contact', '/faq', ...(data.paths || [])])];
+      const xml = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+        + paths.map(path => `<url><loc>${escapeHtml(origin + path)}</loc></url>`).join('') + '</urlset>';
+      return {status:200,html:xml,headers:{'Content-Type':'application/xml; charset=utf-8','Cache-Control':'public, max-age=0, s-maxage=300'}};
+    }
     const policy=data.policies?.find(item=>'/'+item.slug===route.path);
     const demoPolicy=config.mode==='demo'?POLICIES.find(item=>'/'+item.slug===route.path):null;
     let title=titles[route.path]||policy?.title||demoPolicy?.title||'Page not found';
@@ -27,10 +34,11 @@ export function createRenderer({config,template,fetch:fetcher,origin=null,now=Da
     if(route.path==='/search'&&route.q) title='Search: '+route.q;
     if(status===503) { title='Store temporarily unavailable'; description='Please try again later.'; }
     const pageUrl=number=>{const query=new URLSearchParams(route.query);if(number>1) query.set('page',number);else query.delete('page');return route.path+(query.size?'?'+query:'');};
-    const snapshot={version:1,mode:config.mode,path:route.path,kind:route.kind,title,description,products:data.products||[],total:data.total||0,
-      sections:policy?.published_sections||demoPolicy?.sections||[],error:status>=500,
+    const snapshot={version:1,mode:config.mode,path:route.path,search:route.query.size?'?'+route.query:'',kind:route.kind,title,description,products:data.products||[],total:data.total||0,
+      sections:policy?.published_sections||demoPolicy?.sections||[],error:status>=500,heroImages:data.heroImages||[],facets:data.facets,price:data.price,
+      browseOptions:route.path.startsWith('/shop')||route.path==='/search'?{category:route.category,q:route.q,filters:route.filters,sort:route.sort,page:route.page,size:24}:null,
       previous:route.page>1?pageUrl(route.page-1):null,next:route.page*24<data.total?pageUrl(route.page+1):null};
-    const markup=renderToString(<PublicPage snapshot={snapshot} />);
+    const markup=renderToString(<><PublicPage snapshot={snapshot} />{null}</>);
     let html=template.replace('<div id="root"></div>',()=>`<div id="root">${markup}</div><script type="application/json" id="ov-ssr-state">${serialize(snapshot)}</script>`);
     html=html.replace(/<title>[\s\S]*?<\/title>/,()=>`<title>${escapeHtml(title)} | OLDVERGE</title>`)
       .replace(/<meta name="description"[^>]*>/,()=>`<meta name="description" content="${escapeHtml(description)}" />`)
@@ -41,6 +49,16 @@ export function createRenderer({config,template,fetch:fetcher,origin=null,now=Da
       try { const image=new URL(data.products[0].image,origin||undefined); if(['https:','http:'].includes(image.protocol)) html=html.replace('</head>',()=>`<meta property="og:image" content="${escapeHtml(image.href)}" /></head>`); } catch { /* Relative images need an explicitly configured site origin. */ }
     }
     if(status!==200) html=html.replace('</head>','<meta name="robots" content="noindex" /></head>');
+    if (origin && status === 200) {
+      const structured = [{'@context':'https://schema.org','@type':'Organization',name:'OLDVERGE',url:origin}];
+      const product = route.kind === 'product' ? data.products[0] : null;
+      if (product && Number.isInteger(product.price) && product.price > 0 && !product.pricePending) {
+        structured.push({'@context':'https://schema.org','@type':'Product',name:product.name,description:product.description,
+          image:product.images.map(image => new URL(image.src, origin).href),sku:product.slug,
+          offers:{'@type':'Offer',url:origin + route.path,priceCurrency:'PKR',price:product.price}});
+      }
+      html=html.replace('</head>',()=>`<script type="application/ld+json">${serialize(structured)}</script></head>`);
+    }
     return {status,html,headers:{'Server-Timing':`${phases.length?phases.join(', ')+', ':''}data;dur=${(loaded-start).toFixed(2)}, render;dur=${(performance.now()-loaded).toFixed(2)}`,'Content-Type':'text/html; charset=utf-8','Cache-Control':status===200?'public, max-age=0, s-maxage=30, stale-while-revalidate=30':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin','X-Oldverge-Rendering':'ssr'}};
   }
   return async input=>{

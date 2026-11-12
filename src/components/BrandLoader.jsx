@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
 import { finishIntro, loaderWillShow } from '../introState.js';
 import { lockScroll, unlockScroll } from '../lib/scrollLock.js';
 
@@ -9,12 +8,12 @@ import { lockScroll, unlockScroll } from '../lib/scrollLock.js';
  *
  * The Framer module cannot be imported as-is: it is a remote ES module that
  * depends on the `framer` runtime package (RichText, variant hooks, layout
- * containers), so it is re-implemented here with framer-motion, which this
- * project already has. The sequence is the source's own:
+ * containers), so it is re-implemented here with CSS and a small counter loop. This
+ * keeps the source sequence:
  *
  *   Variant 1  full-screen panel; brand name top-left; a 1px bar; counter 0%
  *   Variant 2  (on mount)  the bar line draws across the panel and the
- *              counter runs 0 -> 100 with a bounce-free spring over
+ *              counter runs 0 -> 100 smoothly over
  *              `counterDuration` seconds. Brand-name letters blur in one by one.
  *   Variant 3  (counterDuration + 0.1s later; source: 3.1s with a 3s counter)
  *              the panel's corners round to 50% and it lifts away over 0.6s
@@ -38,16 +37,21 @@ export default function BrandLoader({
   textColor = '#30251F',
   background = '#F4F0E7',
   readyImages = [],
+  contentVersion = 0,
 }) {
-  const reduced = useReducedMotion();
+  const [reduced,setReduced]=useState(()=>typeof window!=='undefined'&&Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches));
   const [visible, setVisible] = useState(loaderWillShow());
   const [variant, setVariant] = useState(1);
-  const [count, setCount] = useState(0);
+  const countRef = useRef(null);
   const rootRef = useRef(null);
   const startedAt = useRef(0);
 
-  const progress = useMotionValue(0);
-  const spring = useSpring(progress, { duration: counterDuration * 1000, bounce: 0 });
+  useEffect(()=>{
+    const media=window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update=()=>setReduced(media.matches);
+    media.addEventListener('change',update);
+    return ()=>media.removeEventListener('change',update);
+  },[]);
 
   // Lock scroll and make the page behind unreachable while the panel is up.
   useEffect(() => {
@@ -59,7 +63,7 @@ export default function BrandLoader({
       unlockScroll('loader');
       behind.forEach((el) => el.removeAttribute('inert'));
     };
-  }, [visible]);
+  }, [visible,contentVersion]);
 
   useEffect(() => {
     if (!visible) return undefined;
@@ -93,8 +97,6 @@ export default function BrandLoader({
       Promise.race([assetsReady, new Promise((resolve) => later(resolve, 1200))]).then(leave);
     } else {
       setVariant(2);                                  // source: onAppear -> Variant 2
-      progress.set(0);
-      progress.set(100);
       const minimum = new Promise((resolve) => later(resolve, (counterDuration + 0.1) * 1000)); // source: 3.1s after Variant 2
       Promise.all([minimum, assetsReady]).then(leave);
     }
@@ -102,7 +104,20 @@ export default function BrandLoader({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
-  useEffect(() => spring.on('change', (latest) => setCount(Math.min(100, Math.max(0, Math.round(latest))))), [spring]);
+  // The panel/letters/bar remain CSS animated. Update only the counter's text
+  // instead of rerendering the whole loader on every animation tick.
+  useEffect(()=>{
+    if(!visible||reduced)return undefined;
+    let frame;let previous=-1;
+    const tick=now=>{
+      const progress=Math.min(1,(now-startedAt.current)/Math.max(1,counterDuration*1000));
+      const value=Math.round(Math.max(0,progress)*100);
+      if(value!==previous&&countRef.current){countRef.current.textContent=String(value);previous=value;}
+      if(progress<1)frame=requestAnimationFrame(tick);
+    };
+    frame=requestAnimationFrame(tick);
+    return ()=>cancelAnimationFrame(frame);
+  },[visible,reduced,counterDuration]);
 
   if (!visible) return null;
   const lifting = variant === 3;
@@ -121,7 +136,7 @@ export default function BrandLoader({
             {letters.map((letter, index) => <span key={index} style={{ '--i': index }}>{letter}</span>)}
           </div>
           <div className="ov-loader-middle" aria-hidden="true"><div className="ov-loader-barmask"><div className="ov-loader-bar" /></div></div>
-          <div className="ov-loader-counter" aria-hidden="true"><span className="ov-loader-number">{reduced ? '' : count}</span>{!reduced && <span className="ov-loader-percent">%</span>}</div>
+          <div className="ov-loader-counter" aria-hidden="true"><span ref={countRef} className="ov-loader-number">{reduced ? '' : '0'}</span>{!reduced && <span className="ov-loader-percent">%</span>}</div>
         </div>
       </div>
     </div>

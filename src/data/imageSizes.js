@@ -2,6 +2,10 @@
 // Demo mode: the static table below (photos in /public/images). Backend mode: sizes come from the
 // product_images / site_images rows and are registered at runtime with registerImageSize().
 export const IMAGE_SIZES = {
+  '/images/ribbon-watch-stone.jpg': [850, 850],
+  '/images/ribbon-watch-wrist.jpg': [850, 681],
+  '/images/ribbon-navy-collar.webp': [712, 950],
+  '/images/ribbon-brown-knit.webp': [712, 950],
   '/images/oldverge-hero-model.jpg': [1200, 1500],
   '/images/oldverge-hero-watch-detail.jpg': [1200, 800],
   '/images/oldverge-watch-editorial.jpg': [1200, 675],

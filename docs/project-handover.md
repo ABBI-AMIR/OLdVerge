@@ -56,7 +56,7 @@ Recommendation: **keep the stack** (React + Vite + CSS + zustand). It is small, 
 | Featured carousel | Implemented | Drag and horizontal wheel work; own rAF loop. |
 | Shop grid | Implemented | `/shop`, `/shop/watches`, `/shop/quarter-zips`. |
 | All / Watches / Clothes switching | Superseded (see section 12) | A switcher now sits above the grid. |
-| Filtering | Superseded (see section 12) | Originally a permanent sidebar with component state. Now a Filter drawer with URL state. Size is no longer offered because every quarter-zip lists all of S–XXL; there is no stock data. |
+| Filtering | Superseded (see section 12) | Originally a permanent sidebar with component state. Now a Filter drawer with URL state. Size is no longer offered because every quarter-zip lists all of S–XL; there is no stock data. |
 | Sorting | Superseded (see section 12) | Featured, price low→high, high→low, in the URL. The "New Arrivals" link was removed. |
 | Product pages | Implemented | Breadcrumbs, size picker, add to bag, JSON-LD, related, recently viewed. |
 | Colour swatches | **Partial** | On quarter-zip pages a swatch navigates to the sibling product (`/product/quarter-zip-<colour>`). It is a route change, not an in-page image swap. |
