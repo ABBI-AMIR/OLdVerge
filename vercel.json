@@ -10,9 +10,6 @@
   "installCommand": "npm ci",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "regions": [
-    "hnd1"
-  ],
   "functions": {
     "api/render.js": {
       "includeFiles": "{dist/index.html,dist/ssr-public.json,server-dist/**}",

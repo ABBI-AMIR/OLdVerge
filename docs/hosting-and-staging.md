@@ -56,3 +56,14 @@ The existing projects are designated staging; no new projects were created. All-
 Run `npm run test:load:local`. It creates optimized client and server artifacts in ignored `scripts/out/load-client` and `scripts/out/load-server`, blanks all public integration defines, verifies demo configuration, and starts a loopback-only server with an upstream fetch implementation that throws on any attempted network access. The load generator makes GET requests to public routes only: 10 requests/second for 20 seconds, maximum 8 concurrent requests, request timeout 5 seconds. It never uses `oldverge.com` or a Supabase endpoint.
 
 The JSON report is `scripts/out/load-local.json`; CI runs the same test and uploads the report. Remote load testing is disabled by default. Do not enable it without new approval specifying the staging URL and request limits. Local demo results measure the Node renderer and its public HTML cache; they do not establish Vercel, Supabase, checkout or production capacity.
+
+## Per-project function region (2026-11-13)
+
+`vercel.json` no longer pins `regions`, because staging and production are separate Vercel projects built from the same repository and run beside different databases. Each project sets its region in its own settings (Project → Settings → Functions → Function Region, API field `serverlessFunctionRegion`):
+
+| Vercel project | Function region | Supabase project |
+| --- | --- | --- |
+| `o-ld-verge` (staging) | `hnd1` Tokyo | `qeczhyiwgvglilwqbveh`, ap-northeast-1 |
+| production | `bom1` Mumbai | `emwxwaefekzxmwbumuik`, ap-south-1 |
+
+Do not re-add `regions` to `vercel.json`: it would override both projects and put one of them far from its database.
