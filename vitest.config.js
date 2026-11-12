@@ -5,7 +5,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   plugins: [react()],
   test: {
-    include: ['src/**/*.test.{js,jsx}', 'supabase/functions/**/*.test.{js,ts}'],
+    include: ['src/**/*.test.{js,jsx}', 'supabase/functions/**/*.test.{js,ts}', 'scripts/*.test.js'],
     environment: 'node',
     setupFiles: ['./src/test-setup.js'],
   },
