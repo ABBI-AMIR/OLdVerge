@@ -46,10 +46,29 @@ Verified after deployment: function region `bom1` (`X-Vercel-Id … ::bom1::`), 
 
 GoDaddy DNS already pointed `oldverge.com` (A `216.198.79.1`) and `www` (CNAME to `vercel-dns`) at Vercel, but both names were attached to the login-protected staging project, so visitors saw a Vercel sign-in. On 2026-11-13 they were moved to `oldverge-production` with the apex as primary. HTTPS uses a Let's Encrypt certificate issued by Vercel. No GoDaddy change was needed for this.
 
-## Still open before ordering is switched on
+## Email (completed 2026-11-13)
 
-1. **Email.** Add the Mailtrap sending-domain CNAMEs at GoDaddy (`mt24`, `rwmt1._domainkey`, `rwmt2._domainkey`; keep the existing strict DMARC record), verify the domain in Mailtrap, then: Auth SMTP in the production project, the `ORDER_EMAIL_*` / `MAILTRAP_LIVE_*` Edge secrets, and the outbox schedule in `supabase/operations/schedule-order-email.sql`.
-2. **One live test order** after email works: open ordering briefly, place one real order, confirm the customer and owner emails, cancel it (stock is restored once), close ordering again. `ORDER_TEST_MODE` is not suitable because it also disables live email.
-3. Owner switches ordering on in `/admin → Settings → Ordering` and replaces the footer notice that still says prices are samples.
+- The owner added the Mailtrap sending-domain CNAMEs at GoDaddy (`mt24`, `rwmt1._domainkey`, `rwmt2._domainkey`); the existing strict DMARC record was kept. Public DNS (Cloudflare and Google resolvers) showed all three; the website records were unchanged. Mailtrap marked `oldverge.com` Verified after the owner completed sender information and the compliance check.
+- Order email: Edge secrets `ORDER_EMAIL_PROVIDER=mailtrap_live`, `ORDER_EMAIL_SITE_URL`, `ORDER_EMAIL_ADMIN_TO`, `ORDER_EMAIL_REPLY_TO`, `MAILTRAP_LIVE_FROM` (`orders@oldverge.com`) and `MAILTRAP_LIVE_API_TOKEN` (owner-entered; a dedicated token limited to Domain Admin on `oldverge.com`, **expires after 365 days, renew before November 2027**).
+- Outbox schedule: `pg_cron` and `pg_net` enabled; Vault holds `order_email_worker_url` and `order_email_cron_secret`. `CRON_SECRET` was regenerated so the Vault and Edge copies match (never printed). `supabase/operations/schedule-order-email.sql` created job `oldverge-order-email`, every minute, which only calls the worker when the outbox has due rows.
+- Auth email: custom SMTP on, `live.smtp.mailtrap.io:587`, user `api`, sender `orders@oldverge.com` ("OLDVERGE"); the owner entered the token as the password. Settings persisted after reload.
+- Known gap: the live mailer has no newsletter-confirmation template and its newsletter links point at the staging site. Newsletter signup is disabled (`newsletter.active = false`); fix before enabling it.
 
-Monitoring/uptime alerts and a hosted restore drill (see `docs/backups.md`) are also not done.
+## Ordering opened and live test order (2026-11-13)
+
+- The readiness check blocked opening because the copied policy pages had `updated_by` cleared. After confirming each draft was identical to the published text, the four policies were republished with `admin_publish_policy` acting as the owner (now version 4). `admin_ordering_readiness` then passed and `admin_set_ordering_enabled(true)` opened ordering, at the owner's request. The footer notice now reads "Cash on delivery and bank transfer available across Pakistan."
+- Turnstile could not be completed inside the embedded automation browser ("try again"); the owner placed the test order in a normal browser, where it passed.
+- Test order `OV-261113-30184679`: one Black quarter-zip M, Standard delivery PKR 250, COD, total PKR 4,449, `is_test = false` (the live mailer refuses test orders). Stock 9 → 8; `order_confirmation` and `admin_new_order` were sent by the first scheduled run (worker reply `sent: 2, failed: 0`). Cancelled with `admin_cancel_order` acting as the owner (reason "Launch test order, not a real sale"): stock 8 → 9 and `order_cancelled` sent. It remains in the order list as a cancelled record, not a sale.
+
+## Product photo changes (2026-11-13)
+
+- Black quarter-zip: studio cover kept; the lifestyle photo `products/quarter-zip-black/v1/quarter-zip-black.jpg` removed from the product; owner photos `products/quarter-zip-black/v2/quarter-zip-black-folded.webp` and `…-closeup.webp` added (approved, SHA-256 recorded).
+- Navy quarter-zip: studio cover kept; `products/quarter-zip-navy/v1/quarter-zip-navy.jpg` removed from the product; owner photo `products/quarter-zip-navy/v3/quarter-zip-navy-folded.webp` added.
+- An earlier full replacement was reverted from the backup at the owner's request before these changes. Removed photos and unused uploads remain in Storage and in the weekly backup. The homepage colour showcase and the product-page garment banner use images bundled in the repository and were not changed.
+
+## Still open
+
+1. Monitoring/uptime alerts and a hosted restore drill (see `docs/backups.md`).
+2. Fix the live newsletter template and links before enabling newsletter signup.
+3. Plan limits accepted for now: Vercel Hobby (non-commercial terms) and Supabase Free (pauses after 7 days without activity).
+4. Rotate the Mailtrap sending token before it expires (November 2027).

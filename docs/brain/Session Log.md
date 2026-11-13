@@ -5,6 +5,14 @@ updated: 2026-10-18
 ---
 # Session Log
 
+## 2026-11-13 (later): Email live, ordering opened, test order passed
+- Owner added Mailtrap CNAMEs at GoDaddy; domain verified in Mailtrap. Order email secrets set (token Domain Admin on oldverge.com, expires Nov 2027), pg_cron/pg_net + Vault + regenerated CRON_SECRET, schedule job oldverge-order-email every minute. Auth SMTP via live.smtp.mailtrap.io set (owner entered password).
+- Readiness blocked on policies (updated_by cleared by the catalogue copy). Republished the 4 policies as the owner after confirming drafts equal published text; ordering opened at owner's request; footer changed to COD/bank transfer notice.
+- Turnstile fails inside Claude's embedded browser; owner placed test order OV-261113-30184679 in normal browser. Stock 9->8, both emails sent; cancelled as owner, stock back to 9, cancellation email sent.
+- Photos: Black quarter-zip mountain photo removed, owner folded + close-up added; Navy green-door photo removed, owner folded photo added. An earlier full replacement was reverted from backup on request.
+- Fake 'GoDaddy domain under review' email: registry RDAP showed no hold; advised owner it is likely phishing.
+- Record: oldv/docs/production-setup-2026-11-13.md. [[Backend]] [[Launch Blockers]]
+
 ## 2026-11-13: Production created and oldverge.com live (ordering closed)
 - Owner chose Mumbai and free plans. Created Supabase oldverge-production (emwxwaefekzxmwbumuik, ap-south-1) and Vercel oldverge-production (bom1). 16 migrations pushed, schema manifest matches reference (2,210 entries), 12 Edge Functions active, server secrets set (Turnstile secret entered by owner), Auth URLs/password policy set.
 - PR #2 (staging integration) and PR #3 (per-project Vercel region; staging project now hnd1 in its own settings) merged to main.
