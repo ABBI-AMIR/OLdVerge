@@ -375,6 +375,9 @@ body { font-size: 16px; min-width: 0; }
 .site-footer.ov-footer .ov-footer-col a:hover { color: var(--ov-champagne); }
 .site-footer.ov-footer .ov-footer-col h3, .site-footer.ov-footer .ov-footer-news h3 { color: var(--ov-paper); }
 @media (max-width: 640px) { .ov-footer .ov-footer-col .wordmark { font-size: 24px; } }
+/* Phones: the four-track desktop grid above would squeeze Shop/Help/Useful links into overlapping
+   slivers, so restate the two-column layout after it (wordmark stays full width via :first-child). */
+@media (max-width: 640px) { .ov-footer-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 20px; } }
 .site-footer.ov-footer .ov-footer-col a.wordmark, .site-footer.ov-footer .ov-footer-col a.wordmark:hover { color: var(--ov-paper); }
 
 /* Header links use the footer's link type: Manrope, sentence case, regular weight. */
