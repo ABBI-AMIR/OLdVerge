@@ -595,7 +595,10 @@ html { scroll-padding-top: 74px; }
 
 /* ---- Entrance effects driven by CSS, so pictures and pages are never stuck invisible ---- */
 @keyframes ov-page-enter { from { opacity: .6; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-.ov-page-enter { animation: ov-page-enter .28s ease both; }
+/* `backwards`, not `both`: a held end state keeps a transform on this wrapper, which turns it into the
+   containing block for position:fixed overlays inside the page (product lightbox, filter drawer) and
+   pushes them off screen once the page is scrolled. */
+.ov-page-enter { animation: ov-page-enter .28s ease backwards; }
 @media (prefers-reduced-motion: reduce) { .ov-page-enter { animation: none; } }
 
 
